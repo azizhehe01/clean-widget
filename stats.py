@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import configparser
 import json
 import os
 import re
@@ -13,20 +14,98 @@ lyrics_cache_file = "/tmp/ml4w_desktop_lyrics_cache_v2.json"
 now = time.time()
 data = {}
 
-# 0. Current Wallpaper Path (from ML4W cache)
-wallpaper_cache = os.path.expanduser("~/.cache/ml4w/hyprland-dotfiles/current_wallpaper")
-default_wp = os.path.expanduser("~/.config/ml4w/wallpapers/default.jpg")
-data["wallpaper"] = default_wp
-if os.path.exists(wallpaper_cache):
-    try:
-        with open(wallpaper_cache, "r") as f:
-            wp = f.read().strip()
-            if wp and os.path.exists(wp):
-                data["wallpaper"] = wp
-    except Exception:
-        pass
 
-# 1. Disk usage
+# 0. Universal Wallpaper Detection (ML4W, awww, swww, waypaper, hyprpaper)
+def detect_active_wallpaper():
+    # A. Check ML4W current_wallpaper cache
+    ml4w_wp = os.path.expanduser("~/.cache/ml4w/hyprland-dotfiles/current_wallpaper")
+    if os.path.exists(ml4w_wp):
+        try:
+            with open(ml4w_wp, "r") as f:
+                p = f.read().strip()
+                if p and os.path.exists(p):
+                    return p
+        except Exception:
+            pass
+
+    # B. Check awww / swww daemon query
+    for daemon_cmd in ("awww", "swww"):
+        if shutil.which(daemon_cmd):
+            try:
+                out = subprocess.check_output(
+                    [daemon_cmd, "query"], stderr=subprocess.DEVNULL, timeout=1
+                ).decode("utf-8", errors="ignore")
+                m = re.search(r"image:\s*(.+)$", out, flags=re.MULTILINE)
+                if m:
+                    p = m.group(1).strip()
+                    if p and os.path.exists(p):
+                        return p
+            except Exception:
+                pass
+
+    # C. Check Waypaper config.ini
+    waypaper_cfg = os.path.expanduser("~/.config/waypaper/config.ini")
+    if os.path.exists(waypaper_cfg):
+        try:
+            cp = configparser.ConfigParser()
+            cp.read(waypaper_cfg)
+            if "Settings" in cp and "wallpaper" in cp["Settings"]:
+                p = os.path.expanduser(cp["Settings"]["wallpaper"].strip())
+                if p and os.path.exists(p):
+                    return p
+        except Exception:
+            pass
+
+    return ""
+
+
+cache_dir = os.path.expanduser("~/.cache/ml4w/hyprland-dotfiles")
+blurred_wp = os.path.join(cache_dir, "blurred_wallpaper.png")
+custom_blurred_wp = "/tmp/ml4w_widget_vibrant_frost.jpg"
+
+raw_wp = detect_active_wallpaper()
+
+if raw_wp:
+    meta_file = "/tmp/ml4w_widget_vibrant_frost.meta"
+    src_sig = f"{raw_wp}:{int(os.path.getmtime(raw_wp))}:v3"
+    cached_sig = ""
+    if os.path.exists(meta_file):
+        try:
+            with open(meta_file, "r") as f:
+                cached_sig = f.read().strip()
+        except Exception:
+            pass
+    if cached_sig != src_sig or not os.path.exists(custom_blurred_wp):
+        try:
+            # Matches Hyprland blur brightness=1.05, vibrancy=0.25 + strong multi-pass blur
+            subprocess.run(
+                [
+                    "magick",
+                    raw_wp,
+                    "-resize", "1920x1080^",
+                    "-gravity", "center",
+                    "-extent", "1920x1080",
+                    "-modulate", "105,125,100",
+                    "-blur", "0x36",
+                    custom_blurred_wp,
+                ],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                timeout=4,
+            )
+            with open(meta_file, "w") as f:
+                f.write(src_sig)
+        except Exception:
+            pass
+
+if os.path.exists(custom_blurred_wp):
+    data["wallpaper"] = custom_blurred_wp
+elif os.path.exists(blurred_wp):
+    data["wallpaper"] = blurred_wp
+else:
+    data["wallpaper"] = raw_wp
+
+# 1. Disk usage (Linux partitions: Root / and Home /home)
 try:
     root = shutil.disk_usage('/')
     data["root_used"] = f"{root.used / (1024**3):.1f} GB"

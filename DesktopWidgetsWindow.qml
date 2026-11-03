@@ -12,7 +12,7 @@ import Qt5Compat.GraphicalEffects
 PanelWindow {
     id: root
 
-    // Pinned to desktop background layer behind normal windows
+    // Pinned to desktop background layer; blurred by Hyprland layer_rule
     WlrLayershell.namespace: "quickshell:desktop-widgets"
     WlrLayershell.layer: WlrLayer.Bottom
     exclusionMode: WlrLayershell.Ignore
@@ -20,12 +20,12 @@ PanelWindow {
     readonly property int screenW: root.screen ? root.screen.width : 1920
     readonly property int screenH: root.screen ? root.screen.height : 1080
 
-    // Explicit row heights so QML never distorts or squishes any row
+    // Tight, zero-dead-space Bento Grid heights matched to the reference image
     readonly property int gridGap: 12
-    readonly property int row1H: 205
-    readonly property int row2H: root.hasLyrics ? 235 : 128
-    readonly property int row3H: 365
-    readonly property int totalW: 420
+    readonly property int row1H: 156
+    readonly property int row2H: root.hasLyrics ? 204 : 118
+    readonly property int row3H: 306
+    readonly property int totalW: 436
     readonly property int totalH: row1H + gridGap + row2H + gridGap + row3H
 
     readonly property int winX: 32
@@ -46,20 +46,20 @@ PanelWindow {
     color: "transparent"
 
     // =========================================================================
-    // Theme Tokens — Warm Milky Frosted Glass (Matched to Reference Mockup)
+    // Theme Tokens — Vibrant Frosted Glass + Specular Edge & Top-Left Shine
     // =========================================================================
-    readonly property color cardWarmTint: Qt.rgba(78 / 255, 62 / 255, 48 / 255, 0.32)
-    readonly property color cardMilkyFrost: Qt.rgba(236 / 255, 218 / 255, 200 / 255, 0.15)
+    readonly property color cardBg: Qt.rgba(0.14, 0.10, 0.08, 0.42) // #66221A14
+    readonly property color cardEdgeHighlight: Qt.rgba(1.0, 0.96, 0.90, 0.10)
+    readonly property color cardSpecularTopLeft: Qt.rgba(1.0, 0.95, 0.88, 0.07)
     readonly property color textPrimary: "#FAF6F0"
-    readonly property color textSecondary: "#DED4C8"
-    readonly property color barTrack: Qt.rgba(1.0, 0.96, 0.92, 0.18)
+    readonly property color textSecondary: "#D6CCC2"
+    readonly property color barTrack: Qt.rgba(1.0, 1.0, 1.0, 0.14)
     readonly property color barFill: "#E6CCB2"
-    readonly property color posterTint: "#EADFD3"
     readonly property int cardRadius: 20
 
     // Dynamic stats & synced lyrics fetched from helper script
     property var stats: ({
-        "wallpaper": Quickshell.env("HOME") + "/.config/ml4w/wallpapers/default.jpg",
+        "wallpaper": "/tmp/ml4w_widget_vibrant_frost.jpg",
         "root_used": "114.7 GB",
         "root_total": "712.8 GB",
         "root_pct": 16,
@@ -81,7 +81,7 @@ PanelWindow {
 
     readonly property string wallpaperUrl: (root.stats && root.stats.wallpaper)
         ? ("file://" + root.stats.wallpaper)
-        : ""
+        : ("file://" + Quickshell.env("HOME") + "/.cache/ml4w/hyprland-dotfiles/blurred_wallpaper.png")
 
     Process {
         id: statsProc
@@ -129,7 +129,9 @@ PanelWindow {
     }
 
     // =========================================================================
-    // Reusable Frosted Glass Card Component (True Live Blur + Warm Inner Glow)
+    // Reusable Frosted Glass Card Component
+    // Combines Hyprland compositor blur + vibrant frosted backdrop + #66221A14
+    // + 1px specular rim + top-left to bottom-right subtle specular shine
     // =========================================================================
     component FrostedCard: Item {
         id: cardRoot
@@ -152,88 +154,48 @@ PanelWindow {
                 maskSource: cardMask
             }
 
-            // 1. Live Blurred Desktop Wallpaper (Active scene-graph branch so FastBlur always executes)
-            Item {
+            // 1. Vibrant, brightness-boosted (1.05x) blurred wallpaper slice
+            Image {
                 x: -(root.winX + cardRoot.globalOffsetX)
                 y: -(root.winY + cardRoot.globalOffsetY)
                 width: root.screenW
                 height: root.screenH
-
-                Image {
-                    id: cardWpSource
-                    anchors.fill: parent
-                    source: root.wallpaperUrl
-                    fillMode: Image.PreserveAspectCrop
-                    asynchronous: false
-                    cache: true
-                    visible: false
-                }
-
-                FastBlur {
-                    anchors.fill: parent
-                    source: cardWpSource
-                    radius: 90
-                    transparentBorder: false
-                }
+                source: root.wallpaperUrl
+                fillMode: Image.PreserveAspectCrop
+                horizontalAlignment: Image.AlignHCenter
+                verticalAlignment: Image.AlignVCenter
+                opacity: 0.90
+                asynchronous: false
+                cache: false
             }
 
-            // 2. Warm Taupe-Espresso Translucent Base Tint (not overly dark)
+            // 2. Lowered Dark Espresso Base Tint (#66221A14 / rgba(0.14, 0.10, 0.08, 0.42))
             Rectangle {
                 anchors.fill: parent
-                color: root.cardWarmTint
+                color: root.cardBg
                 border.width: 0
             }
 
-            // 3. Milky Warm Frost Diffusion Layer (lifts dark background areas like the wooden door)
-            Rectangle {
+            // 3. Top-Left to Bottom-Right Specular Shine
+            LinearGradient {
                 anchors.fill: parent
-                color: root.cardMilkyFrost
-                border.width: 0
-            }
-
-            // 4. Soft Ambient Top-to-Bottom Frost Gradient
-            Rectangle {
-                anchors.fill: parent
-                border.width: 0
+                start: Qt.point(0, 0)
+                end: Qt.point(width, height)
                 gradient: Gradient {
-                    orientation: Gradient.Vertical
-                    GradientStop { position: 0.0; color: Qt.rgba(1.0, 0.96, 0.91, 0.10) }
-                    GradientStop { position: 0.5; color: Qt.rgba(1.0, 0.95, 0.90, 0.03) }
-                    GradientStop { position: 1.0; color: Qt.rgba(0.12, 0.09, 0.07, 0.12) }
+                    GradientStop { position: 0.0; color: root.cardSpecularTopLeft }
+                    GradientStop { position: 0.55; color: Qt.rgba(1.0, 0.95, 0.88, 0.02) }
+                    GradientStop { position: 1.0; color: "transparent" }
                 }
             }
+        }
 
-            // 5. Diffused Inner Frosted Edge Cushion (matches reference inset glow around each card)
-            Item {
-                id: innerGlowRing
-                anchors.fill: parent
-                visible: false
-
-                Rectangle {
-                    anchors.fill: parent
-                    anchors.margins: -6
-                    radius: cardRoot.cornerRadius + 4
-                    color: "transparent"
-                    border.width: 20
-                    border.color: Qt.rgba(255 / 255, 244 / 255, 232 / 255, 0.46)
-                }
-            }
-
-            FastBlur {
-                anchors.fill: parent
-                source: innerGlowRing
-                radius: 42
-                transparentBorder: true
-            }
-
-            // 6. Subtle Translucent Glass Edge Catchlight (soft specular sheen, not a hard border)
-            Rectangle {
-                anchors.fill: parent
-                radius: cardRoot.cornerRadius
-                color: "transparent"
-                border.width: 1
-                border.color: Qt.rgba(255 / 255, 246 / 255, 236 / 255, 0.22)
-            }
+        // 4. Subtle 1px Glass Edge Highlight (faint specular rim)
+        Rectangle {
+            anchors.fill: parent
+            radius: cardRoot.cornerRadius
+            color: "transparent"
+            border.width: 1
+            border.color: root.cardEdgeHighlight
         }
     }
 
@@ -258,7 +220,7 @@ PanelWindow {
             readonly property int leftW: Math.round((root.totalW - root.gridGap) * 0.60)
             readonly property int rightW: root.totalW - root.gridGap - leftW
 
-            // Left Card (60%): Large Clock on top, Full Date on bottom
+            // Left Card (60%): Large Clock (46px) filling top width & Date (18px) at bottom
             FrostedCard {
                 x: 0
                 y: 0
@@ -268,27 +230,26 @@ PanelWindow {
                 globalOffsetX: 0
                 globalOffsetY: 0
 
-                Column {
-                    anchors.centerIn: parent
-                    spacing: 28
+                Text {
+                    anchors.top: parent.top
+                    anchors.topMargin: 22
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    text: Qt.formatDateTime(liveClock.date, "hh:mm ap")
+                    font.pixelSize: 46
+                    font.bold: true
+                    color: root.textPrimary
+                    font.family: "Fira Sans"
+                }
 
-                    Text {
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        text: Qt.formatDateTime(liveClock.date, "hh:mm ap")
-                        font.pixelSize: 38
-                        font.bold: true
-                        color: root.textPrimary
-                        font.family: "Fira Sans"
-                    }
-
-                    Text {
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        text: Qt.formatDateTime(liveClock.date, "ddd, MMM dd, yyyy")
-                        font.pixelSize: 16
-                        font.bold: false
-                        color: root.textSecondary
-                        font.family: "Fira Sans"
-                    }
+                Text {
+                    anchors.bottom: parent.bottom
+                    anchors.bottomMargin: 20
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    text: Qt.formatDateTime(liveClock.date, "ddd, MMM dd, yyyy")
+                    font.pixelSize: 18
+                    font.bold: false
+                    color: root.textSecondary
+                    font.family: "Fira Sans"
                 }
             }
 
@@ -302,24 +263,23 @@ PanelWindow {
                 globalOffsetX: row1.leftW + root.gridGap
                 globalOffsetY: 0
 
-                Column {
-                    anchors.centerIn: parent
-                    spacing: 20
+                Text {
+                    anchors.top: parent.top
+                    anchors.topMargin: 16
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    text: root.stats.weather_condition || "🌦️"
+                    font.pixelSize: 54
+                }
 
-                    Text {
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        text: root.stats.weather_condition || "🌦️"
-                        font.pixelSize: 48
-                    }
-
-                    Text {
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        text: root.stats.weather_temp || "28°C"
-                        font.pixelSize: 21
-                        font.bold: true
-                        color: root.textPrimary
-                        font.family: "Fira Sans"
-                    }
+                Text {
+                    anchors.bottom: parent.bottom
+                    anchors.bottomMargin: 18
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    text: root.stats.weather_temp || "28°C"
+                    font.pixelSize: 24
+                    font.bold: true
+                    color: root.textPrimary
+                    font.family: "Fira Sans"
                 }
             }
         }
@@ -337,21 +297,21 @@ PanelWindow {
             globalOffsetX: 0
             globalOffsetY: root.row1H + root.gridGap
 
-            // Top Section: Album Art (80x80, r=12) + Track Info + Top-Right Controls
+            // Top Section: Album Art (82x82, r=12) + Track Info + Top-Right Controls
             Item {
                 id: playerTopSection
-                x: 22
-                y: 22
-                width: parent.width - 44
-                height: 84
+                x: 20
+                y: 18
+                width: parent.width - 40
+                height: 82
 
-                // Album Cover (80x80px, radius 12px)
+                // Album Cover (82x82px, radius 12px)
                 Item {
                     id: albumBox
                     x: 0
-                    y: 2
-                    width: 80
-                    height: 80
+                    y: 0
+                    width: 82
+                    height: 82
 
                     Rectangle {
                         id: albumMask
@@ -379,15 +339,15 @@ PanelWindow {
 
                 // Track Info + Top-Right Media Controls
                 Item {
-                    x: albumBox.width + 18
+                    x: albumBox.width + 16
                     y: 0
-                    width: parent.width - (albumBox.width + 18)
-                    height: 84
+                    width: parent.width - (albumBox.width + 16)
+                    height: 82
 
                     // Top Line: "You've listening" + Prev/Play/Next Controls
                     Item {
                         x: 0
-                        y: 2
+                        y: 1
                         width: parent.width
                         height: 24
 
@@ -403,7 +363,7 @@ PanelWindow {
                         Row {
                             anchors.right: parent.right
                             anchors.verticalCenter: parent.verticalCenter
-                            spacing: 18
+                            spacing: 16
 
                             // Previous
                             Text {
@@ -465,7 +425,7 @@ PanelWindow {
                     // Middle Line: Song Title
                     Text {
                         x: 0
-                        y: 30
+                        y: 29
                         width: parent.width
                         text: {
                             if (root.activePlayer && root.activePlayer.trackTitle)
@@ -482,7 +442,7 @@ PanelWindow {
                     // Bottom Line: Artist
                     Text {
                         x: 0
-                        y: 58
+                        y: 56
                         width: parent.width
                         text: {
                             let artist = "";
@@ -494,7 +454,7 @@ PanelWindow {
                             }
                             return "BY: " + (artist ? artist : "—");
                         }
-                        font.pixelSize: 14
+                        font.pixelSize: 15
                         color: root.textSecondary
                         elide: Text.ElideRight
                         font.family: "Fira Sans"
@@ -502,12 +462,12 @@ PanelWindow {
                 }
             }
 
-            // Bottom Section: 3-Line Lyrics (Centered, auto-hidden when unavailable)
+            // Bottom Section: 3-Line Lyrics (Compact, balanced bottom margin)
             Column {
-                x: 22
-                y: 124
-                width: parent.width - 44
-                spacing: 8
+                x: 20
+                y: 112
+                width: parent.width - 40
+                spacing: 6
                 visible: root.hasLyrics
 
                 Repeater {
@@ -528,7 +488,7 @@ PanelWindow {
         }
 
         // =====================================================================
-        // ROW 3: Character Poster (42% Left) & System Monitor + Power (58% Right)
+        // ROW 3: Character Poster (178px Left) & System Monitor + Power (Right)
         // =====================================================================
         Item {
             id: row3
@@ -537,12 +497,12 @@ PanelWindow {
             width: root.totalW
             height: root.row3H
 
-            readonly property int leftColW: Math.round((root.totalW - root.gridGap) * 0.42)
+            readonly property int leftColW: 178
             readonly property int rightColW: root.totalW - root.gridGap - leftColW
-            readonly property int powerPillH: 58
+            readonly property int powerPillH: 52
             readonly property int sysCardH: root.row3H - root.gridGap - powerPillH
 
-            // Left Column (42%): Character Poster with 20px Rounded Corners & Warm Cream Tint (#EADFD3)
+            // Left Column (178px): Character Poster with 20px Rounded Corners & Warm Paper Overlay (#14F5E6D3)
             Item {
                 id: posterCard
                 x: 0
@@ -575,25 +535,29 @@ PanelWindow {
                     }
 
                     Rectangle {
-                        id: creamTintRect
+                        id: warmPaperMultiply
                         anchors.fill: parent
-                        color: root.posterTint
+                        color: "#F3E7DA"
                         visible: false
                         layer.enabled: true
                     }
 
-                    // Multiply blend turns pure white (#FFFFFF) into warm cream (#EADFD3)
-                    // while keeping dark line-art crisp black
+                    // Soft paper multiply + #14F5E6D3 overlay so stark white manga background looks like warm paper
                     Blend {
                         anchors.fill: parent
                         source: rawPosterImg
-                        foregroundSource: creamTintRect
+                        foregroundSource: warmPaperMultiply
                         mode: "multiply"
+                    }
+
+                    Rectangle {
+                        anchors.fill: parent
+                        color: "#14F5E6D3"
                     }
                 }
             }
 
-            // Right Column Top: System Monitor Card (Linux Partitions: Root (/), Home (/home), Battery)
+            // Right Column Top: System Monitor Card (Fills 100% height cleanly with zero empty gap below Battery)
             FrostedCard {
                 id: sysMonitorCard
                 x: row3.leftColW + root.gridGap
@@ -605,18 +569,18 @@ PanelWindow {
                 globalOffsetY: row3.y
 
                 Column {
-                    x: 22
-                    y: 22
-                    width: parent.width - 44
-                    spacing: 22
+                    x: 20
+                    y: 18
+                    width: parent.width - 40
+                    spacing: 16
 
                     // Linux Root Partition: Root (/)
                     Column {
                         width: parent.width
-                        spacing: 6
+                        spacing: 5
                         Text {
                             text: "Root (/)"
-                            font.pixelSize: 16
+                            font.pixelSize: 17
                             font.bold: true
                             color: root.textPrimary
                             font.family: "Fira Sans"
@@ -629,13 +593,13 @@ PanelWindow {
                         }
                         Rectangle {
                             width: parent.width
-                            height: 7
-                            radius: 3.5
+                            height: 8
+                            radius: 4
                             color: root.barTrack
                             Rectangle {
                                 width: parent.width * Math.min(1.0, Math.max(0.06, (root.stats.root_pct || 16) / 100.0))
                                 height: parent.height
-                                radius: 3.5
+                                radius: 4
                                 color: root.barFill
                             }
                         }
@@ -644,10 +608,10 @@ PanelWindow {
                     // Linux Home Partition: Home (/home)
                     Column {
                         width: parent.width
-                        spacing: 6
+                        spacing: 5
                         Text {
                             text: "Home (/home)"
-                            font.pixelSize: 16
+                            font.pixelSize: 17
                             font.bold: true
                             color: root.textPrimary
                             font.family: "Fira Sans"
@@ -660,13 +624,13 @@ PanelWindow {
                         }
                         Rectangle {
                             width: parent.width
-                            height: 7
-                            radius: 3.5
+                            height: 8
+                            radius: 4
                             color: root.barTrack
                             Rectangle {
                                 width: parent.width * Math.min(1.0, Math.max(0.06, (root.stats.home_pct || 16) / 100.0))
                                 height: parent.height
-                                radius: 3.5
+                                radius: 4
                                 color: root.barFill
                             }
                         }
@@ -675,10 +639,10 @@ PanelWindow {
                     // Battery:
                     Column {
                         width: parent.width
-                        spacing: 6
+                        spacing: 5
                         Text {
                             text: "Battery"
-                            font.pixelSize: 16
+                            font.pixelSize: 17
                             font.bold: true
                             color: root.textPrimary
                             font.family: "Fira Sans"
@@ -691,13 +655,13 @@ PanelWindow {
                         }
                         Rectangle {
                             width: parent.width
-                            height: 7
-                            radius: 3.5
+                            height: 8
+                            radius: 4
                             color: root.barTrack
                             Rectangle {
                                 width: parent.width * Math.min(1.0, Math.max(0.06, (root.stats.battery_pct || 100) / 100.0))
                                 height: parent.height
-                                radius: 3.5
+                                radius: 4
                                 color: root.barFill
                             }
                         }
