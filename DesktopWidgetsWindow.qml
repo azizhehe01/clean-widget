@@ -20,7 +20,7 @@ PanelWindow {
     readonly property int screenW: root.screen ? root.screen.width : 1920
     readonly property int screenH: root.screen ? root.screen.height : 1080
 
-    // Tight, zero-dead-space Bento Grid heights matched to the reference image
+    // Tight, zero-dead-space Bento Grid heights
     readonly property int gridGap: 12
     readonly property int row1H: 156
     readonly property int row2H: root.hasLyrics ? 204 : 118
@@ -46,20 +46,21 @@ PanelWindow {
     color: "transparent"
 
     // =========================================================================
-    // Theme Tokens — Vibrant Frosted Glass + Specular Edge & Top-Left Shine
+    // Theme Tokens — Pure Neutral Clear Frosted Glass (Zero Brown Tint)
+    // Adapts naturally to ANY wallpaper color (blue, sunset, dark, warm, etc.)
     // =========================================================================
-    readonly property color cardBg: Qt.rgba(0.14, 0.10, 0.08, 0.42) // #66221A14
-    readonly property color cardEdgeHighlight: Qt.rgba(1.0, 0.96, 0.90, 0.10)
-    readonly property color cardSpecularTopLeft: Qt.rgba(1.0, 0.95, 0.88, 0.07)
-    readonly property color textPrimary: "#FAF6F0"
-    readonly property color textSecondary: "#D6CCC2"
-    readonly property color barTrack: Qt.rgba(1.0, 1.0, 1.0, 0.14)
-    readonly property color barFill: "#E6CCB2"
+    readonly property color cardBg: Qt.rgba(0.0, 0.0, 0.0, 0.16)
+    readonly property color cardEdgeHighlight: Qt.rgba(1.0, 1.0, 1.0, 0.12)
+    readonly property color cardSpecularTopLeft: Qt.rgba(1.0, 1.0, 1.0, 0.06)
+    readonly property color textPrimary: "#FFFFFF"
+    readonly property color textSecondary: Qt.rgba(1.0, 1.0, 1.0, 0.78)
+    readonly property color barTrack: Qt.rgba(1.0, 1.0, 1.0, 0.18)
+    readonly property color barFill: Qt.rgba(1.0, 1.0, 1.0, 0.90)
     readonly property int cardRadius: 20
 
     // Dynamic stats & synced lyrics fetched from helper script
     property var stats: ({
-        "wallpaper": "/tmp/ml4w_widget_vibrant_frost.jpg",
+        "wallpaper": "",
         "root_used": "114.7 GB",
         "root_total": "712.8 GB",
         "root_pct": 16,
@@ -81,7 +82,7 @@ PanelWindow {
 
     readonly property string wallpaperUrl: (root.stats && root.stats.wallpaper)
         ? ("file://" + root.stats.wallpaper)
-        : ("file://" + Quickshell.env("HOME") + "/.cache/ml4w/hyprland-dotfiles/blurred_wallpaper.png")
+        : ""
 
     Process {
         id: statsProc
@@ -130,8 +131,8 @@ PanelWindow {
 
     // =========================================================================
     // Reusable Frosted Glass Card Component
-    // Combines Hyprland compositor blur + vibrant frosted backdrop + #66221A14
-    // + 1px specular rim + top-left to bottom-right subtle specular shine
+    // Pure Neutral Transparent Glass — takes 100% of its color from the active
+    // blurred wallpaper behind it, with zero brown/color cast
     // =========================================================================
     component FrostedCard: Item {
         id: cardRoot
@@ -154,7 +155,7 @@ PanelWindow {
                 maskSource: cardMask
             }
 
-            // 1. Vibrant, brightness-boosted (1.05x) blurred wallpaper slice
+            // 1. Live blurred slice of current wallpaper (auto-updates via hashed filename)
             Image {
                 x: -(root.winX + cardRoot.globalOffsetX)
                 y: -(root.winY + cardRoot.globalOffsetY)
@@ -164,32 +165,33 @@ PanelWindow {
                 fillMode: Image.PreserveAspectCrop
                 horizontalAlignment: Image.AlignHCenter
                 verticalAlignment: Image.AlignVCenter
-                opacity: 0.90
+                opacity: 0.72
                 asynchronous: false
                 cache: false
+                visible: root.wallpaperUrl !== ""
             }
 
-            // 2. Lowered Dark Espresso Base Tint (#66221A14 / rgba(0.14, 0.10, 0.08, 0.42))
+            // 2. Pure Neutral Translucent Dimmer (0% color cast, just subtle contrast for white text)
             Rectangle {
                 anchors.fill: parent
                 color: root.cardBg
                 border.width: 0
             }
 
-            // 3. Top-Left to Bottom-Right Specular Shine
+            // 3. Subtle Neutral Glass Top-Left Specular Shine
             LinearGradient {
                 anchors.fill: parent
                 start: Qt.point(0, 0)
                 end: Qt.point(width, height)
                 gradient: Gradient {
                     GradientStop { position: 0.0; color: root.cardSpecularTopLeft }
-                    GradientStop { position: 0.55; color: Qt.rgba(1.0, 0.95, 0.88, 0.02) }
+                    GradientStop { position: 0.55; color: Qt.rgba(1.0, 1.0, 1.0, 0.015) }
                     GradientStop { position: 1.0; color: "transparent" }
                 }
             }
         }
 
-        // 4. Subtle 1px Glass Edge Highlight (faint specular rim)
+        // 4. Subtle 1px Neutral Glass Edge Highlight
         Rectangle {
             anchors.fill: parent
             radius: cardRoot.cornerRadius
@@ -502,7 +504,7 @@ PanelWindow {
             readonly property int powerPillH: 52
             readonly property int sysCardH: root.row3H - root.gridGap - powerPillH
 
-            // Left Column (178px): Character Poster with 20px Rounded Corners & Warm Paper Overlay (#14F5E6D3)
+            // Left Column (178px): Character Poster with 20px Rounded Corners (Clean Neutral)
             Item {
                 id: posterCard
                 x: 0
@@ -530,29 +532,6 @@ PanelWindow {
                         source: "assets/poster.jpg"
                         cache: false
                         fillMode: Image.PreserveAspectCrop
-                        visible: false
-                        layer.enabled: true
-                    }
-
-                    Rectangle {
-                        id: warmPaperMultiply
-                        anchors.fill: parent
-                        color: "#F3E7DA"
-                        visible: false
-                        layer.enabled: true
-                    }
-
-                    // Soft paper multiply + #14F5E6D3 overlay so stark white manga background looks like warm paper
-                    Blend {
-                        anchors.fill: parent
-                        source: rawPosterImg
-                        foregroundSource: warmPaperMultiply
-                        mode: "multiply"
-                    }
-
-                    Rectangle {
-                        anchors.fill: parent
-                        color: "#14F5E6D3"
                     }
                 }
             }

@@ -2,7 +2,7 @@
 
 A modern **Warm Frosted Glass Bento Grid** desktop widget suite for Wayland/Hyprland, built natively with **Quickshell (Qt6 / QML)** and a lightweight Python background service.
 
-![Preview](assets/preview-terbaru.png)
+![Preview](assets/preview.png)
 
 ---
 

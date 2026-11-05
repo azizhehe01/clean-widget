@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 import configparser
+import glob
+import hashlib
 import json
 import os
 import re
@@ -61,23 +63,24 @@ def detect_active_wallpaper():
 
 cache_dir = os.path.expanduser("~/.cache/ml4w/hyprland-dotfiles")
 blurred_wp = os.path.join(cache_dir, "blurred_wallpaper.png")
-custom_blurred_wp = "/tmp/ml4w_widget_vibrant_frost.jpg"
-
 raw_wp = detect_active_wallpaper()
 
+custom_blurred_wp = ""
 if raw_wp:
-    meta_file = "/tmp/ml4w_widget_vibrant_frost.meta"
-    src_sig = f"{raw_wp}:{int(os.path.getmtime(raw_wp))}:v3"
-    cached_sig = ""
-    if os.path.exists(meta_file):
+    src_sig = f"{raw_wp}:{int(os.path.getmtime(raw_wp))}:v5"
+    wp_hash = hashlib.md5(src_sig.encode("utf-8")).hexdigest()[:10]
+    custom_blurred_wp = f"/tmp/ml4w_widget_frost_{wp_hash}.jpg"
+
+    if not os.path.exists(custom_blurred_wp):
         try:
-            with open(meta_file, "r") as f:
-                cached_sig = f.read().strip()
-        except Exception:
-            pass
-    if cached_sig != src_sig or not os.path.exists(custom_blurred_wp):
-        try:
-            # Matches Hyprland blur brightness=1.05, vibrancy=0.25 + strong multi-pass blur
+            # Remove older cached frost images so /tmp stays clean
+            for old_f in glob.glob("/tmp/ml4w_widget_frost_*.jpg"):
+                try:
+                    os.remove(old_f)
+                except Exception:
+                    pass
+
+            # Pure neutral 16px Gaussian blur without any artificial color tint
             subprocess.run(
                 [
                     "magick",
@@ -85,20 +88,17 @@ if raw_wp:
                     "-resize", "1920x1080^",
                     "-gravity", "center",
                     "-extent", "1920x1080",
-                    "-modulate", "105,125,100",
-                    "-blur", "0x36",
+                    "-blur", "0x16",
                     custom_blurred_wp,
                 ],
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL,
                 timeout=4,
             )
-            with open(meta_file, "w") as f:
-                f.write(src_sig)
         except Exception:
             pass
 
-if os.path.exists(custom_blurred_wp):
+if custom_blurred_wp and os.path.exists(custom_blurred_wp):
     data["wallpaper"] = custom_blurred_wp
 elif os.path.exists(blurred_wp):
     data["wallpaper"] = blurred_wp
