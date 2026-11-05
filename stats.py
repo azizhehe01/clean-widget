@@ -11,99 +11,10 @@ import time
 import urllib.parse
 import urllib.request
 
-cache_file = "/tmp/ml4w_desktop_widgets_cache.json"
+cache_file = "/tmp/ml4w_desktop_widgets_cache_v3.json"
 lyrics_cache_file = "/tmp/ml4w_desktop_lyrics_cache_v2.json"
 now = time.time()
-data = {}
-
-
-# 0. Universal Wallpaper Detection (ML4W, awww, swww, waypaper, hyprpaper)
-def detect_active_wallpaper():
-    # A. Check ML4W current_wallpaper cache
-    ml4w_wp = os.path.expanduser("~/.cache/ml4w/hyprland-dotfiles/current_wallpaper")
-    if os.path.exists(ml4w_wp):
-        try:
-            with open(ml4w_wp, "r") as f:
-                p = f.read().strip()
-                if p and os.path.exists(p):
-                    return p
-        except Exception:
-            pass
-
-    # B. Check awww / swww daemon query
-    for daemon_cmd in ("awww", "swww"):
-        if shutil.which(daemon_cmd):
-            try:
-                out = subprocess.check_output(
-                    [daemon_cmd, "query"], stderr=subprocess.DEVNULL, timeout=1
-                ).decode("utf-8", errors="ignore")
-                m = re.search(r"image:\s*(.+)$", out, flags=re.MULTILINE)
-                if m:
-                    p = m.group(1).strip()
-                    if p and os.path.exists(p):
-                        return p
-            except Exception:
-                pass
-
-    # C. Check Waypaper config.ini
-    waypaper_cfg = os.path.expanduser("~/.config/waypaper/config.ini")
-    if os.path.exists(waypaper_cfg):
-        try:
-            cp = configparser.ConfigParser()
-            cp.read(waypaper_cfg)
-            if "Settings" in cp and "wallpaper" in cp["Settings"]:
-                p = os.path.expanduser(cp["Settings"]["wallpaper"].strip())
-                if p and os.path.exists(p):
-                    return p
-        except Exception:
-            pass
-
-    return ""
-
-
-cache_dir = os.path.expanduser("~/.cache/ml4w/hyprland-dotfiles")
-blurred_wp = os.path.join(cache_dir, "blurred_wallpaper.png")
-raw_wp = detect_active_wallpaper()
-
-custom_blurred_wp = ""
-if raw_wp:
-    src_sig = f"{raw_wp}:{int(os.path.getmtime(raw_wp))}:v5"
-    wp_hash = hashlib.md5(src_sig.encode("utf-8")).hexdigest()[:10]
-    custom_blurred_wp = f"/tmp/ml4w_widget_frost_{wp_hash}.jpg"
-
-    if not os.path.exists(custom_blurred_wp):
-        try:
-            # Remove older cached frost images so /tmp stays clean
-            for old_f in glob.glob("/tmp/ml4w_widget_frost_*.jpg"):
-                try:
-                    os.remove(old_f)
-                except Exception:
-                    pass
-
-            # Pure neutral 16px Gaussian blur without any artificial color tint
-            subprocess.run(
-                [
-                    "magick",
-                    raw_wp,
-                    "-resize", "1920x1080^",
-                    "-gravity", "center",
-                    "-extent", "1920x1080",
-                    "-blur", "0x16",
-                    custom_blurred_wp,
-                ],
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-                timeout=4,
-            )
-        except Exception:
-            pass
-
-if custom_blurred_wp and os.path.exists(custom_blurred_wp):
-    data["wallpaper"] = custom_blurred_wp
-elif os.path.exists(blurred_wp):
-    data["wallpaper"] = blurred_wp
-else:
-    data["wallpaper"] = raw_wp
+data = {"wallpaper": ""}
 
 # 1. Disk usage (Linux partitions: Root / and Home /home)
 try:
@@ -159,7 +70,31 @@ if trash_bytes > 1024**3:
 else:
     data["trash_size"] = f"{int(trash_bytes / (1024**2))} MB"
 
-# 4. Weather (cached for 15 minutes)
+# 4. Weather & Location (Nothing OS style: temp, H/L, condition, city, humidity & wind, cached 15m)
+WMO_DESC = {
+    0: "CLEAR SKY",
+    1: "MAINLY CLEAR",
+    2: "PARTLY CLOUDY",
+    3: "OVERCAST",
+    45: "FOGGY",
+    48: "FOGGY",
+    51: "LIGHT DRIZZLE",
+    53: "DRIZZLE",
+    55: "HEAVY DRIZZLE",
+    61: "LIGHT RAIN",
+    63: "MODERATE RAIN",
+    65: "HEAVY RAIN",
+    71: "LIGHT SNOW",
+    73: "SNOW",
+    75: "HEAVY SNOW",
+    80: "RAIN SHOWERS",
+    81: "RAIN SHOWERS",
+    82: "HEAVY SHOWERS",
+    95: "THUNDERSTORM",
+    96: "THUNDERSTORM",
+    99: "THUNDERSTORM",
+}
+
 cached_weather = {}
 if os.path.exists(cache_file):
     try:
@@ -168,32 +103,98 @@ if os.path.exists(cache_file):
     except Exception:
         pass
 
-if "weather_time" in cached_weather and (now - cached_weather["weather_time"] < 900):
-    data["weather_temp"] = cached_weather.get("weather_temp", "28°C")
-    data["weather_condition"] = cached_weather.get("weather_condition", "🌦️")
+if "weather_time" in cached_weather and (now - cached_weather["weather_time"] < 900) and cached_weather.get("weather_location"):
+    data["weather_temp"] = cached_weather.get("weather_temp", "29°")
+    data["weather_high"] = cached_weather.get("weather_high", "H 31°")
+    data["weather_low"] = cached_weather.get("weather_low", "L 25°")
+    data["weather_desc"] = cached_weather.get("weather_desc", "PARTLY CLOUDY")
+    data["weather_location"] = cached_weather.get("weather_location", "JAKARTA")
+    data["weather_meta"] = cached_weather.get("weather_meta", "78% · 14 KM/H")
 else:
+    fetched_ok = False
+    # Primary: Fast IP geolocation + Open-Meteo real-time forecast
     try:
-        req = urllib.request.Request("https://wttr.in/?format=%c+%t", headers={"User-Agent": "curl/7.68.0"})
-        with urllib.request.urlopen(req, timeout=3) as resp:
-            raw = resp.read().decode('utf-8').strip()
-            parts = raw.split()
-            if len(parts) >= 2:
-                cond = parts[0]
-                temp = parts[-1].replace("+", "")
-                data["weather_temp"] = temp
-                data["weather_condition"] = cond
-            else:
-                data["weather_temp"] = "28°C"
-                data["weather_condition"] = "🌦️"
-        with open(cache_file, 'w') as f:
-            json.dump({
-                "weather_time": now,
-                "weather_temp": data["weather_temp"],
-                "weather_condition": data["weather_condition"]
-            }, f)
+        geo_req = urllib.request.Request("http://ip-api.com/json/?fields=city,lat,lon", headers={"User-Agent": "curl/8.0"})
+        with urllib.request.urlopen(geo_req, timeout=2.5) as g_resp:
+            geo = json.loads(g_resp.read().decode("utf-8"))
+            city = (geo.get("city") or "JAKARTA").strip().upper()
+            lat = geo.get("lat")
+            lon = geo.get("lon")
+            if lat is not None and lon is not None:
+                meteo_url = (
+                    f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}"
+                    "&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m"
+                    "&daily=temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=1"
+                )
+                m_req = urllib.request.Request(meteo_url, headers={"User-Agent": "curl/8.0"})
+                with urllib.request.urlopen(m_req, timeout=2.5) as m_resp:
+                    m_data = json.loads(m_resp.read().decode("utf-8"))
+                    cur = m_data.get("current", {})
+                    daily = m_data.get("daily", {})
+                    t_now = round(cur.get("temperature_2m", 29))
+                    hum = round(cur.get("relative_humidity_2m", 78))
+                    wind = round(cur.get("wind_speed_10m", 14))
+                    wcode = int(cur.get("weather_code", 2))
+                    t_max = round((daily.get("temperature_2m_max") or [t_now + 2])[0])
+                    t_min = round((daily.get("temperature_2m_min") or [t_now - 3])[0])
+
+                    data["weather_temp"] = f"{t_now}°"
+                    data["weather_high"] = f"H {t_max}°"
+                    data["weather_low"] = f"L {t_min}°"
+                    data["weather_desc"] = WMO_DESC.get(wcode, "PARTLY CLOUDY")
+                    data["weather_location"] = city
+                    data["weather_meta"] = f"{hum}% · {wind} KM/H"
+                    fetched_ok = True
     except Exception:
-        data["weather_temp"] = cached_weather.get("weather_temp", "28°C")
-        data["weather_condition"] = cached_weather.get("weather_condition", "🌦️")
+        pass
+
+    # Fallback: wttr.in JSON API
+    if not fetched_ok:
+        try:
+            req = urllib.request.Request("https://wttr.in/?format=j1", headers={"User-Agent": "curl/8.0"})
+            with urllib.request.urlopen(req, timeout=3.0) as resp:
+                wj = json.loads(resp.read().decode("utf-8"))
+                cur = wj["current_condition"][0]
+                w0 = wj.get("weather", [{}])[0]
+                area = wj.get("nearest_area", [{}])[0].get("areaName", [{}])[0].get("value", "JAKARTA").upper()
+                t_now = cur.get("temp_C", "29")
+                t_max = w0.get("maxtempC", str(int(t_now) + 2))
+                t_min = w0.get("mintempC", str(int(t_now) - 3))
+                desc = cur.get("weatherDesc", [{}])[0].get("value", "PARTLY CLOUDY").upper()
+                hum = cur.get("humidity", "78")
+                wind = cur.get("windspeedKmph", "14")
+
+                data["weather_temp"] = f"{t_now}°"
+                data["weather_high"] = f"H {t_max}°"
+                data["weather_low"] = f"L {t_min}°"
+                data["weather_desc"] = desc
+                data["weather_location"] = area
+                data["weather_meta"] = f"{hum}% · {wind} KM/H"
+                fetched_ok = True
+        except Exception:
+            pass
+
+    if fetched_ok:
+        try:
+            with open(cache_file, 'w') as f:
+                json.dump({
+                    "weather_time": now,
+                    "weather_temp": data["weather_temp"],
+                    "weather_high": data["weather_high"],
+                    "weather_low": data["weather_low"],
+                    "weather_desc": data["weather_desc"],
+                    "weather_location": data["weather_location"],
+                    "weather_meta": data["weather_meta"],
+                }, f)
+        except Exception:
+            pass
+    else:
+        data["weather_temp"] = cached_weather.get("weather_temp", "29°")
+        data["weather_high"] = cached_weather.get("weather_high", "H 31°")
+        data["weather_low"] = cached_weather.get("weather_low", "L 25°")
+        data["weather_desc"] = cached_weather.get("weather_desc", "PARTLY CLOUDY")
+        data["weather_location"] = cached_weather.get("weather_location", "JAKARTA")
+        data["weather_meta"] = cached_weather.get("weather_meta", "78% · 14 KM/H")
 
 # 5. Live Lyrics (via playerctl + LRCLIB, matching active Playing player)
 data["lyrics"] = []

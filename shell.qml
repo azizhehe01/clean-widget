@@ -1,5 +1,11 @@
 import Quickshell
 
 ShellRoot {
-    DesktopWidgetsWindow {}
+    DesktopWidgetsWindow {
+        id: desktopWidgets
+    }
+
+    NotificationPopupWindow {
+        wallpaperUrl: desktopWidgets.wallpaperUrl
+    }
 }

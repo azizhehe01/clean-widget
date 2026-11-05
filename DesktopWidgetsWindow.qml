@@ -22,11 +22,22 @@ PanelWindow {
 
     // Tight, zero-dead-space Bento Grid heights
     readonly property int gridGap: 12
-    readonly property int row1H: 156
-    readonly property int row2H: root.hasLyrics ? 204 : 118
+    readonly property int row1H: 164
+    readonly property int row2H: root.hasLyrics ? 212 : 118
     readonly property int row3H: 306
     readonly property int totalW: 436
     readonly property int totalH: row1H + gridGap + row2H + gridGap + row3H
+
+    // =========================================================================
+    // Official Nothing OS & nothing.tech Typography System
+    // - Ndot55 / Ndot57: Dot-Matrix Display Font (for large numbers: Clock & Temp)
+    // - NType82: Clean Geometric Grotesk from nothing.tech (for titles, lyrics, body)
+    // - LetteraMonoLL: Technical Monospace from nothing.tech (for metadata, location, stats)
+    // =========================================================================
+    FontLoader { id: fontNdot55; source: Qt.resolvedUrl("assets/fonts/Ndot55-Regular.otf") }
+    FontLoader { id: fontNdot57; source: Qt.resolvedUrl("assets/fonts/Ndot57-Regular.otf") }
+    FontLoader { id: fontNType;  source: Qt.resolvedUrl("assets/fonts/NType82-Regular.otf") }
+    FontLoader { id: fontNMono;  source: Qt.resolvedUrl("assets/fonts/LetteraMonoLL-Regular.otf") }
 
     readonly property int winX: 32
     readonly property int winY: Math.max(24, Math.round((screenH - totalH) / 2))
@@ -46,12 +57,11 @@ PanelWindow {
     color: "transparent"
 
     // =========================================================================
-    // Theme Tokens — Pure Neutral Clear Frosted Glass (Zero Brown Tint)
-    // Adapts naturally to ANY wallpaper color (blue, sunset, dark, warm, etc.)
+    // Theme Tokens — Real-Time GPU Chameleon Frosted Glass (Zero Color Cast)
     // =========================================================================
-    readonly property color cardBg: Qt.rgba(0.0, 0.0, 0.0, 0.16)
-    readonly property color cardEdgeHighlight: Qt.rgba(1.0, 1.0, 1.0, 0.12)
-    readonly property color cardSpecularTopLeft: Qt.rgba(1.0, 1.0, 1.0, 0.06)
+    readonly property color cardBg: Qt.rgba(0.0, 0.0, 0.0, 0.22)
+    readonly property color cardEdgeHighlight: Qt.rgba(1.0, 1.0, 1.0, 0.14)
+    readonly property color cardSpecularTopLeft: Qt.rgba(1.0, 1.0, 1.0, 0.07)
     readonly property color textPrimary: "#FFFFFF"
     readonly property color textSecondary: Qt.rgba(1.0, 1.0, 1.0, 0.78)
     readonly property color barTrack: Qt.rgba(1.0, 1.0, 1.0, 0.18)
@@ -68,8 +78,12 @@ PanelWindow {
         "home_total": "712.8 GB",
         "home_pct": 16,
         "trash_size": "38 MB",
-        "weather_temp": "28°C",
-        "weather_condition": "🌦️",
+        "weather_temp": "29°",
+        "weather_high": "H 31°",
+        "weather_low": "L 25°",
+        "weather_desc": "PARTLY CLOUDY",
+        "weather_location": "JAKARTA",
+        "weather_meta": "78% · 14 KM/H",
         "battery_pct": 100,
         "battery_status": "Full",
         "lyrics": []
@@ -155,37 +169,21 @@ PanelWindow {
                 maskSource: cardMask
             }
 
-            // 1. Live blurred slice of current wallpaper (auto-updates via hashed filename)
-            Image {
-                x: -(root.winX + cardRoot.globalOffsetX)
-                y: -(root.winY + cardRoot.globalOffsetY)
-                width: root.screenW
-                height: root.screenH
-                source: root.wallpaperUrl
-                fillMode: Image.PreserveAspectCrop
-                horizontalAlignment: Image.AlignHCenter
-                verticalAlignment: Image.AlignVCenter
-                opacity: 0.72
-                asynchronous: false
-                cache: false
-                visible: root.wallpaperUrl !== ""
-            }
-
-            // 2. Pure Neutral Translucent Dimmer (0% color cast, just subtle contrast for white text)
+            // 1. Pure Neutral Translucent Glass Surface (triggers Hyprland real-time GPU Dual-Kawase blur)
             Rectangle {
                 anchors.fill: parent
                 color: root.cardBg
                 border.width: 0
             }
 
-            // 3. Subtle Neutral Glass Top-Left Specular Shine
+            // 2. Subtle Neutral Glass Top-Left Specular Shine
             LinearGradient {
                 anchors.fill: parent
                 start: Qt.point(0, 0)
                 end: Qt.point(width, height)
                 gradient: Gradient {
                     GradientStop { position: 0.0; color: root.cardSpecularTopLeft }
-                    GradientStop { position: 0.55; color: Qt.rgba(1.0, 1.0, 1.0, 0.015) }
+                    GradientStop { position: 0.55; color: Qt.rgba(1.0, 1.0, 1.0, 0.02) }
                     GradientStop { position: 1.0; color: "transparent" }
                 }
             }
@@ -210,7 +208,7 @@ PanelWindow {
         height: root.totalH
 
         // =====================================================================
-        // ROW 1: Clock & Weather (2 Columns: 60% Left, 40% Right)
+        // ROW 1: Clock (Left) & Nothing OS Weather + Location Card (Right)
         // =====================================================================
         Item {
             id: row1
@@ -219,10 +217,10 @@ PanelWindow {
             width: root.totalW
             height: root.row1H
 
-            readonly property int leftW: Math.round((root.totalW - root.gridGap) * 0.60)
+            readonly property int leftW: Math.round((root.totalW - root.gridGap) * 0.56)
             readonly property int rightW: root.totalW - root.gridGap - leftW
 
-            // Left Card (60%): Large Clock (46px) filling top width & Date (18px) at bottom
+            // Left Card (56%): Nothing Dot-Matrix Clock & Technical Mono Date
             FrostedCard {
                 x: 0
                 y: 0
@@ -234,28 +232,27 @@ PanelWindow {
 
                 Text {
                     anchors.top: parent.top
-                    anchors.topMargin: 22
+                    anchors.topMargin: 28
                     anchors.horizontalCenter: parent.horizontalCenter
-                    text: Qt.formatDateTime(liveClock.date, "hh:mm ap")
-                    font.pixelSize: 46
-                    font.bold: true
+                    text: Qt.formatDateTime(liveClock.date, "hh:mm ap").toUpperCase()
+                    font.pixelSize: 38
                     color: root.textPrimary
-                    font.family: "Fira Sans"
+                    font.family: fontNdot57.name || "Fira Sans"
                 }
 
                 Text {
                     anchors.bottom: parent.bottom
-                    anchors.bottomMargin: 20
+                    anchors.bottomMargin: 22
                     anchors.horizontalCenter: parent.horizontalCenter
-                    text: Qt.formatDateTime(liveClock.date, "ddd, MMM dd, yyyy")
-                    font.pixelSize: 18
-                    font.bold: false
+                    text: Qt.formatDateTime(liveClock.date, "ddd, MMM dd, yyyy").toUpperCase()
+                    font.pixelSize: 12
+                    font.letterSpacing: 1.2
                     color: root.textSecondary
-                    font.family: "Fira Sans"
+                    font.family: fontNMono.name || "Fira Sans"
                 }
             }
 
-            // Right Card (40%): Weather Icon on top, Temperature on bottom
+            // Right Card (44%): Nothing OS Weather & Location Card (matches reference image)
             FrostedCard {
                 x: row1.leftW + root.gridGap
                 y: 0
@@ -265,23 +262,99 @@ PanelWindow {
                 globalOffsetX: row1.leftW + root.gridGap
                 globalOffsetY: 0
 
-                Text {
-                    anchors.top: parent.top
-                    anchors.topMargin: 16
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    text: root.stats.weather_condition || "🌦️"
-                    font.pixelSize: 54
+                // Top-Left: Nothing Dot-Matrix Weather Icon (Sun + Cloud)
+                Image {
+                    x: 15
+                    y: 13
+                    width: 38
+                    height: 31
+                    source: Qt.resolvedUrl("assets/weather-dot.svg")
+                    sourceSize: Qt.size(38, 31)
                 }
 
+                // Top-Right: High / Low Temperatures (H 31° / L 25°)
+                Column {
+                    anchors.right: parent.right
+                    anchors.rightMargin: 15
+                    y: 13
+                    spacing: 2
+
+                    Text {
+                        anchors.right: parent.right
+                        text: root.stats.weather_high || "H 31°"
+                        font.pixelSize: 10
+                        font.letterSpacing: 0.5
+                        color: root.textSecondary
+                        font.family: fontNMono.name || "Fira Sans"
+                    }
+
+                    Text {
+                        anchors.right: parent.right
+                        text: root.stats.weather_low || "L 25°"
+                        font.pixelSize: 10
+                        font.letterSpacing: 0.5
+                        color: root.textSecondary
+                        font.family: fontNMono.name || "Fira Sans"
+                    }
+                }
+
+                // Center: Large Nothing Dot-Matrix Temperature (e.g. 29°)
                 Text {
-                    anchors.bottom: parent.bottom
-                    anchors.bottomMargin: 18
                     anchors.horizontalCenter: parent.horizontalCenter
-                    text: root.stats.weather_temp || "28°C"
-                    font.pixelSize: 24
-                    font.bold: true
+                    y: 44
+                    text: root.stats.weather_temp || "29°"
+                    font.pixelSize: 48
                     color: root.textPrimary
-                    font.family: "Fira Sans"
+                    font.family: fontNdot55.name || "Fira Sans"
+                }
+
+                // Bottom Section: Condition (PARTLY CLOUDY) + Location (Left) & Humidity/Wind (Right)
+                Column {
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    anchors.bottom: parent.bottom
+                    anchors.leftMargin: 15
+                    anchors.rightMargin: 15
+                    anchors.bottomMargin: 12
+                    spacing: 3
+
+                    Text {
+                        width: parent.width
+                        text: (root.stats.weather_desc || "PARTLY CLOUDY").toUpperCase()
+                        font.pixelSize: 11
+                        font.letterSpacing: 0.4
+                        color: root.textPrimary
+                        elide: Text.ElideRight
+                        font.family: fontNType.name || "Fira Sans"
+                    }
+
+                    Item {
+                        width: parent.width
+                        height: 13
+
+                        Text {
+                            anchors.left: parent.left
+                            anchors.verticalCenter: parent.verticalCenter
+                            width: Math.max(40, parent.width - weatherMetaText.implicitWidth - 6)
+                            text: (root.stats.weather_location || "JAKARTA").toUpperCase()
+                            font.pixelSize: 9
+                            font.letterSpacing: 0.4
+                            color: root.textSecondary
+                            elide: Text.ElideRight
+                            font.family: fontNMono.name || "Fira Sans"
+                        }
+
+                        Text {
+                            id: weatherMetaText
+                            anchors.right: parent.right
+                            anchors.verticalCenter: parent.verticalCenter
+                            text: (root.stats.weather_meta || "78% · 14 KM/H").toUpperCase()
+                            font.pixelSize: 9
+                            font.letterSpacing: 0.3
+                            color: root.textSecondary
+                            font.family: fontNMono.name || "Fira Sans"
+                        }
+                    }
                 }
             }
         }
@@ -356,10 +429,11 @@ PanelWindow {
                         Text {
                             anchors.left: parent.left
                             anchors.verticalCenter: parent.verticalCenter
-                            text: "You've listening"
-                            font.pixelSize: 14
+                            text: "NOW PLAYING"
+                            font.pixelSize: 11
+                            font.letterSpacing: 1.2
                             color: root.textSecondary
-                            font.family: "Fira Sans"
+                            font.family: fontNMono.name || "Fira Sans"
                         }
 
                         Row {
@@ -424,24 +498,24 @@ PanelWindow {
                         }
                     }
 
-                    // Middle Line: Song Title
+                    // Middle Line: Song Title (Nothing NType82 Sans)
                     Text {
                         x: 0
-                        y: 29
+                        y: 28
                         width: parent.width
                         text: {
                             if (root.activePlayer && root.activePlayer.trackTitle)
                                 return root.activePlayer.trackTitle;
                             return "No Track Playing";
                         }
-                        font.pixelSize: 19
+                        font.pixelSize: 18
                         font.bold: true
                         color: root.textPrimary
                         elide: Text.ElideRight
-                        font.family: "Fira Sans"
+                        font.family: fontNType.name || "Fira Sans"
                     }
 
-                    // Bottom Line: Artist
+                    // Bottom Line: Artist (Nothing Technical Mono)
                     Text {
                         x: 0
                         y: 56
@@ -454,22 +528,23 @@ PanelWindow {
                                     artist = root.activePlayer.trackArtists[0];
                                 else if (root.activePlayer.identity) artist = root.activePlayer.identity;
                             }
-                            return "BY: " + (artist ? artist : "—");
+                            return ("BY: " + (artist ? artist : "—")).toUpperCase();
                         }
-                        font.pixelSize: 15
+                        font.pixelSize: 11
+                        font.letterSpacing: 0.8
                         color: root.textSecondary
                         elide: Text.ElideRight
-                        font.family: "Fira Sans"
+                        font.family: fontNMono.name || "Fira Sans"
                     }
                 }
             }
 
-            // Bottom Section: 3-Line Lyrics (Compact, balanced bottom margin)
+            // Bottom Section: 3-Line Lyrics (Nothing NType82 Sans)
             Column {
                 x: 20
                 y: 112
                 width: parent.width - 40
-                spacing: 6
+                spacing: 7
                 visible: root.hasLyrics
 
                 Repeater {
@@ -478,12 +553,12 @@ PanelWindow {
                         width: parent.width
                         horizontalAlignment: Text.AlignHCenter
                         text: modelData.text || ""
-                        font.pixelSize: 14
+                        font.pixelSize: modelData.active ? 16 : 15
                         font.bold: modelData.active ? true : false
                         color: modelData.active ? root.textPrimary : root.textSecondary
                         opacity: modelData.active ? 1.0 : 0.85
                         elide: Text.ElideRight
-                        font.family: "Fira Sans"
+                        font.family: fontNType.name || "Fira Sans"
                     }
                 }
             }
@@ -558,17 +633,18 @@ PanelWindow {
                         width: parent.width
                         spacing: 5
                         Text {
-                            text: "Root (/)"
-                            font.pixelSize: 17
-                            font.bold: true
+                            text: "ROOT (/)"
+                            font.pixelSize: 14
+                            font.letterSpacing: 0.8
                             color: root.textPrimary
-                            font.family: "Fira Sans"
+                            font.family: fontNType.name || "Fira Sans"
                         }
                         Text {
                             text: (root.stats.root_used || "114.7 GB") + " / " + (root.stats.root_total || "712.8 GB")
-                            font.pixelSize: 13
+                            font.pixelSize: 11
+                            font.letterSpacing: 0.5
                             color: root.textSecondary
-                            font.family: "Fira Sans"
+                            font.family: fontNMono.name || "Fira Sans"
                         }
                         Rectangle {
                             width: parent.width
@@ -589,17 +665,18 @@ PanelWindow {
                         width: parent.width
                         spacing: 5
                         Text {
-                            text: "Home (/home)"
-                            font.pixelSize: 17
-                            font.bold: true
+                            text: "HOME (/HOME)"
+                            font.pixelSize: 14
+                            font.letterSpacing: 0.8
                             color: root.textPrimary
-                            font.family: "Fira Sans"
+                            font.family: fontNType.name || "Fira Sans"
                         }
                         Text {
                             text: (root.stats.home_used || "114.7 GB") + " / " + (root.stats.home_total || "712.8 GB")
-                            font.pixelSize: 13
+                            font.pixelSize: 11
+                            font.letterSpacing: 0.5
                             color: root.textSecondary
-                            font.family: "Fira Sans"
+                            font.family: fontNMono.name || "Fira Sans"
                         }
                         Rectangle {
                             width: parent.width
@@ -620,17 +697,18 @@ PanelWindow {
                         width: parent.width
                         spacing: 5
                         Text {
-                            text: "Battery"
-                            font.pixelSize: 17
-                            font.bold: true
+                            text: "BATTERY"
+                            font.pixelSize: 14
+                            font.letterSpacing: 0.8
                             color: root.textPrimary
-                            font.family: "Fira Sans"
+                            font.family: fontNType.name || "Fira Sans"
                         }
                         Text {
                             text: (root.stats.battery_pct || 100) + "%"
-                            font.pixelSize: 13
+                            font.pixelSize: 11
+                            font.letterSpacing: 0.5
                             color: root.textSecondary
-                            font.family: "Fira Sans"
+                            font.family: fontNMono.name || "Fira Sans"
                         }
                         Rectangle {
                             width: parent.width
