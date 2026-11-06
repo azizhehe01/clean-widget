@@ -722,7 +722,13 @@ PanelWindow {
                         anchors.fill: parent
                         hoverEnabled: true
                         cursorShape: Qt.PointingHandCursor
-                        onClicked: Quickshell.execDetached(["playerctl", "play-pause"])
+                        onClicked: {
+                            if (root.activePlayer && typeof root.activePlayer.togglePlaying === "function") {
+                                root.activePlayer.togglePlaying();
+                            } else {
+                                Quickshell.execDetached(["playerctl", "play-pause"]);
+                            }
+                        }
                     }
                 }
 

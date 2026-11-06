@@ -924,8 +924,22 @@ PanelWindow {
                             hoverEnabled: true
                             cursorShape: Qt.PointingHandCursor
                             onClicked: {
-                                if (root.activePlayer && root.activePlayer.canControl) {
-                                    root.activePlayer.playPause();
+                                if (root.activePlayer) {
+                                    if (typeof root.activePlayer.togglePlaying === "function") {
+                                        root.activePlayer.togglePlaying();
+                                    } else if (root.activePlayer.playbackState === MprisPlaybackState.Playing && typeof root.activePlayer.pause === "function") {
+                                        root.activePlayer.pause();
+                                    } else if (typeof root.activePlayer.play === "function") {
+                                        root.activePlayer.play();
+                                    } else {
+                                        var busName = root.activePlayer.dbusName || "";
+                                        if (busName.indexOf("MediaPlayer2.") !== -1) {
+                                            var p = busName.split("MediaPlayer2.")[1];
+                                            Quickshell.execDetached(["playerctl", "--player=" + p, "play-pause"]);
+                                        } else {
+                                            Quickshell.execDetached(["playerctl", "play-pause"]);
+                                        }
+                                    }
                                 } else {
                                     Quickshell.execDetached(["playerctl", "play-pause"]);
                                 }
