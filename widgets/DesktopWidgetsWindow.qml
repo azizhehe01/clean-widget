@@ -23,7 +23,7 @@ PanelWindow {
     // Tight, zero-dead-space Bento Grid heights
     readonly property int gridGap: 12
     readonly property int row1H: 164
-    readonly property int row2H: root.hasLyrics ? 212 : 118
+    readonly property int row2H: root.hasLyrics ? 386 : 336
     readonly property int row3H: 306
     readonly property int totalW: 436
     readonly property int totalH: row1H + gridGap + row2H + gridGap + row3H
@@ -86,7 +86,13 @@ PanelWindow {
         "weather_meta": "78% · 14 KM/H",
         "battery_pct": 100,
         "battery_status": "Full",
-        "lyrics": []
+        "lyrics": [],
+        "album_color": "#2c2628",
+        "track_position": 0.0,
+        "track_duration": 0.0,
+        "track_progress": 0.0,
+        "position_str": "0:00",
+        "duration_str": "--:--"
     })
 
     readonly property var lyricsList: (root.stats && root.stats.lyrics && root.stats.lyrics.length > 0)
@@ -360,7 +366,7 @@ PanelWindow {
         }
 
         // =====================================================================
-        // ROW 2: Media Player + Controls + 3-Line Lyrics (1 Unified Card)
+        // ROW 2: BitChord & AutoMix Media Player (True Continuous Blur Bleed + Dot Matrix)
         // =====================================================================
         FrostedCard {
             id: row2
@@ -372,201 +378,358 @@ PanelWindow {
             globalOffsetX: 0
             globalOffsetY: root.row1H + root.gridGap
 
-            // Top Section: Album Art (82x82, r=12) + Track Info + Top-Right Controls
+            readonly property color glassTint: Qt.color(root.stats && root.stats.album_color ? root.stats.album_color : "#282426")
+
+            // =================================================================
+            // Continuous Background Surface:
+            // 1. Hidden source image for FastBlur
+            // 2. Full-card FastBlur (dreamy album ambient backdrop)
+            // 3. Sharp uncropped album art at top with smooth alpha fade downward
+            // 4. Ambient glass wash gradient matching bottom album color
+            // All masked together to the card's 20px rounded corners (Zero Seams / Zero Lines)
+            // =================================================================
             Item {
-                id: playerTopSection
-                x: 20
-                y: 18
-                width: parent.width - 40
-                height: 82
-
-                // Album Cover (82x82px, radius 12px)
-                Item {
-                    id: albumBox
-                    x: 0
-                    y: 0
-                    width: 82
-                    height: 82
-
-                    Rectangle {
-                        id: albumMask
-                        anchors.fill: parent
-                        radius: 12
-                        visible: false
-                    }
-
-                    Item {
-                        anchors.fill: parent
-                        layer.enabled: true
-                        layer.smooth: true
-                        layer.samples: 4
-                        layer.effect: OpacityMask {
-                            maskSource: albumMask
-                        }
-
-                        Image {
-                            id: albumImg
-                            anchors.fill: parent
-                            source: (root.activePlayer && root.activePlayer.trackArtUrl)
-                                ? root.activePlayer.trackArtUrl
-                                : "../assets/album.png"
-                            fillMode: Image.PreserveAspectCrop
-                            smooth: true
-                            mipmap: true
-                            cache: false
-                            // 2x supersampling agar tajam dan tidak burik di layar resolusi tinggi
-                            sourceSize: Qt.size(albumBox.width * 2, albumBox.height * 2)
-                        }
+                id: cardVisualSurface
+                anchors.fill: parent
+                layer.enabled: true
+                layer.smooth: true
+                layer.samples: 4
+                layer.effect: OpacityMask {
+                    maskSource: Rectangle {
+                        width: row2.width
+                        height: row2.height
+                        radius: root.cardRadius
                     }
                 }
 
-                // Track Info + Top-Right Media Controls
+                // 1. Source Image for Effects
+                Image {
+                    id: albumSourceImg
+                    anchors.fill: parent
+                    source: (root.activePlayer && root.activePlayer.trackArtUrl)
+                        ? root.activePlayer.trackArtUrl
+                        : Qt.resolvedUrl("../assets/album.jpg")
+                    fillMode: Image.PreserveAspectCrop
+                    smooth: true
+                    mipmap: true
+                    visible: false
+                    sourceSize: Qt.size(row2.width * 2, row2.height * 2)
+                }
+
+                // 2. Full-Card Dreamy Album Ambient Blur (FastBlur)
+                FastBlur {
+                    anchors.fill: parent
+                    source: albumSourceImg
+                    radius: 46
+                    opacity: 0.75
+                }
+
+                // 3. Sharp Uncropped Album Art Layer (Alpha Gradient Mask)
                 Item {
-                    x: albumBox.width + 16
-                    y: 0
-                    width: parent.width - (albumBox.width + 16)
-                    height: 82
-
-                    // Top Line: "You've listening" + Prev/Play/Next Controls
-                    Item {
-                        x: 0
-                        y: 1
-                        width: parent.width
-                        height: 24
-
-                        Text {
-                            anchors.left: parent.left
-                            anchors.verticalCenter: parent.verticalCenter
-                            text: "NOW PLAYING"
-                            font.pixelSize: 11
-                            font.letterSpacing: 1.2
-                            color: root.textSecondary
-                            font.family: fontNMono.name || "Fira Sans"
-                        }
-
-                        Row {
-                            anchors.right: parent.right
-                            anchors.verticalCenter: parent.verticalCenter
-                            spacing: 16
-
-                            // Previous
-                            Text {
-                                text: "󰒮"
-                                font.family: "FiraCode Nerd Font"
-                                font.pixelSize: 20
-                                color: prevMouse.containsMouse ? root.barFill : root.textPrimary
-                                scale: prevMouse.pressed ? 0.9 : 1.0
-
-                                MouseArea {
-                                    id: prevMouse
-                                    anchors.fill: parent
-                                    anchors.margins: -6
-                                    hoverEnabled: true
-                                    cursorShape: Qt.PointingHandCursor
-                                    onClicked: Quickshell.execDetached(["playerctl", "previous"])
-                                }
-                            }
-
-                            // Play / Pause
-                            Text {
-                                text: (root.activePlayer && root.activePlayer.playbackState === MprisPlaybackState.Playing)
-                                    ? "󰏤" : "󰐊"
-                                font.family: "FiraCode Nerd Font"
-                                font.pixelSize: 21
-                                color: playMouse.containsMouse ? root.barFill : root.textPrimary
-                                scale: playMouse.pressed ? 0.9 : 1.0
-
-                                MouseArea {
-                                    id: playMouse
-                                    anchors.fill: parent
-                                    anchors.margins: -6
-                                    hoverEnabled: true
-                                    cursorShape: Qt.PointingHandCursor
-                                    onClicked: Quickshell.execDetached(["playerctl", "play-pause"])
-                                }
-                            }
-
-                            // Next
-                            Text {
-                                text: "󰒭"
-                                font.family: "FiraCode Nerd Font"
-                                font.pixelSize: 20
-                                color: nextMouse.containsMouse ? root.barFill : root.textPrimary
-                                scale: nextMouse.pressed ? 0.9 : 1.0
-
-                                MouseArea {
-                                    id: nextMouse
-                                    anchors.fill: parent
-                                    anchors.margins: -6
-                                    hoverEnabled: true
-                                    cursorShape: Qt.PointingHandCursor
-                                    onClicked: Quickshell.execDetached(["playerctl", "next"])
-                                }
+                    id: sharpArtLayer
+                    anchors.fill: parent
+                    layer.enabled: true
+                    layer.smooth: true
+                    layer.effect: OpacityMask {
+                        maskSource: LinearGradient {
+                            width: row2.width
+                            height: row2.height
+                            start: Qt.point(0, 0)
+                            end: Qt.point(0, height)
+                            gradient: Gradient {
+                                GradientStop { position: 0.00; color: "#FFFFFFFF" }
+                                GradientStop { position: 0.36; color: "#FFFFFFFF" }
+                                GradientStop { position: 0.54; color: "#A0FFFFFF" }
+                                GradientStop { position: 0.70; color: "#30FFFFFF" }
+                                GradientStop { position: 0.84; color: "#00FFFFFF" }
+                                GradientStop { position: 1.00; color: "#00FFFFFF" }
                             }
                         }
                     }
 
-                    // Middle Line: Song Title (Nothing NType82 Sans)
-                    Text {
-                        x: 0
-                        y: 28
-                        width: parent.width
-                        text: {
-                            if (root.activePlayer && root.activePlayer.trackTitle)
-                                return root.activePlayer.trackTitle;
-                            return "No Track Playing";
-                        }
-                        font.pixelSize: 18
-                        font.bold: true
-                        color: root.textPrimary
-                        elide: Text.ElideRight
-                        font.family: fontNType.name || "Fira Sans"
+                    Image {
+                        anchors.fill: parent
+                        source: albumSourceImg.source
+                        fillMode: Image.PreserveAspectCrop
+                        smooth: true
+                        mipmap: true
+                        sourceSize: Qt.size(row2.width * 2, row2.height * 2)
                     }
+                }
 
-                    // Bottom Line: Artist (Nothing Technical Mono)
-                    Text {
-                        x: 0
-                        y: 56
-                        width: parent.width
-                        text: {
-                            let artist = "";
-                            if (root.activePlayer) {
-                                if (root.activePlayer.trackArtist) artist = root.activePlayer.trackArtist;
-                                else if (root.activePlayer.trackArtists && root.activePlayer.trackArtists.length > 0)
-                                    artist = root.activePlayer.trackArtists[0];
-                                else if (root.activePlayer.identity) artist = root.activePlayer.identity;
-                            }
-                            return ("BY: " + (artist ? artist : "—")).toUpperCase();
-                        }
-                        font.pixelSize: 11
-                        font.letterSpacing: 0.8
-                        color: root.textSecondary
-                        elide: Text.ElideRight
-                        font.family: fontNMono.name || "Fira Sans"
+                // 4. Ambient Glass Color Wash Gradient (AutoMix Style - Gambar 2)
+                Rectangle {
+                    anchors.fill: parent
+                    gradient: Gradient {
+                        GradientStop { position: 0.00; color: "transparent" }
+                        GradientStop { position: 0.28; color: Qt.rgba(row2.glassTint.r, row2.glassTint.g, row2.glassTint.b, 0.12) }
+                        GradientStop { position: 0.52; color: Qt.rgba(row2.glassTint.r, row2.glassTint.g, row2.glassTint.b, 0.45) }
+                        GradientStop { position: 0.76; color: Qt.rgba(row2.glassTint.r, row2.glassTint.g, row2.glassTint.b, 0.78) }
+                        GradientStop { position: 1.00; color: Qt.rgba(row2.glassTint.r, row2.glassTint.g, row2.glassTint.b, 0.90) }
                     }
                 }
             }
 
-            // Bottom Section: 3-Line Lyrics (Nothing NType82 Sans)
-            Column {
-                x: 20
-                y: 112
-                width: parent.width - 40
-                spacing: 7
-                visible: root.hasLyrics
+            // Top Banner Header ("NOW PLAYING")
+            Item {
+                id: topBannerHeader
+                anchors.top: parent.top
+                anchors.topMargin: 12
+                anchors.horizontalCenter: parent.horizontalCenter
+                height: 18
 
-                Repeater {
-                    model: root.lyricsList
-                    delegate: Text {
+                Row {
+                    anchors.centerIn: parent
+                    spacing: 7
+
+                    Rectangle {
+                        width: 6
+                        height: 6
+                        radius: 3
+                        anchors.verticalCenter: parent.verticalCenter
+                        color: (root.activePlayer && root.activePlayer.playbackState === MprisPlaybackState.Playing)
+                            ? "#FF3B30"
+                            : Qt.rgba(1, 1, 1, 0.5)
+                    }
+
+                    Text {
+                        text: "NOW PLAYING"
+                        font.pixelSize: 9
+                        font.letterSpacing: 1.3
+                        color: Qt.rgba(1.0, 1.0, 1.0, 0.90)
+                        font.family: fontNMono.name || "Fira Sans"
+                        anchors.verticalCenter: parent.verticalCenter
+                    }
+                }
+            }
+
+            // Structure: Judul Lagu -> Nama Artis -> Lirik (BitChord Layout)
+            Column {
+                id: trackInfoCol
+                anchors.top: parent.top
+                anchors.topMargin: 186
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.leftMargin: 24
+                anchors.rightMargin: 24
+                spacing: 4
+
+                // A. Judul Lagu (Song Title)
+                Text {
+                    width: parent.width
+                    horizontalAlignment: Text.AlignHCenter
+                    text: {
+                        if (root.activePlayer && root.activePlayer.trackTitle)
+                            return root.activePlayer.trackTitle;
+                        return "No Track Playing";
+                    }
+                    font.pixelSize: 20
+                    font.bold: true
+                    color: root.textPrimary
+                    elide: Text.ElideRight
+                    font.family: fontNType.name || "Fira Sans"
+                }
+
+                // B. Nama Artis (Artist Name)
+                Text {
+                    width: parent.width
+                    horizontalAlignment: Text.AlignHCenter
+                    text: {
+                        let artist = "";
+                        if (root.activePlayer) {
+                            if (root.activePlayer.trackArtist) artist = root.activePlayer.trackArtist;
+                            else if (root.activePlayer.trackArtists && root.activePlayer.trackArtists.length > 0)
+                                artist = root.activePlayer.trackArtists[0];
+                            else if (root.activePlayer.identity) artist = root.activePlayer.identity;
+                        }
+                        return (artist ? artist : "—").toUpperCase();
+                    }
+                    font.pixelSize: 11
+                    font.letterSpacing: 0.9
+                    color: Qt.rgba(1.0, 1.0, 1.0, 0.76)
+                    elide: Text.ElideRight
+                    font.family: fontNMono.name || "Fira Sans"
+                }
+
+                // C. Lirik (Synced Lyrics)
+                Item {
+                    width: parent.width
+                    height: root.hasLyrics ? 34 : 6
+                    visible: root.hasLyrics
+
+                    Column {
+                        anchors.centerIn: parent
                         width: parent.width
-                        horizontalAlignment: Text.AlignHCenter
-                        text: modelData.text || ""
-                        font.pixelSize: modelData.active ? 16 : 15
-                        font.bold: modelData.active ? true : false
-                        color: modelData.active ? root.textPrimary : root.textSecondary
-                        opacity: modelData.active ? 1.0 : 0.85
-                        elide: Text.ElideRight
-                        font.family: fontNType.name || "Fira Sans"
+                        spacing: 3
+
+                        // Active Lyric Line (Bold White)
+                        Text {
+                            width: parent.width
+                            horizontalAlignment: Text.AlignHCenter
+                            text: root.lyricsList.length > 0 ? (root.lyricsList[0].text || "") : ""
+                            font.pixelSize: 14
+                            font.bold: true
+                            color: "#FFFFFF"
+                            elide: Text.ElideRight
+                            font.family: fontNType.name || "Fira Sans"
+                        }
+
+                        // Upcoming Lyric Line (Subtle)
+                        Text {
+                            width: parent.width
+                            horizontalAlignment: Text.AlignHCenter
+                            text: root.lyricsList.length > 1 ? (root.lyricsList[1].text || "") : ""
+                            font.pixelSize: 12
+                            color: Qt.rgba(1.0, 1.0, 1.0, 0.45)
+                            elide: Text.ElideRight
+                            font.family: fontNType.name || "Fira Sans"
+                            visible: text !== ""
+                        }
+                    }
+                }
+            }
+
+            // Timeline Progress Bar (Timestamps + Capsule Track)
+            Item {
+                id: progressTimeline
+                anchors.top: trackInfoCol.bottom
+                anchors.topMargin: root.hasLyrics ? 12 : 16
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.leftMargin: 24
+                anchors.rightMargin: 24
+                height: 20
+
+                Text {
+                    id: timeElapsed
+                    anchors.left: parent.left
+                    anchors.top: parent.top
+                    text: root.stats.position_str || "0:00"
+                    font.pixelSize: 10
+                    font.family: fontNMono.name || "Fira Sans"
+                    color: Qt.rgba(1.0, 1.0, 1.0, 0.70)
+                }
+
+                Text {
+                    id: timeRemaining
+                    anchors.right: parent.right
+                    anchors.top: parent.top
+                    text: root.stats.duration_str || "--:--"
+                    font.pixelSize: 10
+                    font.family: fontNMono.name || "Fira Sans"
+                    color: Qt.rgba(1.0, 1.0, 1.0, 0.70)
+                }
+
+                Rectangle {
+                    id: progressTrack
+                    anchors.top: timeElapsed.bottom
+                    anchors.topMargin: 5
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    height: 3.5
+                    radius: 2
+                    color: Qt.rgba(1.0, 1.0, 1.0, 0.20)
+
+                    Rectangle {
+                        anchors.left: parent.left
+                        anchors.top: parent.top
+                        anchors.bottom: parent.bottom
+                        width: Math.max(3.5, parent.width * (root.stats.track_progress || 0.0))
+                        radius: 2
+                        color: root.barFill
+                    }
+                }
+            }
+
+            // Dot-Matrix Media Controls (Nothing OS Aesthetics)
+            Row {
+                id: dotMatrixControls
+                anchors.top: progressTimeline.bottom
+                anchors.topMargin: 12
+                anchors.horizontalCenter: parent.horizontalCenter
+                spacing: 30
+
+                // Previous Button
+                Item {
+                    width: 36
+                    height: 36
+                    anchors.verticalCenter: parent.verticalCenter
+
+                    Image {
+                        anchors.centerIn: parent
+                        width: 22
+                        height: 22
+                        source: Qt.resolvedUrl("../assets/media-prev-dot.svg")
+                        sourceSize: Qt.size(44, 44)
+                        fillMode: Image.PreserveAspectFit
+                        opacity: prevBtnArea.containsMouse ? 1.0 : 0.85
+                        scale: prevBtnArea.pressed ? 0.90 : 1.0
+                    }
+
+                    MouseArea {
+                        id: prevBtnArea
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: Quickshell.execDetached(["playerctl", "previous"])
+                    }
+                }
+
+                // Play / Pause Capsule
+                Rectangle {
+                    width: 48
+                    height: 48
+                    radius: 24
+                    anchors.verticalCenter: parent.verticalCenter
+                    color: playBtnArea.containsMouse ? Qt.rgba(1.0, 1.0, 1.0, 0.24) : Qt.rgba(1.0, 1.0, 1.0, 0.15)
+                    border.width: 1
+                    border.color: Qt.rgba(1.0, 1.0, 1.0, 0.32)
+                    scale: playBtnArea.pressed ? 0.92 : 1.0
+
+                    Image {
+                        anchors.centerIn: parent
+                        width: 24
+                        height: 24
+                        source: (root.activePlayer && root.activePlayer.playbackState === MprisPlaybackState.Playing)
+                            ? Qt.resolvedUrl("../assets/media-pause-dot.svg")
+                            : Qt.resolvedUrl("../assets/media-play-dot.svg")
+                        sourceSize: Qt.size(48, 48)
+                        fillMode: Image.PreserveAspectFit
+                        opacity: 0.95
+                    }
+
+                    MouseArea {
+                        id: playBtnArea
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: Quickshell.execDetached(["playerctl", "play-pause"])
+                    }
+                }
+
+                // Next Button
+                Item {
+                    width: 36
+                    height: 36
+                    anchors.verticalCenter: parent.verticalCenter
+
+                    Image {
+                        anchors.centerIn: parent
+                        width: 22
+                        height: 22
+                        source: Qt.resolvedUrl("../assets/media-next-dot.svg")
+                        sourceSize: Qt.size(44, 44)
+                        fillMode: Image.PreserveAspectFit
+                        opacity: nextBtnArea.containsMouse ? 1.0 : 0.85
+                        scale: nextBtnArea.pressed ? 0.90 : 1.0
+                    }
+
+                    MouseArea {
+                        id: nextBtnArea
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: Quickshell.execDetached(["playerctl", "next"])
                     }
                 }
             }

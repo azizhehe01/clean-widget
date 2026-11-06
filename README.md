@@ -30,11 +30,15 @@ Koleksi widget desktop modern bertema **Chameleon Frosted Glass Bento Grid**, **
 * Suhu harian tertinggi & terendah (`H 29°` / `L 23°`), serta suhu besar `Ndot55`.
 * Kondisi cuaca, deteksi lokasi kota otomatis berdasarkan IP publik (`ip-api.com` / `wttr.in`), serta kelembapan dan kecepatan angin (`74% · 7 KM/H`) dengan sistem caching lokal 15 menit agar tidak membebani jaringan.
 
-### 4. 🎵 Media Player & Lirik Tersinkronisasi Real-Time (`widgets/`)
-* **Integrasi MPRIS:** Terhubung langsung ke media player aktif (Spotify, YouTube di browser Brave/Firefox/Chrome, VLC, Amberol, dll.).
-* **Cover Album Dinamis:** Menampilkan cover album lagu secara otomatis dari D-Bus MPRIS, dengan fallback ke gambar lokal [`assets/album.jpg`](assets/album.jpg).
-* **Kontrol Playback:** Tombol interaktif *Previous*, *Play/Pause*, dan *Next*.
-* **Lirik Sinkron Real-Time (3 Baris):** Mengambil lirik dari database terbuka [LRCLIB](https://lrclib.net/) dan disinkronkan langsung per detik dengan posisi playback lagu (`playerctl position`). Baris yang aktif otomatis disorot putih terang dan membesar halus.
+### 4. 🎵 BitChord & AutoMix Media Player (`widgets/`)
+* **Desain Cover Bleed ke Blurred Glass:** Cover album lagu tampil di bagian atas kartu dan bertransisi secara halus (*gradient bleed*) ke lapisan frosted glass di bawahnya.
+* **Ambient Glass Color Wash (AutoMix Style):** Warna latar belakang frosted glass secara otomatis mendeteksi dan mengikuti warna dominan pada bagian bawah cover album lagu yang sedang diputar.
+* **Hierarki BitChord Bersih:**
+  1. **Judul Lagu:** Ditampilkan mencolok di bagian atas dengan font Nothing `NType82` putih tegas.
+  2. **Nama Artis:** Ditampilkan tepat di bawah judul lagu dengan font technical monospace `LetteraMonoLL`.
+  3. **Lirik Tersinkronisasi Real-Time:** Menampilkan lirik lagu tersinkron dari [LRCLIB](https://lrclib.net/) berdasarkan posisi playback lagu (`playerctl position`), dengan baris aktif yang disorot jelas.
+* **Progress Bar & Durasi:** Timeline kapsul minimalis dengan penunjuk waktu berjalan (*elapsed*) dan sisa durasi lagu (*remaining*).
+* **Kontrol Dot-Matrix Nothing OS:** Tombol *Previous*, *Play/Pause* kapsul melingkar, dan *Next* didesain khusus bergaya titik-titik dot-matrix khas Nothing OS.
 
 ### 5. 🖼️ Frame Poster / Foto Estetik (`widgets/`)
 * Frame foto portrait elegan ber-radius 20px dengan pinggiran kaca halus.
@@ -201,8 +205,12 @@ DesktopWidgetsApp/
 │   │   ├── Ndot57-Regular.otf    # Font jam digital & volume Nothing OS
 │   │   ├── NType82-Regular.otf   # Font sans-serif bento grid
 │   │   └── LetteraMonoLL-Regular.otf # Font tanggal & teks teknikal monospace
-│   ├── album.jpg                 # Fallback cover album
+│   ├── album.png                 # Fallback cover album
 │   ├── poster.jpg                # Foto pada frame poster
+│   ├── media-prev-dot.svg        # Tombol Previous dot-matrix Nothing OS
+│   ├── media-play-dot.svg        # Tombol Play dot-matrix Nothing OS
+│   ├── media-pause-dot.svg       # Tombol Pause dot-matrix Nothing OS
+│   ├── media-next-dot.svg        # Tombol Next dot-matrix Nothing OS
 │   ├── volume-dot.svg            # Icon speaker dot-matrix
 │   ├── volume-mute-dot.svg       # Icon speaker mute dot-matrix
 │   ├── weather-dot.svg           # Icon cuaca dot-matrix

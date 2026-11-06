@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="#FFFFFF">
+  <!-- Nothing OS Dot-Matrix Pause Button (Two vertical dot columns) -->
+  <!-- Left Bar -->
+  <circle cx="7" cy="5" r="1.35"/>
+  <circle cx="7" cy="8.5" r="1.35"/>
+  <circle cx="7" cy="12" r="1.35"/>
+  <circle cx="7" cy="15.5" r="1.35"/>
+  <circle cx="7" cy="19" r="1.35"/>
+
+  <circle cx="10" cy="5" r="1.35"/>
+  <circle cx="10" cy="8.5" r="1.35"/>
+  <circle cx="10" cy="12" r="1.35"/>
+  <circle cx="10" cy="15.5" r="1.35"/>
+  <circle cx="10" cy="19" r="1.35"/>
+
+  <!-- Right Bar -->
+  <circle cx="14" cy="5" r="1.35"/>
+  <circle cx="14" cy="8.5" r="1.35"/>
+  <circle cx="14" cy="12" r="1.35"/>
+  <circle cx="14" cy="15.5" r="1.35"/>
+  <circle cx="14" cy="19" r="1.35"/>
+
+  <circle cx="17" cy="5" r="1.35"/>
+  <circle cx="17" cy="8.5" r="1.35"/>
+  <circle cx="17" cy="12" r="1.35"/>
+  <circle cx="17" cy="15.5" r="1.35"/>
+  <circle cx="17" cy="19" r="1.35"/>
+</svg>

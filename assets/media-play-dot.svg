@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="#FFFFFF">
+  <!-- Nothing OS Dot-Matrix Play Button (Triangle made of dots) -->
+  <!-- Col 1 (x=6) -->
+  <circle cx="6.5" cy="5" r="1.35"/>
+  <circle cx="6.5" cy="8.5" r="1.35"/>
+  <circle cx="6.5" cy="12" r="1.35"/>
+  <circle cx="6.5" cy="15.5" r="1.35"/>
+  <circle cx="6.5" cy="19" r="1.35"/>
+
+  <!-- Col 2 (x=10) -->
+  <circle cx="10" cy="7" r="1.35"/>
+  <circle cx="10" cy="9.5" r="1.35"/>
+  <circle cx="10" cy="12" r="1.35"/>
+  <circle cx="10" cy="14.5" r="1.35"/>
+  <circle cx="10" cy="17" r="1.35"/>
+
+  <!-- Col 3 (x=13.5) -->
+  <circle cx="13.5" cy="9.5" r="1.35"/>
+  <circle cx="13.5" cy="12" r="1.35"/>
+  <circle cx="13.5" cy="14.5" r="1.35"/>
+
+  <!-- Col 4 (x=17) -->
+  <circle cx="17" cy="12" r="1.35"/>
+</svg>

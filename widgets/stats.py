@@ -10,16 +10,15 @@ import subprocess
 import time
 import urllib.parse
 import urllib.request
+from PIL import Image
 
 cache_file = "/tmp/ml4w_desktop_widgets_cache.json"
 lyrics_cache_file = "/tmp/ml4w_desktop_lyrics_cache_v2.json"
 now = time.time()
 data = {}
 
-
 # 0. Universal Wallpaper Detection (ML4W, awww, swww, waypaper, hyprpaper)
 def detect_active_wallpaper():
-    # A. Check ML4W current_wallpaper cache
     ml4w_wp = os.path.expanduser("~/.cache/ml4w/hyprland-dotfiles/current_wallpaper")
     if os.path.exists(ml4w_wp):
         try:
@@ -30,7 +29,6 @@ def detect_active_wallpaper():
         except Exception:
             pass
 
-    # B. Check awww / swww daemon query
     for daemon_cmd in ("awww", "swww"):
         if shutil.which(daemon_cmd):
             try:
@@ -45,7 +43,6 @@ def detect_active_wallpaper():
             except Exception:
                 pass
 
-    # C. Check Waypaper config.ini
     waypaper_cfg = os.path.expanduser("~/.config/waypaper/config.ini")
     if os.path.exists(waypaper_cfg):
         try:
@@ -59,7 +56,6 @@ def detect_active_wallpaper():
             pass
 
     return ""
-
 
 cache_dir = os.path.expanduser("~/.cache/ml4w/hyprland-dotfiles")
 blurred_wp = os.path.join(cache_dir, "blurred_wallpaper.png")
@@ -103,7 +99,7 @@ elif os.path.exists(blurred_wp):
 else:
     data["wallpaper"] = raw_wp
 
-# 1. Disk usage (Linux partitions: Root / and Home /home)
+# 1. Disk usage
 try:
     root = shutil.disk_usage('/')
     data["root_used"] = f"{root.used / (1024**3):.1f} GB"
@@ -193,9 +189,14 @@ else:
         data["weather_temp"] = cached_weather.get("weather_temp", "28°C")
         data["weather_condition"] = cached_weather.get("weather_condition", "🌦️")
 
-# 5. Live Lyrics (via playerctl + LRCLIB, matching active Playing player)
+# 5. Media Player Info, Bottom Color Extraction, and Live Lyrics
 data["lyrics"] = []
-
+data["album_color"] = "#2c2628"
+data["track_position"] = 0.0
+data["track_duration"] = 0.0
+data["track_progress"] = 0.0
+data["position_str"] = "0:00"
+data["duration_str"] = "--:--"
 
 def clean_query(s):
     s = re.sub(r"\s*-\s*Topic$", "", s, flags=re.IGNORECASE)
@@ -203,6 +204,28 @@ def clean_query(s):
     s = re.sub(r"\[.*?(Official|Visualizer|Lyric|Audio|Video|MV).*?\]", "", s, flags=re.IGNORECASE)
     return s.strip()
 
+def fmt_time(sec):
+    s = max(0, int(sec))
+    return f"{s // 60}:{s % 60:02d}"
+
+def extract_bottom_color(img_path):
+    try:
+        if not img_path:
+            return "#2c2628"
+        if img_path.startswith("file://"):
+            img_path = urllib.parse.unquote(img_path[7:])
+        if not os.path.exists(img_path):
+            return "#2c2628"
+        with Image.open(img_path) as im:
+            im = im.convert("RGB")
+            w, h = im.size
+            # Sample bottom 25% of the cover image
+            crop = im.crop((0, int(h * 0.75), w, h))
+            small = crop.resize((1, 1), Image.Resampling.LANCZOS)
+            r, g, b = small.getpixel((0, 0))
+            return f"#{r:02x}{g:02x}{b:02x}"
+    except Exception:
+        return "#2c2628"
 
 def fetch_lrclib(q_str):
     url = f"https://lrclib.net/api/search?q={urllib.parse.quote(q_str)}"
@@ -231,6 +254,9 @@ def fetch_lrclib(q_str):
                 plain_lines = [ln.strip() for ln in raw_plain.splitlines() if ln.strip()]
     return synced_lines, plain_lines
 
+fallback_art = os.path.expanduser("~/.config/quickshell/DesktopWidgetsApp/assets/album.png")
+if not os.path.exists(fallback_art):
+    fallback_art = os.path.expanduser("~/.config/quickshell/DesktopWidgetsApp/assets/album.jpg")
 
 try:
     players_raw = subprocess.check_output(
@@ -252,7 +278,42 @@ try:
     if not chosen_player and players:
         chosen_player = players[0]
 
+    active_art = fallback_art
     if chosen_player:
+        try:
+            art_url = subprocess.check_output(
+                ["playerctl", "-p", chosen_player, "metadata", "mpris:artUrl"],
+                stderr=subprocess.DEVNULL, timeout=1
+            ).decode("utf-8").strip()
+            if art_url.startswith("file://"):
+                local_p = urllib.parse.unquote(art_url[7:])
+                if os.path.exists(local_p):
+                    active_art = local_p
+            elif art_url.startswith("http://") or art_url.startswith("https://"):
+                web_art = "/tmp/ml4w_web_art.jpg"
+                web_url_file = "/tmp/ml4w_web_art.url"
+                old_url = ""
+                if os.path.exists(web_url_file):
+                    try:
+                        with open(web_url_file, "r") as f:
+                            old_url = f.read().strip()
+                    except Exception:
+                        pass
+                if old_url != art_url or not os.path.exists(web_art):
+                    try:
+                        req = urllib.request.Request(art_url, headers={"User-Agent": "Mozilla/5.0"})
+                        with urllib.request.urlopen(req, timeout=2.0) as resp:
+                            with open(web_art, "wb") as f_out:
+                                f_out.write(resp.read())
+                        with open(web_url_file, "w") as f:
+                            f.write(art_url)
+                    except Exception:
+                        pass
+                if os.path.exists(web_art):
+                    active_art = web_art
+        except Exception:
+            pass
+
         title = subprocess.check_output(
             ["playerctl", "-p", chosen_player, "metadata", "xesam:title"],
             stderr=subprocess.DEVNULL, timeout=1
@@ -261,6 +322,9 @@ try:
             ["playerctl", "-p", chosen_player, "metadata", "xesam:artist"],
             stderr=subprocess.DEVNULL, timeout=1
         ).decode("utf-8").strip()
+
+        # Position & Duration
+        position = 0.0
         try:
             pos_raw = subprocess.check_output(
                 ["playerctl", "-p", chosen_player, "position"],
@@ -269,6 +333,27 @@ try:
             position = float(pos_raw) if pos_raw else 0.0
         except Exception:
             position = 0.0
+
+        length_sec = 0.0
+        try:
+            len_raw = subprocess.check_output(
+                ["playerctl", "-p", chosen_player, "metadata", "mpris:length"],
+                stderr=subprocess.DEVNULL, timeout=1
+            ).decode("utf-8").strip()
+            if len_raw:
+                length_sec = float(len_raw) / 1000000.0
+        except Exception:
+            length_sec = 0.0
+
+        data["track_position"] = position
+        data["track_duration"] = length_sec
+        data["track_progress"] = min(1.0, max(0.0, position / length_sec)) if length_sec > 0 else 0.0
+        data["position_str"] = fmt_time(position)
+        if length_sec > 0:
+            rem = max(0.0, length_sec - position)
+            data["duration_str"] = f"-{fmt_time(rem)}"
+        else:
+            data["duration_str"] = "--:--"
 
         if title:
             clean_t = clean_query(title)
@@ -317,23 +402,23 @@ try:
                         active_idx = i
                     else:
                         break
-                window = synced[active_idx:active_idx + 3]
-                if len(window) < 3 and len(synced) >= 3:
-                    window = synced[-3:]
+                window = synced[active_idx:active_idx + 2]
                 for idx_w, item in enumerate(window):
                     data["lyrics"].append({
                         "text": item["text"],
                         "active": (idx_w == 0)
                     })
             elif len(plain) > 0:
-                step = max(0, min(len(plain) - 3, int(position // 6)))
-                window = plain[step:step + 3]
+                step = max(0, min(len(plain) - 2, int(position // 6)))
+                window = plain[step:step + 2]
                 for idx_w, txt in enumerate(window):
                     data["lyrics"].append({
                         "text": txt,
                         "active": (idx_w == 0)
                     })
+
+    data["album_color"] = extract_bottom_color(active_art)
 except Exception:
-    data["lyrics"] = []
+    data["album_color"] = extract_bottom_color(fallback_art)
 
 print(json.dumps(data))

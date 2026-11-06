@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="#FFFFFF">
+  <!-- Nothing OS Dot-Matrix Next Button (Right Triangle + Bar) -->
+  <!-- Left Col 1 (x=5.5) -->
+  <circle cx="5.5" cy="5" r="1.3"/>
+  <circle cx="5.5" cy="8.5" r="1.3"/>
+  <circle cx="5.5" cy="12" r="1.3"/>
+  <circle cx="5.5" cy="15.5" r="1.3"/>
+  <circle cx="5.5" cy="19" r="1.3"/>
+
+  <!-- Col 2 (x=9) -->
+  <circle cx="9" cy="7" r="1.3"/>
+  <circle cx="9" cy="9.5" r="1.3"/>
+  <circle cx="9" cy="12" r="1.3"/>
+  <circle cx="9" cy="14.5" r="1.3"/>
+  <circle cx="9" cy="17" r="1.3"/>
+
+  <!-- Col 3 (x=12.5) -->
+  <circle cx="12.5" cy="9.5" r="1.3"/>
+  <circle cx="12.5" cy="12" r="1.3"/>
+  <circle cx="12.5" cy="14.5" r="1.3"/>
+
+  <!-- Col 4 Arrow tip (x=16) -->
+  <circle cx="16" cy="12" r="1.3"/>
+
+  <!-- Right End Bar (x=20) -->
+  <circle cx="20" cy="5" r="1.3"/>
+  <circle cx="20" cy="8.5" r="1.3"/>
+  <circle cx="20" cy="12" r="1.3"/>
+  <circle cx="20" cy="15.5" r="1.3"/>
+  <circle cx="20" cy="19" r="1.3"/>
+</svg>
