@@ -18,9 +18,14 @@ PanelWindow {
     // =========================================================================
     // User Configurations (Bisa Diatur Di Sini)
     // =========================================================================
+    // User Configurations (Bisa Diatur Di Sini)
+    // =========================================================================
     // Durasi berapa lama HUD volume muncul sebelum kembali jadi mata (dalam milidetik)
     // 1000 = 1.0 detik, 1200 = 1.2 detik, 1800 = 1.8 detik
     property int volumeTimeoutMs: 1000
+
+    // Durasi berapa lama HUD kecerahan (brightness) muncul sebelum kembali jadi mata (dalam milidetik)
+    property int brightnessTimeoutMs: 1000
 
     // Durasi berapa lama menu display HDMI (Super+P) muncul sebelum otomatis terpilih & menutup (ms)
     // 1000 = 1.0 detik, 1400 = 1.4 detik, 2000 = 2.0 detik, 2800 = 2.8 detik
@@ -77,7 +82,20 @@ PanelWindow {
     property bool lastMutedState: false
     property bool audioSyncReady: false
 
-    Component.onCompleted: root.queryWifi()
+    // ---------------------------------------------------------------------
+    // Display Brightness Integration (Nothing OS Dot-Matrix HUD)
+    // ---------------------------------------------------------------------
+    property real brightnessLevel: 0.36
+    readonly property int brightnessPercent: Math.round(brightnessLevel * 100)
+    property bool showBrightness: false
+    property int lastBrightnessPercent: -1
+    property bool brightnessSyncReady: false
+    readonly property int brightnessBodyW: 248
+
+    Component.onCompleted: {
+        root.queryWifi();
+        root.queryBrightness();
+    }
 
     onVolumePercentChanged: {
         if (!audioSyncReady) {
@@ -108,6 +126,7 @@ PanelWindow {
     }
 
     function triggerVolumeOsd() {
+        root.showBrightness = false;
         root.showVolume = true;
         volumeDismissTimer.restart();
     }
@@ -130,6 +149,127 @@ PanelWindow {
     }
 
     // ---------------------------------------------------------------------
+    // Brightness Control & Hardware Sync Functions
+    // ---------------------------------------------------------------------
+    Timer {
+        interval: 1000
+        running: true
+        onTriggered: {
+            root.brightnessSyncReady = true;
+            root.queryBrightness();
+        }
+    }
+
+    function triggerBrightnessOsd(): void {
+        root.showVolume = false;
+        root.showBrightness = true;
+        brightnessDismissTimer.restart();
+    }
+
+    Timer {
+        id: brightnessDismissTimer
+        interval: root.brightnessTimeoutMs
+        onTriggered: root.showBrightness = false
+    }
+
+    function adjustBrightnessDelta(delta: int): void {
+        var currentPct = root.brightnessPercent;
+        var newPct = Math.max(1, Math.min(100, currentPct + delta));
+        root.brightnessLevel = newPct / 100.0;
+        root.lastBrightnessPercent = newPct;
+        root.triggerBrightnessOsd();
+
+        if (delta > 0) {
+            Quickshell.execDetached(["brightnessctl", "-e4", "-n2", "set", delta + "%+"]);
+        } else {
+            Quickshell.execDetached(["brightnessctl", "-e4", "-n2", "set", Math.abs(delta) + "%-"]);
+        }
+        brightnessSyncTimer.restart();
+    }
+
+    function setBrightnessPercent(pct: int): void {
+        var target = Math.max(1, Math.min(100, pct));
+        root.brightnessLevel = target / 100.0;
+        root.lastBrightnessPercent = target;
+        root.triggerBrightnessOsd();
+        Quickshell.execDetached(["brightnessctl", "-e4", "-n2", "set", target + "%"]);
+        brightnessSyncTimer.restart();
+    }
+
+    Timer {
+        id: brightnessSyncTimer
+        interval: 150
+        repeat: false
+        onTriggered: root.queryBrightness()
+    }
+
+    Process {
+        id: queryBrightnessProc
+        command: ["brightnessctl", "-m"]
+        running: false
+        stdout: StdioCollector {
+            onStreamFinished: {
+                var out = text.trim();
+                // Format: intel_backlight,backlight,34248,36%,96000
+                var parts = out.split(",");
+                if (parts.length >= 4) {
+                    var pctStr = parts[3].replace("%", "").trim();
+                    var pct = parseInt(pctStr);
+                    if (!isNaN(pct)) {
+                        if (root.brightnessSyncReady && root.lastBrightnessPercent !== -1 && Math.abs(pct - root.lastBrightnessPercent) >= 2) {
+                            root.brightnessLevel = pct / 100.0;
+                            root.lastBrightnessPercent = pct;
+                            root.triggerBrightnessOsd();
+                        } else {
+                            root.brightnessLevel = pct / 100.0;
+                            root.lastBrightnessPercent = pct;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    function queryBrightness(): void {
+        if (!queryBrightnessProc.running) {
+            queryBrightnessProc.running = true;
+        }
+    }
+
+    Timer {
+        id: backlightWatcher
+        interval: 2000
+        repeat: true
+        running: true
+        onTriggered: {
+            if (!root.showBrightness) {
+                root.queryBrightness();
+            }
+        }
+    }
+
+    // ---------------------------------------------------------------------
+    // Quickshell IPC Handler for Brightness: qs ipc call brightness <cmd>
+    // ---------------------------------------------------------------------
+    IpcHandler {
+        target: "brightness"
+
+        function up(): void {
+            root.adjustBrightnessDelta(5);
+        }
+        function down(): void {
+            root.adjustBrightnessDelta(-5);
+        }
+        function show(): void {
+            root.queryBrightness();
+            root.triggerBrightnessOsd();
+        }
+        function set(pct: int): void {
+            root.setBrightnessPercent(pct);
+        }
+    }
+
+    // ---------------------------------------------------------------------
     // Geometry & Smooth Hardware-Accelerated Sizing
     // ---------------------------------------------------------------------
     readonly property int baseBodyW: 168
@@ -139,6 +279,7 @@ PanelWindow {
     property real animatedBodyW: {
         if (showWifiMenu) return wifiBodyW;
         if (showDisplayMenu) return displayBodyW;
+        if (showBrightness) return brightnessBodyW;
         if (showVolume) return volumeBodyW;
         return baseBodyW;
     }
@@ -404,8 +545,8 @@ PanelWindow {
         if (showWifiMenu) return false;
         // Jangan sembunyikan jika menu Display / HDMI sedang dibuka
         if (showDisplayMenu) return false;
-        // Jangan sembunyikan jika volume HUD sedang aktif (selalu munculkan saat setting volume)
-        if (showVolume) return false;
+        // Jangan sembunyikan jika volume atau brightness HUD sedang aktif
+        if (showVolume || showBrightness) return false;
         // Munculkan jika user mengarahkan kursor ke ujung atas layar (hover-to-reveal)
         if (isHoveringTop) return false;
 
@@ -547,15 +688,20 @@ PanelWindow {
             enabled: !root.showDisplayMenu && !root.showWifiMenu
             onWheel: function(event) {
                 let delta = event.angleDelta.y !== 0 ? event.angleDelta.y : event.pixelDelta.y;
-                if (delta > 0) root.setVolumeDelta(0.05);
-                else if (delta < 0) root.setVolumeDelta(-0.05);
+                if (root.showBrightness) {
+                    if (delta > 0) root.adjustBrightnessDelta(5);
+                    else if (delta < 0) root.adjustBrightnessDelta(-5);
+                } else {
+                    if (delta > 0) root.setVolumeDelta(0.05);
+                    else if (delta < 0) root.setVolumeDelta(-0.05);
+                }
                 event.accepted = true;
             }
         }
 
         MouseArea {
             anchors.fill: parent
-            enabled: !root.showDisplayMenu && !root.showWifiMenu
+            enabled: !root.showDisplayMenu && !root.showWifiMenu && !root.showVolume && !root.showBrightness
             acceptedButtons: Qt.RightButton
             cursorShape: Qt.PointingHandCursor
             onClicked: root.toggleMute()
@@ -565,7 +711,7 @@ PanelWindow {
         // Left-click on notch to toggle WiFi menu
         MouseArea {
             anchors.fill: parent
-            enabled: !root.showDisplayMenu && !root.showWifiMenu && !root.showVolume
+            enabled: !root.showDisplayMenu && !root.showWifiMenu && !root.showVolume && !root.showBrightness
             acceptedButtons: Qt.LeftButton
             cursorShape: Qt.PointingHandCursor
             onClicked: root.toggleWifiMenu()
@@ -581,9 +727,9 @@ PanelWindow {
             anchors.verticalCenterOffset: 1
             spacing: root.eyeGap
 
-            opacity: (!root.showVolume && !root.showDisplayMenu && !root.showWifiMenu) ? 1.0 : 0.0
-            scale: (!root.showVolume && !root.showDisplayMenu && !root.showWifiMenu) ? 1.0 : 0.85
-            visible: !root.showVolume && !root.showDisplayMenu && !root.showWifiMenu
+            opacity: (!root.showVolume && !root.showBrightness && !root.showDisplayMenu && !root.showWifiMenu) ? 1.0 : 0.0
+            scale: (!root.showVolume && !root.showBrightness && !root.showDisplayMenu && !root.showWifiMenu) ? 1.0 : 0.85
+            visible: !root.showVolume && !root.showBrightness && !root.showDisplayMenu && !root.showWifiMenu
 
             Behavior on opacity { NumberAnimation { duration: root.animDuration; easing.type: Easing.OutCubic } }
             Behavior on scale   { NumberAnimation { duration: root.animDuration; easing.type: Easing.OutCubic } }
@@ -601,9 +747,9 @@ PanelWindow {
             anchors.verticalCenter: parent.verticalCenter
             spacing: 12
 
-            opacity: (root.showVolume && !root.showDisplayMenu && !root.showWifiMenu) ? 1.0 : 0.0
-            scale: (root.showVolume && !root.showDisplayMenu && !root.showWifiMenu) ? 1.0 : 0.85
-            visible: !root.showDisplayMenu && !root.showWifiMenu && (!root.showVolume || opacity > 0.05)
+            opacity: (root.showVolume && !root.showBrightness && !root.showDisplayMenu && !root.showWifiMenu) ? 1.0 : 0.0
+            scale: (root.showVolume && !root.showBrightness && !root.showDisplayMenu && !root.showWifiMenu) ? 1.0 : 0.85
+            visible: !root.showDisplayMenu && !root.showWifiMenu && !root.showBrightness && (!root.showVolume || opacity > 0.05)
 
             Behavior on opacity { NumberAnimation { duration: root.animDuration; easing.type: Easing.OutCubic } }
             Behavior on scale   { NumberAnimation { duration: root.animDuration; easing.type: Easing.OutCubic } }
@@ -660,6 +806,89 @@ PanelWindow {
                 font.family: root.isMuted ? (fontNMono.name || "Fira Sans") : (fontNdot57.name || "Fira Sans")
                 font.letterSpacing: 0.5
                 color: root.isMuted ? Qt.rgba(1.0, 1.0, 1.0, 0.55) : "#FFFFFF"
+            }
+        }
+
+        // -----------------------------------------------------------------
+        // BRIGHTNESS VIEW: Nothing OS Dot-Matrix Brightness OSD
+        // -----------------------------------------------------------------
+        Row {
+            id: brightnessOsdRow
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.verticalCenter: parent.verticalCenter
+            spacing: 12
+
+            opacity: (root.showBrightness && !root.showVolume && !root.showDisplayMenu && !root.showWifiMenu) ? 1.0 : 0.0
+            scale: (root.showBrightness && !root.showVolume && !root.showDisplayMenu && !root.showWifiMenu) ? 1.0 : 0.85
+            visible: !root.showDisplayMenu && !root.showWifiMenu && !root.showVolume && (!root.showBrightness || opacity > 0.05)
+
+            Behavior on opacity { NumberAnimation { duration: root.animDuration; easing.type: Easing.OutCubic } }
+            Behavior on scale   { NumberAnimation { duration: root.animDuration; easing.type: Easing.OutCubic } }
+
+            // 1. Dot-Matrix Sun / Brightness Icon (Nothing OS Dot-Matrix Style)
+            Item {
+                width: 18
+                height: 18
+                anchors.verticalCenter: parent.verticalCenter
+
+                Repeater {
+                    model: [
+                        // Core Ring
+                        {x: 9, y: 6.5, r: 1.0}, {x: 9, y: 11.5, r: 1.0},
+                        {x: 6.5, y: 9, r: 1.0}, {x: 11.5, y: 9, r: 1.0},
+                        {x: 7.2, y: 7.2, r: 0.9}, {x: 10.8, y: 7.2, r: 0.9},
+                        {x: 7.2, y: 10.8, r: 0.9}, {x: 10.8, y: 10.8, r: 0.9},
+                        // Cardinal Rays
+                        {x: 9, y: 3.5, r: 1.0}, {x: 9, y: 1.5, r: 0.9},
+                        {x: 9, y: 14.5, r: 1.0}, {x: 9, y: 16.5, r: 0.9},
+                        {x: 3.5, y: 9, r: 1.0}, {x: 1.5, y: 9, r: 0.9},
+                        {x: 14.5, y: 9, r: 1.0}, {x: 16.5, y: 9, r: 0.9},
+                        // Diagonal Rays
+                        {x: 4.8, y: 4.8, r: 0.95}, {x: 13.2, y: 4.8, r: 0.95},
+                        {x: 4.8, y: 13.2, r: 0.95}, {x: 13.2, y: 13.2, r: 0.95}
+                    ]
+                    Rectangle {
+                        x: modelData.x - modelData.r
+                        y: modelData.y - modelData.r
+                        width: modelData.r * 2
+                        height: modelData.r * 2
+                        radius: modelData.r
+                        color: "#FFFFFF"
+                    }
+                }
+            }
+
+            // 2. Nothing OS Dot-Matrix Segmented Bar (16 discrete dot-capsules)
+            Row {
+                anchors.verticalCenter: parent.verticalCenter
+                spacing: 3
+
+                Repeater {
+                    model: 16
+                    Rectangle {
+                        width: 4
+                        height: 8
+                        radius: 2
+                        readonly property real dotThreshold: (index + 0.5) / 16.0
+                        readonly property bool active: root.brightnessLevel >= dotThreshold
+                        color: active ? "#FFFFFF" : Qt.rgba(1.0, 1.0, 1.0, 0.18)
+
+                        Behavior on color {
+                            ColorAnimation { duration: 70 }
+                        }
+                    }
+                }
+            }
+
+            // 3. Dot-Matrix Numerical Brightness Percentage (Ndot57)
+            Text {
+                anchors.verticalCenter: parent.verticalCenter
+                width: 42
+                text: root.brightnessPercent + "%"
+                font.pixelSize: 13
+                font.family: fontNdot57.name || "Fira Sans"
+                font.letterSpacing: 0.5
+                color: "#FFFFFF"
             }
         }
 
