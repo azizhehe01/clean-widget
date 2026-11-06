@@ -2,6 +2,10 @@
 
 Koleksi widget desktop modern bertema **Chameleon Frosted Glass Bento Grid**, **Server Notifikasi Native**, dan **Top Notch Interaktif** (Dynamic Island bergaya Nothing OS Volume OSD & Angry Eyes) untuk Wayland / Hyprland. Dibuat secara native menggunakan **[Quickshell](https://quickshell.outfoxxed.me/) (Qt6 / QML)** dengan akselerasi penuh GPU Hyprland dan background daemon Python yang sangat ringan.
 
+<p align="center">
+  <img src="assets/preview.png" alt="Desktop Widgets & Notch Preview" width="100%" />
+</p>
+
 ---
 
 ## ✨ Fitur-Fitur Utama
