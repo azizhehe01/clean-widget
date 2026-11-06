@@ -22,6 +22,10 @@ PanelWindow {
     // 1000 = 1.0 detik, 1200 = 1.2 detik, 1800 = 1.8 detik
     property int volumeTimeoutMs: 1000
 
+    // Durasi berapa lama menu display HDMI (Super+P) muncul sebelum otomatis terpilih & menutup (ms)
+    // 1000 = 1.0 detik, 1400 = 1.4 detik, 2000 = 2.0 detik, 2800 = 2.8 detik
+    property int displayTimeoutMs: 1400
+
     // Kecepatan animasi transisi morphing (ms)
     property int animDuration: 200
 
@@ -169,7 +173,7 @@ PanelWindow {
 
     Timer {
         id: displayAutoApplyTimer
-        interval: 2800
+        interval: root.displayTimeoutMs
         onTriggered: root.confirmAndCloseDisplay()
     }
 
