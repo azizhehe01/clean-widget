@@ -116,9 +116,22 @@ PanelWindow {
     // ---------------------------------------------------------------------
     readonly property int baseBodyW: 168
     readonly property int volumeBodyW: 248
-    property real animatedBodyW: showVolume ? volumeBodyW : baseBodyW
+    readonly property int displayBodyW: 460
+    property real animatedBodyW: {
+        if (showDisplayMenu) return displayBodyW;
+        if (showVolume) return volumeBodyW;
+        return baseBodyW;
+    }
 
     Behavior on animatedBodyW {
+        NumberAnimation { duration: root.animDuration; easing.type: Easing.OutCubic }
+    }
+
+    readonly property int baseNotchH: 38
+    readonly property int displayNotchH: 84
+    property real animatedNotchH: showDisplayMenu ? displayNotchH : baseNotchH
+
+    Behavior on animatedNotchH {
         NumberAnimation { duration: root.animDuration; easing.type: Easing.OutCubic }
     }
 
@@ -132,11 +145,111 @@ PanelWindow {
     readonly property int pupilSize: 12
 
     // Fixed stable window dimensions (mencegah Wayland surface resize jitter)
-    readonly property int windowWidth: 320
+    readonly property int windowWidth: 500
+    readonly property int windowHeight: 96
     anchors.top: true
     implicitWidth: windowWidth
-    implicitHeight: notchH
+    implicitHeight: windowHeight
     color: "transparent"
+
+    // ---------------------------------------------------------------------
+    // Display / HDMI Projection Management (Super + P Windows-Style)
+    // ---------------------------------------------------------------------
+    property bool showDisplayMenu: false
+    property int selectedDisplayIndex: 0
+    property string activeDisplayMode: "laptop"
+
+    ListModel {
+        id: displayModesModel
+        ListElement { modeId: "laptop";    label: "PC ONLY";   desc: "Laptop";  iconSource: "../assets/display-laptop.svg" }
+        ListElement { modeId: "duplicate"; label: "DUPLICATE"; desc: "Mirror";  iconSource: "../assets/display-duplicate.svg" }
+        ListElement { modeId: "extend";    label: "EXTEND";    desc: "Dual";    iconSource: "../assets/display-extend.svg" }
+        ListElement { modeId: "second";    label: "SECOND";    desc: "HDMI";    iconSource: "../assets/display-second.svg" }
+    }
+
+    Timer {
+        id: displayAutoApplyTimer
+        interval: 2800
+        onTriggered: root.confirmAndCloseDisplay()
+    }
+
+    Timer {
+        id: displayDismissTimer
+        interval: 600
+        onTriggered: root.showDisplayMenu = false
+    }
+
+    function triggerDisplayMenu(): void {
+        if (!showDisplayMenu) {
+            showDisplayMenu = true;
+            queryDisplayProc.running = true;
+        } else {
+            // Cycle through options on subsequent Super + P
+            selectedDisplayIndex = (selectedDisplayIndex + 1) % displayModesModel.count;
+        }
+        displayAutoApplyTimer.restart();
+    }
+
+    function selectAndApply(idx: int): void {
+        selectedDisplayIndex = idx;
+        applyCurrentDisplayMode();
+        displayDismissTimer.restart();
+    }
+
+    function confirmAndCloseDisplay(): void {
+        applyCurrentDisplayMode();
+        root.showDisplayMenu = false;
+    }
+
+    function applyCurrentDisplayMode(): void {
+        if (selectedDisplayIndex >= 0 && selectedDisplayIndex < displayModesModel.count) {
+            let m = displayModesModel.get(selectedDisplayIndex).modeId;
+            activeDisplayMode = m;
+            applyDisplayProc.targetMode = m;
+            applyDisplayProc.running = true;
+        }
+    }
+
+    IpcHandler {
+        target: "display"
+        function toggle(): void { root.triggerDisplayMenu(); }
+        function next(): void {
+            root.selectedDisplayIndex = (root.selectedDisplayIndex + 1) % displayModesModel.count;
+            displayAutoApplyTimer.restart();
+        }
+        function prev(): void {
+            root.selectedDisplayIndex = (root.selectedDisplayIndex + displayModesModel.count - 1) % displayModesModel.count;
+            displayAutoApplyTimer.restart();
+        }
+        function select(idx: int): void { root.selectAndApply(idx); }
+        function apply(): void { root.confirmAndCloseDisplay(); }
+        function close(): void { root.showDisplayMenu = false; }
+    }
+
+    Process {
+        id: queryDisplayProc
+        command: ["python3", Quickshell.shellDir + "/notch/display.py", "get"]
+        running: false
+        stdout: StdioCollector {
+            onStreamFinished: {
+                let current = this.text.trim();
+                for (let i = 0; i < displayModesModel.count; ++i) {
+                    if (displayModesModel.get(i).modeId === current) {
+                        root.selectedDisplayIndex = i;
+                        root.activeDisplayMode = current;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    Process {
+        id: applyDisplayProc
+        property string targetMode: "laptop"
+        command: ["python3", Quickshell.shellDir + "/notch/display.py", targetMode]
+        running: false
+    }
 
     // Stable screen-space center coordinate (tidak pernah goyang saat notch resize)
     readonly property real screenCenterX: root.screen ? (root.screen.x + root.screen.width / 2) : 960
@@ -155,6 +268,8 @@ PanelWindow {
     readonly property bool isHoveringTop: cursorY <= 8 && Math.abs(cursorX - screenCenterX) <= (windowWidth / 2)
 
     readonly property bool shouldHide: {
+        // Jangan sembunyikan jika menu Display / HDMI sedang dibuka
+        if (showDisplayMenu) return false;
         // Jangan sembunyikan jika volume HUD sedang aktif (selalu munculkan saat setting volume)
         if (showVolume) return false;
         // Munculkan jika user mengarahkan kursor ke ujung atas layar (hover-to-reveal)
@@ -206,7 +321,7 @@ PanelWindow {
         x: Math.round(notchVisual.x)
         y: 0
         width: Math.round(notchVisual.width)
-        height: root.shouldHide ? 0 : root.notchH
+        height: root.shouldHide ? 0 : Math.round(notchVisual.height + notchVisual.y)
     }
 
     // ---------------------------------------------------------------------
@@ -215,10 +330,10 @@ PanelWindow {
     Item {
         id: notchVisual
         anchors.horizontalCenter: parent.horizontalCenter
-        y: root.shouldHide ? -root.notchH : 0
+        y: root.shouldHide ? -notchVisual.height : 0
         opacity: root.shouldHide ? 0.0 : 1.0
         width: Math.round(root.animatedBodyW + root.shoulder * 2)
-        height: root.notchH
+        height: Math.round(root.animatedNotchH)
 
         Behavior on y {
             NumberAnimation { duration: 250; easing.type: Easing.OutCubic }
@@ -252,29 +367,29 @@ PanelWindow {
                 // Left Edge down to bottom-left corner
                 PathLine {
                     x: root.shoulder
-                    y: root.notchH - root.bottomRadius
+                    y: notchVisual.height - root.bottomRadius
                 }
 
                 // Bottom-Left Rounded Corner
                 PathQuad {
                     x: root.shoulder + root.bottomRadius
-                    y: root.notchH
+                    y: notchVisual.height
                     controlX: root.shoulder
-                    controlY: root.notchH
+                    controlY: notchVisual.height
                 }
 
                 // Bottom Edge across to bottom-right corner
                 PathLine {
                     x: notchVisual.width - root.shoulder - root.bottomRadius
-                    y: root.notchH
+                    y: notchVisual.height
                 }
 
                 // Bottom-Right Rounded Corner
                 PathQuad {
                     x: notchVisual.width - root.shoulder
-                    y: root.notchH - root.bottomRadius
+                    y: notchVisual.height - root.bottomRadius
                     controlX: notchVisual.width - root.shoulder
-                    controlY: root.notchH
+                    controlY: notchVisual.height
                 }
 
                 // Right Edge up to top-right shoulder
@@ -295,6 +410,7 @@ PanelWindow {
 
         // Wheel adjustment & Right-click to mute directly on notch
         WheelHandler {
+            enabled: !root.showDisplayMenu
             onWheel: function(event) {
                 let delta = event.angleDelta.y !== 0 ? event.angleDelta.y : event.pixelDelta.y;
                 if (delta > 0) root.setVolumeDelta(0.05);
@@ -305,6 +421,7 @@ PanelWindow {
 
         MouseArea {
             anchors.fill: parent
+            enabled: !root.showDisplayMenu
             acceptedButtons: Qt.RightButton
             cursorShape: Qt.PointingHandCursor
             onClicked: root.toggleMute()
@@ -320,8 +437,8 @@ PanelWindow {
             anchors.verticalCenterOffset: 1
             spacing: root.eyeGap
 
-            opacity: root.showVolume ? 0.0 : 1.0
-            scale: root.showVolume ? 0.85 : 1.0
+            opacity: (!root.showVolume && !root.showDisplayMenu) ? 1.0 : 0.0
+            scale: (!root.showVolume && !root.showDisplayMenu) ? 1.0 : 0.85
             visible: opacity > 0
 
             Behavior on opacity { NumberAnimation { duration: root.animDuration; easing.type: Easing.OutCubic } }
@@ -340,8 +457,8 @@ PanelWindow {
             anchors.verticalCenter: parent.verticalCenter
             spacing: 12
 
-            opacity: root.showVolume ? 1.0 : 0.0
-            scale: root.showVolume ? 1.0 : 0.85
+            opacity: (root.showVolume && !root.showDisplayMenu) ? 1.0 : 0.0
+            scale: (root.showVolume && !root.showDisplayMenu) ? 1.0 : 0.85
             visible: opacity > 0
 
             Behavior on opacity { NumberAnimation { duration: root.animDuration; easing.type: Easing.OutCubic } }
@@ -399,6 +516,157 @@ PanelWindow {
                 font.family: root.isMuted ? (fontNMono.name || "Fira Sans") : (fontNdot57.name || "Fira Sans")
                 font.letterSpacing: 0.5
                 color: root.isMuted ? Qt.rgba(1.0, 1.0, 1.0, 0.55) : "#FFFFFF"
+            }
+        }
+
+        // -----------------------------------------------------------------
+        // DISPLAY / HDMI PROJECTION MENU (NOTHING OS DOT-MATRIX STYLE)
+        // -----------------------------------------------------------------
+        Item {
+            id: displayMenuContainer
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.top: parent.top
+            anchors.topMargin: 4
+            width: parent.width - root.shoulder * 2 - 14
+            height: parent.height - 8
+
+            opacity: root.showDisplayMenu ? 1.0 : 0.0
+            scale: root.showDisplayMenu ? 1.0 : 0.92
+            visible: opacity > 0
+
+            Behavior on opacity { NumberAnimation { duration: root.animDuration; easing.type: Easing.OutCubic } }
+            Behavior on scale   { NumberAnimation { duration: root.animDuration; easing.type: Easing.OutCubic } }
+
+            // Header: Red Dot Indicator + Title + Keyboard shortcut hints
+            Row {
+                id: displayHeader
+                anchors.left: parent.left
+                anchors.leftMargin: 4
+                anchors.top: parent.top
+                anchors.topMargin: 4
+                spacing: 7
+
+                Rectangle {
+                    width: 6
+                    height: 6
+                    radius: 3
+                    color: "#D71921"
+                    anchors.verticalCenter: parent.verticalCenter
+                }
+
+                Text {
+                    text: "PROJECT DISPLAY"
+                    font.family: fontNMono.name || "monospace"
+                    font.pixelSize: 10
+                    font.letterSpacing: 1.5
+                    font.bold: true
+                    color: "#FFFFFF"
+                }
+
+                Text {
+                    text: "·  HDMI"
+                    font.family: fontNMono.name || "monospace"
+                    font.pixelSize: 9
+                    font.letterSpacing: 0.8
+                    color: "#666666"
+                }
+            }
+
+            Text {
+                anchors.right: parent.right
+                anchors.rightMargin: 4
+                anchors.top: parent.top
+                anchors.topMargin: 5
+                text: "[SUPER+P] CYCLE"
+                font.family: fontNMono.name || "monospace"
+                font.pixelSize: 9
+                color: "#777777"
+            }
+
+            // Cards Row: 4 Projection Options (PC ONLY, DUPLICATE, EXTEND, SECOND)
+            Row {
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.top: displayHeader.bottom
+                anchors.topMargin: 7
+                spacing: 8
+
+                Repeater {
+                    model: displayModesModel
+
+                    Rectangle {
+                        id: modeCard
+                        width: Math.floor((displayMenuContainer.width - 24) / 4)
+                        height: 44
+                        radius: 8
+
+                        readonly property bool isSelected: root.selectedDisplayIndex === index
+
+                        color: isSelected ? "#FFFFFF" : (cardMouse.containsMouse ? "#242424" : "#121212")
+                        border.color: isSelected ? "#FFFFFF" : (cardMouse.containsMouse ? "#444444" : "#222222")
+                        border.width: 1
+
+                        Behavior on color { ColorAnimation { duration: 130 } }
+                        Behavior on border.color { ColorAnimation { duration: 130 } }
+
+                        Row {
+                            anchors.centerIn: parent
+                            spacing: 7
+
+                            Item {
+                                width: 20
+                                height: 20
+                                anchors.verticalCenter: parent.verticalCenter
+
+                                Image {
+                                    id: cardIcon
+                                    anchors.fill: parent
+                                    source: Qt.resolvedUrl(model.iconSource)
+                                    sourceSize: Qt.size(24, 24)
+                                    visible: false
+                                }
+
+                                ColorOverlay {
+                                    anchors.fill: cardIcon
+                                    source: cardIcon
+                                    color: modeCard.isSelected ? "#000000" : (cardMouse.containsMouse ? "#FFFFFF" : "#888888")
+                                    Behavior on color { ColorAnimation { duration: 130 } }
+                                }
+                            }
+
+                            Column {
+                                anchors.verticalCenter: parent.verticalCenter
+                                spacing: 1
+
+                                Text {
+                                    text: model.label
+                                    font.family: fontNType.name || "Fira Sans"
+                                    font.pixelSize: 10
+                                    font.bold: true
+                                    color: modeCard.isSelected ? "#000000" : (cardMouse.containsMouse ? "#FFFFFF" : "#E0E0E0")
+                                }
+
+                                Text {
+                                    text: modeCard.isSelected ? "● ACTIVE" : model.desc
+                                    font.family: fontNMono.name || "monospace"
+                                    font.pixelSize: 8
+                                    color: modeCard.isSelected ? "#333333" : "#666666"
+                                }
+                            }
+                        }
+
+                        MouseArea {
+                            id: cardMouse
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: root.selectAndApply(index)
+                            onEntered: {
+                                root.selectedDisplayIndex = index;
+                                displayAutoApplyTimer.restart();
+                            }
+                        }
+                    }
+                }
             }
         }
     }

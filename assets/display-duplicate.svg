@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none">
+  <!-- Duplicate: Two overlapping identical dot-matrix screens -->
+  <!-- Back Screen (dimmer or offset) -->
+  <rect x="7" y="3" width="13" height="10" rx="2" stroke="currentColor" stroke-width="1.6" stroke-dasharray="2 2"/>
+  
+  <!-- Front Screen (solid / active) -->
+  <rect x="3" y="7" width="13" height="10" rx="2" stroke="currentColor" stroke-width="1.8"/>
+  <circle cx="9.5" cy="12" r="1.5" fill="currentColor"/>
+  <circle cx="13.5" cy="8" r="1.2" fill="currentColor"/>
+
+  <!-- Stand / base -->
+  <rect x="6.5" y="19" width="6" height="2" rx="1" fill="currentColor"/>
+  <line x1="9.5" y1="17" x2="9.5" y2="19" stroke="currentColor" stroke-width="1.8"/>
+</svg>

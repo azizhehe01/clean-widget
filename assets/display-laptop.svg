@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none">
+  <!-- Laptop Only: Single screen + keyboard base in dot-matrix style -->
+  <!-- Screen border dots -->
+  <circle cx="5" cy="5" r="1.2" fill="currentColor"/>
+  <circle cx="8.5" cy="5" r="1.2" fill="currentColor"/>
+  <circle cx="12" cy="5" r="1.2" fill="currentColor"/>
+  <circle cx="15.5" cy="5" r="1.2" fill="currentColor"/>
+  <circle cx="19" cy="5" r="1.2" fill="currentColor"/>
+
+  <circle cx="5" cy="8.5" r="1.2" fill="currentColor"/>
+  <circle cx="19" cy="8.5" r="1.2" fill="currentColor"/>
+
+  <circle cx="5" cy="12" r="1.2" fill="currentColor"/>
+  <circle cx="19" cy="12" r="1.2" fill="currentColor"/>
+
+  <circle cx="5" cy="15" r="1.2" fill="currentColor"/>
+  <circle cx="8.5" cy="15" r="1.2" fill="currentColor"/>
+  <circle cx="12" cy="15" r="1.2" fill="currentColor"/>
+  <circle cx="15.5" cy="15" r="1.2" fill="currentColor"/>
+  <circle cx="19" cy="15" r="1.2" fill="currentColor"/>
+
+  <!-- Center Active Dot -->
+  <circle cx="12" cy="10" r="1.6" fill="currentColor"/>
+
+  <!-- Laptop Base bar -->
+  <rect x="3" y="18" width="18" height="2" rx="1" fill="currentColor"/>
+</svg>
