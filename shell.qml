@@ -2,6 +2,7 @@ import Quickshell
 import "widgets"
 import "notifications"
 import "notch"
+import "sidebar"
 
 ShellRoot {
     DesktopWidgetsWindow {
@@ -13,4 +14,8 @@ ShellRoot {
     }
 
     NotchWindow {}
+
+    SidebarWindow {
+        id: musicSidebar
+    }
 }

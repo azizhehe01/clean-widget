@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+  <!-- Nothing OS Dot-Matrix Checkmark (✓) Button -->
+  <g fill="#FF3B30" fill-opacity="0.95">
+    <circle cx="5" cy="11.5" r="1.2"/>
+    <circle cx="7" cy="13.5" r="1.2"/>
+    <circle cx="9" cy="15.5" r="1.2"/>
+    <circle cx="11.5" cy="13" r="1.2"/>
+    <circle cx="13.5" cy="10.5" r="1.2"/>
+    <circle cx="15.5" cy="8" r="1.2"/>
+    <circle cx="17.5" cy="5.5" r="1.2"/>
+  </g>
+</svg>
+
