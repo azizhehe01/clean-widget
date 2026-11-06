@@ -398,16 +398,24 @@ PanelWindow {
                     Item {
                         anchors.fill: parent
                         layer.enabled: true
+                        layer.smooth: true
+                        layer.samples: 4
                         layer.effect: OpacityMask {
                             maskSource: albumMask
                         }
 
                         Image {
+                            id: albumImg
                             anchors.fill: parent
                             source: (root.activePlayer && root.activePlayer.trackArtUrl)
                                 ? root.activePlayer.trackArtUrl
-                                : "../assets/album.jpg"
+                                : "../assets/album.png"
                             fillMode: Image.PreserveAspectCrop
+                            smooth: true
+                            mipmap: true
+                            cache: false
+                            // 2x supersampling agar tajam dan tidak burik di layar resolusi tinggi
+                            sourceSize: Qt.size(albumBox.width * 2, albumBox.height * 2)
                         }
                     }
                 }
@@ -597,6 +605,8 @@ PanelWindow {
                 Item {
                     anchors.fill: parent
                     layer.enabled: true
+                    layer.smooth: true
+                    layer.samples: 4
                     layer.effect: OpacityMask {
                         maskSource: posterMask
                     }
@@ -607,6 +617,9 @@ PanelWindow {
                         source: "../assets/poster.jpg"
                         cache: false
                         fillMode: Image.PreserveAspectCrop
+                        smooth: true
+                        mipmap: true
+                        sourceSize: Qt.size(posterCard.width * 2, posterCard.height * 2)
                     }
                 }
             }
