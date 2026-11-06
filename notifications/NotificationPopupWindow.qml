@@ -44,8 +44,8 @@ PanelWindow {
     visible: notifModel.count > 0
 
     // Official Nothing OS & nothing.tech Typography
-    FontLoader { id: fontNType; source: Qt.resolvedUrl("assets/fonts/NType82-Regular.otf") }
-    FontLoader { id: fontNMono; source: Qt.resolvedUrl("assets/fonts/LetteraMonoLL-Regular.otf") }
+    FontLoader { id: fontNType; source: Qt.resolvedUrl("../assets/fonts/NType82-Regular.otf") }
+    FontLoader { id: fontNMono; source: Qt.resolvedUrl("../assets/fonts/LetteraMonoLL-Regular.otf") }
 
     // =========================================================================
     // Theme Tokens — Real-Time GPU Chameleon Frosted Glass (100% Pure Neutral)
@@ -508,7 +508,7 @@ PanelWindow {
                                             width: 14
                                             height: 14
                                             anchors.verticalCenter: parent.verticalCenter
-                                            source: Qt.resolvedUrl("assets/rocket.svg")
+                                            source: Qt.resolvedUrl("../assets/rocket.svg")
                                             sourceSize: Qt.size(14, 14)
                                             opacity: 0.9
                                         }

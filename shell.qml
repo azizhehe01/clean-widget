@@ -1,4 +1,7 @@
 import Quickshell
+import "widgets"
+import "notifications"
+import "notch"
 
 ShellRoot {
     DesktopWidgetsWindow {
@@ -8,4 +11,6 @@ ShellRoot {
     NotificationPopupWindow {
         wallpaperUrl: desktopWidgets.wallpaperUrl
     }
+
+    NotchWindow {}
 }

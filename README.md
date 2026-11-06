@@ -1,160 +1,223 @@
-# Chameleon Frosted Glass Desktop Widgets & Notifications for Quickshell & Hyprland
+# Chameleon Frosted Glass Desktop Widgets, Notifikasi & Interactive Notch
 
-A modern **Chameleon Frosted Glass Bento Grid** desktop widget suite and native **Notification Popup Server** for Wayland/Hyprland, built natively with **Quickshell (Qt6 / QML)** and a lightweight Python background service.
-
-![Preview](assets/preview.png)
+Koleksi widget desktop modern bertema **Chameleon Frosted Glass Bento Grid**, **Server Notifikasi Native**, dan **Top Notch Interaktif** (Dynamic Island bergaya Nothing OS Volume OSD & Angry Eyes) untuk Wayland / Hyprland. Dibuat secara native menggunakan **[Quickshell](https://quickshell.outfoxxed.me/) (Qt6 / QML)** dengan akselerasi penuh GPU Hyprland dan background daemon Python yang sangat ringan.
 
 ---
 
-## ✨ Features
+## ✨ Fitur-Fitur Utama
 
-- 🕒 **Nothing OS Clock & Date Card**: Large digital clock rendered in Nothing's signature dot-matrix typeface (`Ndot57`) paired with a technical monospace date (`LetteraMonoLL`) via `Quickshell.SystemClock`.
-- 🌦️ **Nothing OS Live Weather & Location Card**:
-  - Dot-matrix weather icon (`assets/weather-dot.svg`), daily High/Low (`H/L`), and large dot-matrix temperature (`Ndot55`).
-  - Real-time weather condition, auto-detected city location (`ip-api.com`), and humidity + wind speed (`Open-Meteo` / `wttr.in`) with 15-minute local caching.
-- 🎵 **Unified Media Player & Real-Time Synced Lyrics Card**:
-  - Live **MPRIS** integration (Spotify, YouTube/Brave/Firefox, VLC, Amberol, etc.).
-  - Dynamic **Album Cover Art** with automatic fallback (`assets/album.jpg`).
-  - Interactive playback controls (*Previous*, *Play/Pause*, *Next*).
-  - **3-Line Real-Time Synced Lyrics** that automatically highlight the active line and collapse smoothly when no lyrics are available.
-- 🖼️ **Character / Photo Poster Card**: Rounded `20px` portrait frame with a subtle glass edge border.
-- 📊 **Linux System Monitor Card**:
-  - **`Root (/)`** and **`Home (/home)`** partition usage & progress bars.
-  - **`Battery`** percentage & progress bar.
-- ⚡ **Power Controls Capsule**: Quick capsule buttons for *Suspend/Sleep*, *Power Off*, and *Reboot*.
-- 🔔 **Native Frosted Glass Notification Popups (`NotificationPopupWindow.qml`)**:
-  - Replaces `swaync` / `dunst` / `mako` using `Quickshell.Services.Notifications` (`org.freedesktop.Notifications`).
-  - Matches the **Real-Time GPU Chameleon Frosted Glass** aesthetic of the desktop widgets (`20px` corner radius, specular glass border, and live Hyprland Dual-Kawase GPU blur).
-  - Features smooth slide/fade transitions, scrollable long notification bodies (`Flickable` + `WheelHandler`), interactive D-Bus action buttons, smart multi-workspace window focus via `xdg_activation_v1`, click-anywhere dismissal, and a bottom auto-dismiss progress bar that pauses on hover.
+### 1. 👁️ Interactive Top Notch & Nothing OS Volume OSD (`notch/`)
+* **Mata Interaktif Pelacak Kursor:** Sepasang mata putih bergaya *angry eyes* dengan efek paralaks 2-layer yang melacak posisi kursor mouse secara *real-time* di seluruh layar melalui Hyprland IPC daemon (`cursor.py`), dilengkapi animasi kedipan acak (*random blinks*).
+* **Nothing OS Dot-Matrix Volume OSD:** Saat volume suara diubah (via tombol shortcut keyboard, scroll wheel di notch, atau mixer), notch akan bermorfosis secara mulus menjadi HUD Volume bergaya Nothing OS lengkap dengan icon speaker dot-matrix, 16 kapsul titik bar progress, dan persentase angka font `Ndot57`.
+* **Smart Auto-Hide (`autoHideMode: "any_window"`):**
+  * Notch otomatis **meluncur naik dan bersembunyi** saat ada jendela aplikasi terbuka atau aktif (misal saat membuka terminal lewat `Super + Enter`, browser, atau editor).
+  * Layar tetap **100% lega tanpa terpotong** (`reserveSpace: false` / `exclusiveZone: 0`).
+  * Saat mengubah volume, notch otomatis meluncur turun menampilkan indikator volume Nothing OS, lalu kembali bersembunyi setelah timeout.
+* **Hover-to-Reveal:** Cukup tempelkan kursor ke ujung paling atas layar (`y <= 8px`), notch akan meluncur turun agar lo bisa melihat mata atau mengubah volume langsung via scroll.
+* **Kontrol Mouse Cepat:** Scroll wheel di atas notch untuk menaikkan/menurunkan volume (step 5%), klik kanan untuk toggle Mute/Unmute.
 
----
+### 2. 🕒 Jam Digital & Tanggal Nothing OS (`widgets/`)
+* Jam digital besar berdesain titik-titik khas Nothing OS menggunakan font resmi `Ndot57`.
+* Hari dan tanggal bergaya technical monospace menggunakan font resmi `LetteraMonoLL`.
+* Didukung langsung oleh `Quickshell.SystemClock` yang hemat daya dan sinkron per menit.
 
-## 🔍 Data Sources & How It Works
+### 3. 🌦️ Kartu Cuaca & Lokasi Real-Time (`widgets/`)
+* Icon cuaca dot-matrix putih (`assets/weather-dot.svg`).
+* Suhu harian tertinggi & terendah (`H 29°` / `L 23°`), serta suhu besar `Ndot55`.
+* Kondisi cuaca, deteksi lokasi kota otomatis berdasarkan IP publik (`ip-api.com` / `wttr.in`), serta kelembapan dan kecepatan angin (`74% · 7 KM/H`) dengan sistem caching lokal 15 menit agar tidak membebani jaringan.
 
-Every piece of data shown on the widget is fetched automatically without requiring paid API keys:
+### 4. 🎵 Media Player & Lirik Tersinkronisasi Real-Time (`widgets/`)
+* **Integrasi MPRIS:** Terhubung langsung ke media player aktif (Spotify, YouTube di browser Brave/Firefox/Chrome, VLC, Amberol, dll.).
+* **Cover Album Dinamis:** Menampilkan cover album lagu secara otomatis dari D-Bus MPRIS, dengan fallback ke gambar lokal [`assets/album.jpg`](assets/album.jpg).
+* **Kontrol Playback:** Tombol interaktif *Previous*, *Play/Pause*, dan *Next*.
+* **Lirik Sinkron Real-Time (3 Baris):** Mengambil lirik dari database terbuka [LRCLIB](https://lrclib.net/) dan disinkronkan langsung per detik dengan posisi playback lagu (`playerctl position`). Baris yang aktif otomatis disorot putih terang dan membesar halus.
 
-| Component | Source / Protocol | How It Works |
-| :--- | :--- | :--- |
-| **Album Cover Art** | `Quickshell.Services.Mpris` (`mpris:artUrl`) | Read directly in QML from the active media player's D-Bus MPRIS metadata (`activePlayer.trackArtUrl`). Falls back to `assets/album.jpg` when idle. |
-| **Song Title & Artist** | `Quickshell.Services.Mpris` & `playerctl` | Read live from D-Bus MPRIS (`xesam:title` & `xesam:artist`), prioritizing whichever player is currently in the `Playing` state. |
-| **Real-Time Synced Lyrics** | **[LRCLIB API](https://lrclib.net/)** (`https://lrclib.net/api/search`) + `playerctl position` | `stats.py` reads the active track title, artist, and playback timestamp (`position` in seconds) via `playerctl`, queries the open-source **LRCLIB** database for time-synced `.lrc` lyrics (`[mm:ss.xx]`), caches them locally in `/tmp/ml4w_desktop_lyrics_cache_v2.json`, and syncs the 3 visible lines to the current playback second. Works even for songs where Spotify hides or lacks lyrics, as well as YouTube playback! |
-| **Weather, Temp & Location** | **[Open-Meteo API](https://open-meteo.com/)** + **[ip-api.com](http://ip-api.com/)** (fallback: **[wttr.in](https://wttr.in/)**) | Automatically detects city coordinates via IP geolocation, fetches current temperature, daily High/Low (`H/L`), weather condition, humidity (`%`), and wind speed (`KM/H`), and caches for 15 minutes in `/tmp/ml4w_desktop_widgets_cache_v3.json`. |
-| **Disk Partitions (`Root /`, `Home /home`)** | Python `shutil.disk_usage()` | Queries native Linux filesystem usage for `/` and `~` (`/home`) every 2.5 seconds. |
-| **Battery Status** | Linux `/sys/class/power_supply/BAT*` | Reads hardware battery capacity (`/capacity`) and charging status (`/status`) directly from `sysfs`. |
-| **Desktop Notifications** | `Quickshell.Services.Notifications` (`NotificationServer`) | Listens directly on D-Bus (`org.freedesktop.Notifications`) for system notifications (`notify-send`, Antigravity IDE, Spotify, Discord, browser alerts, etc.) and renders them as stacked frosted-glass cards at the top-right corner. |
-| **Real-Time GPU Frosted Glass** | Hyprland `layerrule` (`blur`, `ignorealpha 0.1`) | Uses Hyprland's real-time GPU Dual-Kawase blur (`size = 10`, `passes = 3`, `xray = false`) so both widgets and notifications dynamically blur whatever wallpaper or application window is directly behind them in real-time. |
+### 5. 🖼️ Frame Poster / Foto Estetik (`widgets/`)
+* Frame foto portrait elegan ber-radius 20px dengan pinggiran kaca halus.
+* Menampilkan gambar lokal dari [`assets/poster.jpg`](assets/poster.jpg).
 
----
+### 6. 📊 Monitor Sistem Linux (`widgets/`)
+* Pemantau partisi Linux: penggunaan ruang `Root (/)` dan `Home (/home)` lengkap dengan bar kapasitas.
+* Indikator persentase baterai laptop langsung dari `sysfs` hardware.
 
-## 📦 Requirements
+### 7. ⚡ Kapsul Tombol Daya (`widgets/`)
+* Tombol cepat dengan icon Nerd Font untuk *Sleep/Suspend*, *Power Off (Shutdown)*, dan *Reboot*.
 
-Make sure the following packages are installed on your system:
-
-1. **[Quickshell](https://quickshell.outfoxxed.me/)** (`qs`)
-   - **Fedora**: `sudo dnf copr enable errornointernet/quickshell && sudo dnf install quickshell`
-   - **Arch Linux**: `yay -S quickshell-git` or `paru -S quickshell-git`
-2. **Python 3** (`python3`)
-3. **playerctl** (required for media controls & timestamped lyrics sync)
-   - **Fedora**: `sudo dnf install playerctl`
-   - **Arch Linux**: `sudo pacman -S playerctl`
-4. **Fonts**:
-   - Official Nothing OS fonts (`Ndot55`, `Ndot57`, `NType82`, `LetteraMonoLL`) are **bundled directly inside `assets/fonts/`** and loaded automatically via QML `FontLoader`.
-   - `FiraCode Nerd Font` (Media & Power icons)
+### 8. 🔔 Server & Popup Notifikasi Frosted Glass Native (`notifications/`)
+* Menggantikan daemon notifikasi eksternal seperti `swaync`, `dunst`, atau `mako` via D-Bus `org.freedesktop.Notifications`.
+* Menggunakan estetika **Chameleon Frosted Glass** yang serasi dengan widget desktop (radius 20px, border highlight kaca, dan real-time GPU Dual-Kawase blur).
+* **Scrollable:** Notifikasi panjang tidak terpotong, bisa di-scroll menggunakan mouse wheel / dua jari touchpad.
+* **Tombol Aksi D-Bus:** Mendukung tombol interaktif (Approve, Deny, Open, dll.).
+* **Fokus Cepat Window:** Khusus notifikasi aplikasi tertentu (mis. Antigravity IDE), otomatis menampilkan tombol aksi dengan aktivasi workspace akurat via `xdg_activation_v1`.
+* **Dismiss Cepat:** Klik di mana saja pada kartu notifikasi untuk menutupnya. Timer auto-dismiss otomatis berhenti saat kursor berada di atas kartu.
 
 ---
 
-## 🚀 Installation
+## 📦 Kebutuhan Sistem (Dependencies)
 
-### 1. Clone the repository
-Clone directly into your `~/.config/quickshell/` folder:
+Pastikan paket-paket berikut sudah terpasang di sistem Linux lo:
+
+### 1. Quickshell (`qs`)
+* **Fedora:**
+  ```bash
+  sudo dnf copr enable errornointernet/quickshell
+  sudo dnf install quickshell
+  ```
+* **Arch Linux:**
+  ```bash
+  yay -S quickshell-git
+  # atau
+  paru -S quickshell-git
+  ```
+
+### 2. Paket Pendukung
+* **Python 3** (untuk background service cuaca, lirik, partisi, dan pelacak kursor)
+* **playerctl** (untuk kontrol media & sinkronisasi lirik)
+  * Fedora: `sudo dnf install playerctl`
+  * Arch: `sudo pacman -S playerctl`
+* **ImageMagick** (`magick`, untuk efek blur wallpaper)
+  * Fedora: `sudo dnf install ImageMagick`
+  * Arch: `sudo pacman -S imagemagick`
+* **Fonts:**
+  * Font resmi Nothing OS (`Ndot55`, `Ndot57`, `NType82`, `LetteraMonoLL`) **sudah disertakan langsung di dalam folder `assets/fonts/`** dan otomatis dimuat oleh QML.
+  * **FiraCode Nerd Font** (untuk icon media, baterai, dan power):
+    * Fedora: `sudo dnf install fira-code-fonts`
+    * Arch: `sudo pacman -S ttf-fira-code`
+
+---
+
+## 🚀 Panduan Instalasi & Menjalankan
+
+### Langkah 1: Pasang ke Direktori Quickshell
+Pastikan folder ditaruh di `~/.config/quickshell/DesktopWidgetsApp`:
 
 ```bash
-git clone https://github.com/<your-username>/<repo-name>.git ~/.config/quickshell/DesktopWidgetsApp
+# Jika clone repository baru:
+git clone https://github.com/azizhehe01/DesktopWidgetsApp.git ~/.config/quickshell/DesktopWidgetsApp
 ```
 
-### 2. Make the helper script executable
+### Langkah 2: Berikan Izin Eksekusi pada Script Pembantu
 ```bash
-chmod +x ~/.config/quickshell/DesktopWidgetsApp/stats.py
+chmod +x ~/.config/quickshell/DesktopWidgetsApp/widgets/stats.py
+chmod +x ~/.config/quickshell/DesktopWidgetsApp/notch/cursor.py
 ```
 
-### 3. Run the widget
+### Langkah 3: Uji Coba Menjalankan
+Jalankan melalui terminal untuk melihat output:
 ```bash
 qs -p ~/.config/quickshell/DesktopWidgetsApp
 ```
 
 ---
 
-## 🌫️ Hyprland Blur & Autostart Configuration
+## 🌫️ Konfigurasi Autostart & Blur Hyprland
 
-### Option A: Standard Hyprland (`~/.config/hypr/hyprland.conf`)
-Add these lines to your `hyprland.conf`:
+### 1. Konfigurasi Autostart
+Tambahkan baris berikut ke konfigurasi Hyprland lo (misalnya `~/.config/hypr/hyprland.conf` atau `~/.config/ml4w/scripts/ml4w-autostart`):
 
 ```ini
-# Autostart Desktop Widgets
+# Autostart DesktopWidgetsApp (Widgets, Notifikasi & Notch)
 exec-once = qs -p ~/.config/quickshell/DesktopWidgetsApp
+```
 
-# Frosted Glass Blur Settings
-decoration {
-    blur {
-        enabled = true
-        size = 10
-        passes = 3
-        new_optimizations = true
-        xray = false
-        vibrancy = 0.25
-        brightness = 1.05
-    }
-}
+> **Catatan untuk Pengguna Dotfiles ML4W:**
+> Jika lo sebelumnya menggunakan statusbar bawaan ML4W, pastikan baris `StatusbarWindow {}` di `~/.config/quickshell/shell.qml` dikomentari atau dinonaktifkan agar tidak tumpang tindih dengan Notch.
 
-# Blur only the cards and ignore transparent gaps
+### 2. Konfigurasi Blur GPU Dual-Kawase di Hyprland
+Agar efek frosted glass transparan menghasilkan blur kaca buram yang mewah di Wayland, tambahkan `layerrule` berikut ke `~/.config/hypr/hyprland.conf` (atau konfigurasi dekorasi Hyprland lo):
+
+```ini
+# Rule blur untuk Desktop Widgets & Notifikasi
 layerrule = blur, quickshell:desktop-widgets
-layerrule = ignorealpha 0.2, quickshell:desktop-widgets
+layerrule = ignorealpha 0.1, quickshell:desktop-widgets
+
 layerrule = blur, quickshell:notifications
-layerrule = ignorealpha 0.2, quickshell:notifications
-```
-
-### Option B: ML4W Dotfiles (Hyprland Lua Config)
-1. In `~/.config/hypr/conf/decorations/default.lua`, add:
-   ```lua
-   hl.layer_rule({
-       name = "quickshell-desktop-widgets",
-       match = { namespace = "quickshell:desktop-widgets" },
-       blur = true,
-       ignore_alpha = 0.2,
-   })
-
-   hl.layer_rule({
-       name = "quickshell-notifications",
-       match = { namespace = "quickshell:notifications" },
-       blur = true,
-       ignore_alpha = 0.2,
-   })
-   ```
-2. In `~/.config/ml4w/scripts/ml4w-autostart`, add:
-   ```bash
-   qs -p $HOME/.config/quickshell/DesktopWidgetsApp &
-   ```
-
----
-
-## 🎨 Customization
-
-### Changing the Character / Poster Image
-Replace `assets/poster.jpg` with your own vertical image:
-
-```bash
-cp /path/to/your-image.jpg ~/.config/quickshell/DesktopWidgetsApp/assets/poster.jpg
-```
-
-### Safe Reload Command
-To restart the widget cleanly after editing QML or replacing `assets/poster.jpg`:
-
-```bash
-kill $(pgrep -f 'quickshell/DesktopWidgetsApp') 2>/dev/null
-qs -p ~/.config/quickshell/DesktopWidgetsApp &
+layerrule = ignorealpha 0.1, quickshell:notifications
 ```
 
 ---
 
-## 📄 License
-MIT License. Feel free to fork, customize, and share!
+## ⚙️ Panduan Pengaturan & Kustomisasi (Cara Setting)
+
+Semua pengaturan utama telah diletakkan di bagian paling atas file masing-masing komponen agar sangat mudah diubah:
+
+### 1. Mengatur Top Notch & Volume OSD ([`notch/NotchWindow.qml`](notch/NotchWindow.qml))
+Buka file `notch/NotchWindow.qml` dan perhatikan baris konfigurasi berikut:
+
+```qml
+    // =========================================================================
+    // User Configurations (Bisa Diatur Di Sini)
+    // =========================================================================
+    
+    // 1. Durasi berapa lama HUD volume muncul sebelum kembali sembunyi / jadi mata (dalam ms)
+    // 1000 = 1.0 detik, 1200 = 1.2 detik, 1800 = 1.8 detik
+    property int volumeTimeoutMs: 1000
+
+    // 2. Kecepatan animasi transisi pembesaran/morphing notch (ms)
+    property int animDuration: 200
+
+    // 3. Mode Auto-Hide Notch:
+    //    "any_window"      : Sembunyi jika ada jendela aplikasi apapun terbuka/aktif (Default)
+    //    "not_antigravity" : Sembunyi jika aplikasi yang aktif BUKAN Antigravity
+    //    "antigravity"     : Sembunyi jika aplikasi aktif ADALAH Antigravity
+    //    "never"           : Selalu tampilkan notch (tidak pernah sembunyi)
+    property string autoHideMode: "any_window"
+
+    // 4. Reservasi ruang layar untuk jendela aplikasi:
+    //    false = Jendela aplikasi dapat layar penuh 100% tanpa terpotong 38px (Rekomendasi)
+    //    true  = Hyprland memesan 38px di atas layar untuk notch
+    property bool reserveSpace: false
+```
+
+### 2. Mengganti Poster Karakter / Foto
+Untuk mengganti foto pada frame poster di widget:
+* Cukup timpa file gambar di [`assets/poster.jpg`](assets/poster.jpg) dengan gambar foto portrait pilihan lo (rasio disarankan 9:16 atau 3:4).
+* Gambar akan langsung terpasang otomatis dengan sudut membulat 20px.
+
+### 3. Mengganti Cover Album Default
+Jika pemutar musik sedang tidak aktif, widget menampilkan cover default dari [`assets/album.jpg`](assets/album.jpg). Lo bisa menggantinya dengan artwork album favorit lo.
+
+### 4. Mengatur Kota & Layanan Cuaca ([`widgets/stats.py`](widgets/stats.py))
+* Secara default, script mendeteksi lokasi kota lo secara otomatis menggunakan IP Geolocation publik.
+* Jika lo ingin menentukan kota tertentu secara manual, lo bisa mengedit pemanggilan URL di baris 176 file `widgets/stats.py`:
+  ```python
+  # Ganti "NamaKota" dengan nama kota lo (misal: "Jakarta", "Banyumas", "Bandung")
+  req = urllib.request.Request("https://wttr.in/Jakarta?format=%c+%t", headers={"User-Agent": "curl/7.68.0"})
+  ```
+
+---
+
+## 📁 Struktur Direktori Proyek
+
+```text
+DesktopWidgetsApp/
+├── assets/                       # Aset gambar, font Nothing OS, dan icon SVG
+│   ├── fonts/
+│   │   ├── Ndot55-Regular.otf    # Font angka cuaca
+│   │   ├── Ndot57-Regular.otf    # Font jam digital & volume Nothing OS
+│   │   ├── NType82-Regular.otf   # Font sans-serif bento grid
+│   │   └── LetteraMonoLL-Regular.otf # Font tanggal & teks teknikal monospace
+│   ├── album.jpg                 # Fallback cover album
+│   ├── poster.jpg                # Foto pada frame poster
+│   ├── volume-dot.svg            # Icon speaker dot-matrix
+│   ├── volume-mute-dot.svg       # Icon speaker mute dot-matrix
+│   ├── weather-dot.svg           # Icon cuaca dot-matrix
+│   └── rocket.svg                # Icon aksi notifikasi
+├── notch/
+│   ├── NotchWindow.qml           # Window Top Notch interaktif & Volume HUD Nothing OS
+│   └── cursor.py                 # Daemon IPC Hyprland pelacak kursor & active window
+├── notifications/
+│   └── NotificationPopupWindow.qml # Server notifikasi native frosted glass
+├── widgets/
+│   ├── DesktopWidgetsWindow.qml  # Window utama bento grid widget desktop
+│   └── stats.py                  # Service pengambil data lirik, cuaca, & sistem
+├── shell.qml                     # Entry point Quickshell yang memuat seluruh window
+└── README.md                     # Dokumentasi panduan lengkap
+```
+
+---
+
+## 📜 Lisensi & Kredit
+* Dibuat untuk ekosistem Wayland / Hyprland menggunakan framework hebat [Quickshell](https://quickshell.outfoxxed.me/).
+* Tipografi & gaya dot-matrix terinspirasi dari desain hardware dan software [Nothing OS](https://nothing.tech/).
+* Database lirik musik didukung oleh komunitas terbuka [LRCLIB](https://lrclib.net/).

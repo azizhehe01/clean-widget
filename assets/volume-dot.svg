@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+  <!-- Nothing OS Dot-Matrix Speaker (Unmuted) -->
+  <g fill="#FFFFFF" fill-opacity="0.95">
+    <!-- Speaker Body -->
+    <circle cx="3" cy="8" r="1.1"/>
+    <circle cx="3" cy="10" r="1.1"/>
+    <circle cx="3" cy="12" r="1.1"/>
+    <circle cx="5" cy="8" r="1.1"/>
+    <circle cx="5" cy="10" r="1.1"/>
+    <circle cx="5" cy="12" r="1.1"/>
+    
+    <!-- Speaker Cone -->
+    <circle cx="7" cy="7" r="1.1"/>
+    <circle cx="7" cy="9" r="1.1"/>
+    <circle cx="7" cy="11" r="1.1"/>
+    <circle cx="7" cy="13" r="1.1"/>
+    <circle cx="9" cy="5" r="1.1"/>
+    <circle cx="9" cy="7" r="1.1"/>
+    <circle cx="9" cy="9" r="1.1"/>
+    <circle cx="9" cy="11" r="1.1"/>
+    <circle cx="9" cy="13" r="1.1"/>
+    <circle cx="9" cy="15" r="1.1"/>
+
+    <!-- Wave 1 (Inner) -->
+    <circle cx="12" cy="7" r="1.1"/>
+    <circle cx="13" cy="9.5" r="1.1"/>
+    <circle cx="12" cy="12" r="1.1"/>
+
+    <!-- Wave 2 (Outer) -->
+    <circle cx="15" cy="5" r="1.1"/>
+    <circle cx="16.5" cy="7.5" r="1.1"/>
+    <circle cx="17" cy="10" r="1.1"/>
+    <circle cx="16.5" cy="12.5" r="1.1"/>
+    <circle cx="15" cy="15" r="1.1"/>
+  </g>
+</svg>
+

@@ -34,10 +34,10 @@ PanelWindow {
     // - NType82: Clean Geometric Grotesk from nothing.tech (for titles, lyrics, body)
     // - LetteraMonoLL: Technical Monospace from nothing.tech (for metadata, location, stats)
     // =========================================================================
-    FontLoader { id: fontNdot55; source: Qt.resolvedUrl("assets/fonts/Ndot55-Regular.otf") }
-    FontLoader { id: fontNdot57; source: Qt.resolvedUrl("assets/fonts/Ndot57-Regular.otf") }
-    FontLoader { id: fontNType;  source: Qt.resolvedUrl("assets/fonts/NType82-Regular.otf") }
-    FontLoader { id: fontNMono;  source: Qt.resolvedUrl("assets/fonts/LetteraMonoLL-Regular.otf") }
+    FontLoader { id: fontNdot55; source: Qt.resolvedUrl("../assets/fonts/Ndot55-Regular.otf") }
+    FontLoader { id: fontNdot57; source: Qt.resolvedUrl("../assets/fonts/Ndot57-Regular.otf") }
+    FontLoader { id: fontNType;  source: Qt.resolvedUrl("../assets/fonts/NType82-Regular.otf") }
+    FontLoader { id: fontNMono;  source: Qt.resolvedUrl("../assets/fonts/LetteraMonoLL-Regular.otf") }
 
     readonly property int winX: 32
     readonly property int winY: Math.max(24, Math.round((screenH - totalH) / 2))
@@ -100,7 +100,7 @@ PanelWindow {
 
     Process {
         id: statsProc
-        command: ["python3", Quickshell.env("HOME") + "/.config/quickshell/DesktopWidgetsApp/stats.py"]
+        command: ["python3", Quickshell.shellDir + "/widgets/stats.py"]
         running: true
         stdout: StdioCollector {
             onStreamFinished: {
@@ -268,7 +268,7 @@ PanelWindow {
                     y: 13
                     width: 38
                     height: 31
-                    source: Qt.resolvedUrl("assets/weather-dot.svg")
+                    source: Qt.resolvedUrl("../assets/weather-dot.svg")
                     sourceSize: Qt.size(38, 31)
                 }
 
@@ -406,7 +406,7 @@ PanelWindow {
                             anchors.fill: parent
                             source: (root.activePlayer && root.activePlayer.trackArtUrl)
                                 ? root.activePlayer.trackArtUrl
-                                : "assets/album.jpg"
+                                : "../assets/album.jpg"
                             fillMode: Image.PreserveAspectCrop
                         }
                     }
@@ -604,7 +604,7 @@ PanelWindow {
                     Image {
                         id: rawPosterImg
                         anchors.fill: parent
-                        source: "assets/poster.jpg"
+                        source: "../assets/poster.jpg"
                         cache: false
                         fillMode: Image.PreserveAspectCrop
                     }
