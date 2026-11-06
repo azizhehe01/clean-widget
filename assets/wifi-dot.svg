@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="#FFFFFF">
+  <!-- Nothing OS Dot-Matrix WiFi Signal (Concentric Dot Arches) -->
+  <!-- Center Base Dot -->
+  <circle cx="12" cy="19.5" r="1.4"/>
+
+  <!-- Wave 1 (Inner) -->
+  <circle cx="9.2" cy="16.5" r="1.2"/>
+  <circle cx="12" cy="15.2" r="1.2"/>
+  <circle cx="14.8" cy="16.5" r="1.2"/>
+
+  <!-- Wave 2 (Mid) -->
+  <circle cx="6.5" cy="13.2" r="1.2"/>
+  <circle cx="9.2" cy="11.5" r="1.2"/>
+  <circle cx="12" cy="10.8" r="1.2"/>
+  <circle cx="14.8" cy="11.5" r="1.2"/>
+  <circle cx="17.5" cy="13.2" r="1.2"/>
+
+  <!-- Wave 3 (Outer) -->
+  <circle cx="3.8" cy="9.8" r="1.2"/>
+  <circle cx="6.5" cy="7.8" r="1.2"/>
+  <circle cx="9.2" cy="6.8" r="1.2"/>
+  <circle cx="12" cy="6.2" r="1.2"/>
+  <circle cx="14.8" cy="6.8" r="1.2"/>
+  <circle cx="17.5" cy="7.8" r="1.2"/>
+  <circle cx="20.2" cy="9.8" r="1.2"/>
+</svg>

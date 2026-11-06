@@ -23,7 +23,7 @@ PanelWindow {
     // Tight, zero-dead-space Bento Grid heights
     readonly property int gridGap: 12
     readonly property int row1H: 164
-    readonly property int row2H: root.hasLyrics ? 386 : 336
+    readonly property int row2H: root.hasLyrics ? 470 : 416
     readonly property int row3H: 306
     readonly property int totalW: 436
     readonly property int totalH: row1H + gridGap + row2H + gridGap + row3H
@@ -59,7 +59,7 @@ PanelWindow {
     // =========================================================================
     // Theme Tokens — Real-Time GPU Chameleon Frosted Glass (Zero Color Cast)
     // =========================================================================
-    readonly property color cardBg: Qt.rgba(0.0, 0.0, 0.0, 0.22)
+    readonly property color cardBg: Qt.rgba(0.0, 0.0, 0.0, 0.14)
     readonly property color cardEdgeHighlight: Qt.rgba(1.0, 1.0, 1.0, 0.14)
     readonly property color cardSpecularTopLeft: Qt.rgba(1.0, 1.0, 1.0, 0.07)
     readonly property color textPrimary: "#FFFFFF"
@@ -92,7 +92,8 @@ PanelWindow {
         "track_duration": 0.0,
         "track_progress": 0.0,
         "position_str": "0:00",
-        "duration_str": "--:--"
+        "duration_str": "--:--",
+        "poster_mtime": 0
     })
 
     readonly property var lyricsList: (root.stats && root.stats.lyrics && root.stats.lyrics.length > 0)
@@ -381,12 +382,12 @@ PanelWindow {
             readonly property color glassTint: Qt.color(root.stats && root.stats.album_color ? root.stats.album_color : "#282426")
 
             // =================================================================
-            // Continuous Background Surface:
-            // 1. Hidden source image for FastBlur
-            // 2. Full-card FastBlur (dreamy album ambient backdrop)
-            // 3. Sharp uncropped album art at top with smooth alpha fade downward
-            // 4. Ambient glass wash gradient matching bottom album color
-            // All masked together to the card's 20px rounded corners (Zero Seams / Zero Lines)
+            // Continuous Background Surface (AutoMix / BitChord Style):
+            // 1. Hidden source image for FastBlur and sharp layer
+            // 2. Full-card FastBlur (dreamy ambient album backdrop)
+            // 3. Sharp uncropped album art at top (AlignTop) with smoothstep alpha dissolve
+            // 4. Ambient glass wash gradient matching bottom album color (row2.glassTint)
+            // Result: Zero seams, zero lines, and full uncropped album cover!
             // =================================================================
             Item {
                 id: cardVisualSurface
@@ -420,28 +421,33 @@ PanelWindow {
                 FastBlur {
                     anchors.fill: parent
                     source: albumSourceImg
-                    radius: 46
-                    opacity: 0.75
+                    radius: 56
+                    opacity: 0.70
                 }
 
-                // 3. Sharp Uncropped Album Art Layer (Alpha Gradient Mask)
+                // 3. Sharp Uncropped Album Art Layer (Top-Aligned + Wide S-Curve Mask)
                 Item {
                     id: sharpArtLayer
-                    anchors.fill: parent
+                    anchors.top: parent.top
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    height: 295
                     layer.enabled: true
                     layer.smooth: true
                     layer.effect: OpacityMask {
                         maskSource: LinearGradient {
-                            width: row2.width
-                            height: row2.height
+                            width: sharpArtLayer.width
+                            height: sharpArtLayer.height
                             start: Qt.point(0, 0)
                             end: Qt.point(0, height)
                             gradient: Gradient {
                                 GradientStop { position: 0.00; color: "#FFFFFFFF" }
-                                GradientStop { position: 0.36; color: "#FFFFFFFF" }
-                                GradientStop { position: 0.54; color: "#A0FFFFFF" }
-                                GradientStop { position: 0.70; color: "#30FFFFFF" }
-                                GradientStop { position: 0.84; color: "#00FFFFFF" }
+                                GradientStop { position: 0.40; color: "#FFFFFFFF" }
+                                GradientStop { position: 0.52; color: "#F0FFFFFF" }
+                                GradientStop { position: 0.64; color: "#C0FFFFFF" }
+                                GradientStop { position: 0.76; color: "#78FFFFFF" }
+                                GradientStop { position: 0.86; color: "#34FFFFFF" }
+                                GradientStop { position: 0.94; color: "#0CFFFFFF" }
                                 GradientStop { position: 1.00; color: "#00FFFFFF" }
                             }
                         }
@@ -451,9 +457,10 @@ PanelWindow {
                         anchors.fill: parent
                         source: albumSourceImg.source
                         fillMode: Image.PreserveAspectCrop
+                        verticalAlignment: Image.AlignTop
                         smooth: true
                         mipmap: true
-                        sourceSize: Qt.size(row2.width * 2, row2.height * 2)
+                        sourceSize: Qt.size(row2.width * 2, 600)
                     }
                 }
 
@@ -462,10 +469,11 @@ PanelWindow {
                     anchors.fill: parent
                     gradient: Gradient {
                         GradientStop { position: 0.00; color: "transparent" }
-                        GradientStop { position: 0.28; color: Qt.rgba(row2.glassTint.r, row2.glassTint.g, row2.glassTint.b, 0.12) }
-                        GradientStop { position: 0.52; color: Qt.rgba(row2.glassTint.r, row2.glassTint.g, row2.glassTint.b, 0.45) }
-                        GradientStop { position: 0.76; color: Qt.rgba(row2.glassTint.r, row2.glassTint.g, row2.glassTint.b, 0.78) }
-                        GradientStop { position: 1.00; color: Qt.rgba(row2.glassTint.r, row2.glassTint.g, row2.glassTint.b, 0.90) }
+                        GradientStop { position: 0.38; color: "transparent" }
+                        GradientStop { position: 0.52; color: Qt.rgba(row2.glassTint.r, row2.glassTint.g, row2.glassTint.b, 0.15) }
+                        GradientStop { position: 0.68; color: Qt.rgba(row2.glassTint.r, row2.glassTint.g, row2.glassTint.b, 0.40) }
+                        GradientStop { position: 0.84; color: Qt.rgba(row2.glassTint.r, row2.glassTint.g, row2.glassTint.b, 0.62) }
+                        GradientStop { position: 1.00; color: Qt.rgba(row2.glassTint.r, row2.glassTint.g, row2.glassTint.b, 0.78) }
                     }
                 }
             }
@@ -476,9 +484,20 @@ PanelWindow {
                 anchors.top: parent.top
                 anchors.topMargin: 12
                 anchors.horizontalCenter: parent.horizontalCenter
-                height: 18
+                height: 22
+
+                Rectangle {
+                    anchors.centerIn: parent
+                    width: bannerRow.width + 18
+                    height: 22
+                    radius: 11
+                    color: Qt.rgba(0, 0, 0, 0.36)
+                    border.width: 1
+                    border.color: Qt.rgba(1.0, 1.0, 1.0, 0.14)
+                }
 
                 Row {
+                    id: bannerRow
                     anchors.centerIn: parent
                     spacing: 7
 
@@ -496,7 +515,7 @@ PanelWindow {
                         text: "NOW PLAYING"
                         font.pixelSize: 9
                         font.letterSpacing: 1.3
-                        color: Qt.rgba(1.0, 1.0, 1.0, 0.90)
+                        color: Qt.rgba(1.0, 1.0, 1.0, 0.92)
                         font.family: fontNMono.name || "Fira Sans"
                         anchors.verticalCenter: parent.verticalCenter
                     }
@@ -507,7 +526,7 @@ PanelWindow {
             Column {
                 id: trackInfoCol
                 anchors.top: parent.top
-                anchors.topMargin: 186
+                anchors.topMargin: root.hasLyrics ? 238 : 226
                 anchors.left: parent.left
                 anchors.right: parent.right
                 anchors.leftMargin: 24
@@ -593,7 +612,7 @@ PanelWindow {
             Item {
                 id: progressTimeline
                 anchors.top: trackInfoCol.bottom
-                anchors.topMargin: root.hasLyrics ? 12 : 16
+                anchors.topMargin: root.hasLyrics ? 14 : 18
                 anchors.left: parent.left
                 anchors.right: parent.right
                 anchors.leftMargin: 24
@@ -645,7 +664,7 @@ PanelWindow {
             Row {
                 id: dotMatrixControls
                 anchors.top: progressTimeline.bottom
-                anchors.topMargin: 12
+                anchors.topMargin: root.hasLyrics ? 14 : 18
                 anchors.horizontalCenter: parent.horizontalCenter
                 spacing: 30
 
@@ -777,7 +796,7 @@ PanelWindow {
                     Image {
                         id: rawPosterImg
                         anchors.fill: parent
-                        source: "../assets/poster.jpg"
+                        source: Qt.resolvedUrl("../assets/poster.jpg") + (root.stats && root.stats.poster_mtime ? ("?v=" + root.stats.poster_mtime) : "")
                         cache: false
                         fillMode: Image.PreserveAspectCrop
                         smooth: true

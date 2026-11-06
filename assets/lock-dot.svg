@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="#FFFFFF">
+  <!-- Nothing OS Dot-Matrix Padlock -->
+  <!-- Shackle Loop -->
+  <circle cx="9" cy="8.5" r="1.2"/>
+  <circle cx="9" cy="6.5" r="1.2"/>
+  <circle cx="10.2" cy="4.5" r="1.2"/>
+  <circle cx="12" cy="4" r="1.2"/>
+  <circle cx="13.8" cy="4.5" r="1.2"/>
+  <circle cx="15" cy="6.5" r="1.2"/>
+  <circle cx="15" cy="8.5" r="1.2"/>
+
+  <!-- Body (Grid of dots) -->
+  <circle cx="6.5" cy="11" r="1.2"/>
+  <circle cx="9.2" cy="11" r="1.2"/>
+  <circle cx="12" cy="11" r="1.2"/>
+  <circle cx="14.8" cy="11" r="1.2"/>
+  <circle cx="17.5" cy="11" r="1.2"/>
+
+  <circle cx="6.5" cy="14" r="1.2"/>
+  <circle cx="9.2" cy="14" r="1.2"/>
+  <circle cx="12" cy="14" r="1.2"/>
+  <circle cx="14.8" cy="14" r="1.2"/>
+  <circle cx="17.5" cy="14" r="1.2"/>
+
+  <circle cx="6.5" cy="17" r="1.2"/>
+  <circle cx="9.2" cy="17" r="1.2"/>
+  <circle cx="12" cy="17" r="1.2"/>
+  <circle cx="14.8" cy="17" r="1.2"/>
+  <circle cx="17.5" cy="17" r="1.2"/>
+
+  <circle cx="6.5" cy="20" r="1.2"/>
+  <circle cx="9.2" cy="20" r="1.2"/>
+  <circle cx="12" cy="20" r="1.2"/>
+  <circle cx="14.8" cy="20" r="1.2"/>
+  <circle cx="17.5" cy="20" r="1.2"/>
+</svg>

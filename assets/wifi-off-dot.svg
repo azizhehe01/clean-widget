@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="#FFFFFF">
+  <!-- Nothing OS Dot-Matrix WiFi Off (WiFi + Diagonal Slash) -->
+  <circle cx="12" cy="19.5" r="1.4"/>
+  <circle cx="9.2" cy="16.5" r="1.2"/>
+  <circle cx="12" cy="15.2" r="1.2"/>
+  <circle cx="14.8" cy="16.5" r="1.2"/>
+  <circle cx="6.5" cy="13.2" r="1.2"/>
+  <circle cx="17.5" cy="13.2" r="1.2"/>
+  <circle cx="3.8" cy="9.8" r="1.2"/>
+  <circle cx="20.2" cy="9.8" r="1.2"/>
+  
+  <!-- Diagonal Slash Dots (Red/Dim) -->
+  <circle cx="4.5" cy="4.5" r="1.3" fill="#FF3B30"/>
+  <circle cx="8" cy="8" r="1.3" fill="#FF3B30"/>
+  <circle cx="11.5" cy="11.5" r="1.3" fill="#FF3B30"/>
+  <circle cx="15" cy="15" r="1.3" fill="#FF3B30"/>
+  <circle cx="18.5" cy="18.5" r="1.3" fill="#FF3B30"/>
+</svg>

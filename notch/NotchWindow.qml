@@ -60,10 +60,24 @@ PanelWindow {
     // Keep default audio sink properties live and responsive
     PwObjectTracker { objects: audioSink !== null ? [audioSink] : [] }
 
+
+    // ---------------------------------------------------------------------
+    // WiFi Manager Properties
+    // ---------------------------------------------------------------------
+    property bool showWifiMenu: false
+    property var wifiData: ({ "wifi_enabled": true, "active_ssid": "", "active_ip": "", "networks": [] })
+    readonly property var wifiNetworks: (root.wifiData && root.wifiData.networks) ? root.wifiData.networks : []
+    readonly property bool isWifiConnected: root.wifiData && (root.wifiData.active_ssid !== "" && root.wifiData.active_ssid !== null)
+    property bool isScanningWifi: false
+    property string passwordPromptSsid: ""
+    property string enteredPassword: ""
+
     property bool showVolume: false
     property int lastVolumePercent: -1
     property bool lastMutedState: false
     property bool audioSyncReady: false
+
+    Component.onCompleted: root.queryWifi()
 
     onVolumePercentChanged: {
         if (!audioSyncReady) {
@@ -121,7 +135,9 @@ PanelWindow {
     readonly property int baseBodyW: 168
     readonly property int volumeBodyW: 248
     readonly property int displayBodyW: 460
+    readonly property int wifiBodyW: 340
     property real animatedBodyW: {
+        if (showWifiMenu) return wifiBodyW;
         if (showDisplayMenu) return displayBodyW;
         if (showVolume) return volumeBodyW;
         return baseBodyW;
@@ -133,7 +149,12 @@ PanelWindow {
 
     readonly property int baseNotchH: 38
     readonly property int displayNotchH: 84
-    property real animatedNotchH: showDisplayMenu ? displayNotchH : baseNotchH
+    readonly property int wifiNotchH: 284
+    property real animatedNotchH: {
+        if (showWifiMenu) return wifiNotchH;
+        if (showDisplayMenu) return displayNotchH;
+        return baseNotchH;
+    }
 
     Behavior on animatedNotchH {
         NumberAnimation { duration: root.animDuration; easing.type: Easing.OutCubic }
@@ -150,11 +171,118 @@ PanelWindow {
 
     // Fixed stable window dimensions (mencegah Wayland surface resize jitter)
     readonly property int windowWidth: 500
-    readonly property int windowHeight: 96
+    readonly property int windowHeight: root.showWifiMenu ? 320 : (root.showDisplayMenu ? 110 : 96)
     anchors.top: true
     implicitWidth: windowWidth
     implicitHeight: windowHeight
     color: "transparent"
+
+
+    // ---------------------------------------------------------------------
+    // WiFi Manager Integration (Nothing OS Dot-Matrix Style)
+    // ---------------------------------------------------------------------
+    function toggleWifiMenu(): void {
+        if (root.showWifiMenu) {
+            root.closeWifiMenu();
+        } else {
+            root.openWifiMenu();
+        }
+    }
+
+    function openWifiMenu(): void {
+        root.showDisplayMenu = false;
+        root.showVolume = false;
+        root.showWifiMenu = true;
+        root.passwordPromptSsid = "";
+        root.enteredPassword = "";
+        root.queryWifi();
+    }
+
+    function closeWifiMenu(): void {
+        root.showWifiMenu = false;
+        root.passwordPromptSsid = "";
+        root.enteredPassword = "";
+    }
+
+    function queryWifi(): void {
+        root.isScanningWifi = true;
+        queryWifiProc.running = false;
+        queryWifiProc.running = true;
+    }
+
+    function toggleWifiRadio(): void {
+        toggleWifiProc.running = false;
+        toggleWifiProc.running = true;
+    }
+
+    function connectToNetwork(ssid, pwd): void {
+        connectWifiProc.targetSsid = ssid;
+        connectWifiProc.targetPwd = pwd ? pwd : "";
+        connectWifiProc.running = false;
+        connectWifiProc.running = true;
+    }
+
+    function disconnectCurrent(): void {
+        disconnectWifiProc.running = false;
+        disconnectWifiProc.running = true;
+    }
+
+    IpcHandler {
+        target: "wifi"
+        function toggle(): void { root.toggleWifiMenu(); }
+        function scan(): void { root.queryWifi(); }
+        function open(): void { root.openWifiMenu(); }
+        function close(): void { root.closeWifiMenu(); }
+    }
+
+    Process {
+        id: queryWifiProc
+        command: ["python3", Quickshell.shellDir + "/notch/wifi.py", "scan"]
+        running: false
+        stdout: StdioCollector {
+            onStreamFinished: {
+                root.isScanningWifi = false;
+                try {
+                    let raw = this.text.trim();
+                    if (raw) root.wifiData = JSON.parse(raw);
+                } catch (e) {}
+            }
+        }
+    }
+
+    Process {
+        id: toggleWifiProc
+        command: ["python3", Quickshell.shellDir + "/notch/wifi.py", "toggle"]
+        running: false
+        stdout: StdioCollector {
+            onStreamFinished: root.queryWifi()
+        }
+    }
+
+    Process {
+        id: connectWifiProc
+        property string targetSsid: ""
+        property string targetPwd: ""
+        command: targetPwd ? ["python3", Quickshell.shellDir + "/notch/wifi.py", "connect", targetSsid, targetPwd]
+                           : ["python3", Quickshell.shellDir + "/notch/wifi.py", "connect", targetSsid]
+        running: false
+        stdout: StdioCollector {
+            onStreamFinished: {
+                root.passwordPromptSsid = "";
+                root.enteredPassword = "";
+                root.queryWifi();
+            }
+        }
+    }
+
+    Process {
+        id: disconnectWifiProc
+        command: ["python3", Quickshell.shellDir + "/notch/wifi.py", "disconnect"]
+        running: false
+        stdout: StdioCollector {
+            onStreamFinished: root.queryWifi()
+        }
+    }
 
     // ---------------------------------------------------------------------
     // Display / HDMI Projection Management (Super + P Windows-Style)
@@ -272,6 +400,8 @@ PanelWindow {
     readonly property bool isHoveringTop: cursorY <= 8 && Math.abs(cursorX - screenCenterX) <= (windowWidth / 2)
 
     readonly property bool shouldHide: {
+        // Jangan sembunyikan jika menu WiFi sedang dibuka
+        if (showWifiMenu) return false;
         // Jangan sembunyikan jika menu Display / HDMI sedang dibuka
         if (showDisplayMenu) return false;
         // Jangan sembunyikan jika volume HUD sedang aktif (selalu munculkan saat setting volume)
@@ -414,7 +544,7 @@ PanelWindow {
 
         // Wheel adjustment & Right-click to mute directly on notch
         WheelHandler {
-            enabled: !root.showDisplayMenu
+            enabled: !root.showDisplayMenu && !root.showWifiMenu
             onWheel: function(event) {
                 let delta = event.angleDelta.y !== 0 ? event.angleDelta.y : event.pixelDelta.y;
                 if (delta > 0) root.setVolumeDelta(0.05);
@@ -425,10 +555,20 @@ PanelWindow {
 
         MouseArea {
             anchors.fill: parent
-            enabled: !root.showDisplayMenu
+            enabled: !root.showDisplayMenu && !root.showWifiMenu
             acceptedButtons: Qt.RightButton
             cursorShape: Qt.PointingHandCursor
             onClicked: root.toggleMute()
+        }
+
+
+        // Left-click on notch to toggle WiFi menu
+        MouseArea {
+            anchors.fill: parent
+            enabled: !root.showDisplayMenu && !root.showWifiMenu && !root.showVolume
+            acceptedButtons: Qt.LeftButton
+            cursorShape: Qt.PointingHandCursor
+            onClicked: root.toggleWifiMenu()
         }
 
         // -----------------------------------------------------------------
@@ -441,9 +581,9 @@ PanelWindow {
             anchors.verticalCenterOffset: 1
             spacing: root.eyeGap
 
-            opacity: (!root.showVolume && !root.showDisplayMenu) ? 1.0 : 0.0
-            scale: (!root.showVolume && !root.showDisplayMenu) ? 1.0 : 0.85
-            visible: opacity > 0
+            opacity: (!root.showVolume && !root.showDisplayMenu && !root.showWifiMenu) ? 1.0 : 0.0
+            scale: (!root.showVolume && !root.showDisplayMenu && !root.showWifiMenu) ? 1.0 : 0.85
+            visible: !root.showVolume && !root.showDisplayMenu && !root.showWifiMenu
 
             Behavior on opacity { NumberAnimation { duration: root.animDuration; easing.type: Easing.OutCubic } }
             Behavior on scale   { NumberAnimation { duration: root.animDuration; easing.type: Easing.OutCubic } }
@@ -461,9 +601,9 @@ PanelWindow {
             anchors.verticalCenter: parent.verticalCenter
             spacing: 12
 
-            opacity: (root.showVolume && !root.showDisplayMenu) ? 1.0 : 0.0
-            scale: (root.showVolume && !root.showDisplayMenu) ? 1.0 : 0.85
-            visible: opacity > 0
+            opacity: (root.showVolume && !root.showDisplayMenu && !root.showWifiMenu) ? 1.0 : 0.0
+            scale: (root.showVolume && !root.showDisplayMenu && !root.showWifiMenu) ? 1.0 : 0.85
+            visible: !root.showDisplayMenu && !root.showWifiMenu && (!root.showVolume || opacity > 0.05)
 
             Behavior on opacity { NumberAnimation { duration: root.animDuration; easing.type: Easing.OutCubic } }
             Behavior on scale   { NumberAnimation { duration: root.animDuration; easing.type: Easing.OutCubic } }
@@ -536,7 +676,7 @@ PanelWindow {
 
             opacity: root.showDisplayMenu ? 1.0 : 0.0
             scale: root.showDisplayMenu ? 1.0 : 0.92
-            visible: opacity > 0
+            visible: root.showDisplayMenu
 
             Behavior on opacity { NumberAnimation { duration: root.animDuration; easing.type: Easing.OutCubic } }
             Behavior on scale   { NumberAnimation { duration: root.animDuration; easing.type: Easing.OutCubic } }
@@ -670,6 +810,400 @@ PanelWindow {
                             }
                         }
                     }
+                }
+            }
+        }
+
+        // -----------------------------------------------------------------
+        // WIFI MANAGER MENU (NOTHING OS DOT-MATRIX STYLE)
+        // -----------------------------------------------------------------
+        Item {
+            id: wifiMenuContainer
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.top: parent.top
+            anchors.topMargin: 4
+            width: parent.width - root.shoulder * 2 - 12
+            height: parent.height - 8
+
+            opacity: (root.showWifiMenu && !root.showDisplayMenu) ? 1.0 : 0.0
+            scale: (root.showWifiMenu && !root.showDisplayMenu) ? 1.0 : 0.94
+            visible: root.showWifiMenu && !root.showDisplayMenu
+
+            Behavior on opacity { NumberAnimation { duration: root.animDuration; easing.type: Easing.OutCubic } }
+            Behavior on scale   { NumberAnimation { duration: root.animDuration; easing.type: Easing.OutCubic } }
+
+            // 1. Header: Red Dot + "WIFI" + Status + Rescan + Radio Toggle + Close
+            Item {
+                id: wifiHeader
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.top: parent.top
+                anchors.topMargin: 4
+                height: 24
+
+                Row {
+                    anchors.left: parent.left
+                    anchors.leftMargin: 4
+                    anchors.verticalCenter: parent.verticalCenter
+                    spacing: 7
+
+                    Rectangle {
+                        width: 6
+                        height: 6
+                        radius: 3
+                        color: "#D71921"
+                        anchors.verticalCenter: parent.verticalCenter
+                    }
+
+                    Text {
+                        text: "WIFI"
+                        font.family: fontNMono.name || "monospace"
+                        font.pixelSize: 11
+                        font.letterSpacing: 1.4
+                        font.bold: true
+                        color: "#FFFFFF"
+                        anchors.verticalCenter: parent.verticalCenter
+                    }
+
+                    Text {
+                        text: root.isScanningWifi ? "· SCANNING..." : (root.isWifiConnected ? ("· " + root.wifiData.active_ssid) : "· DISCONNECTED")
+                        font.family: fontNMono.name || "monospace"
+                        font.pixelSize: 9
+                        font.letterSpacing: 0.6
+                        color: root.isWifiConnected ? "#88FF88" : "#777777"
+                        elide: Text.ElideRight
+                        width: 130
+                        anchors.verticalCenter: parent.verticalCenter
+                    }
+                }
+
+                Row {
+                    anchors.right: parent.right
+                    anchors.rightMargin: 4
+                    anchors.verticalCenter: parent.verticalCenter
+                    spacing: 8
+
+                    // Rescan Button
+                    Rectangle {
+                        width: 22
+                        height: 22
+                        radius: 4
+                        color: rescanMa.containsMouse ? "#2A2A2A" : "transparent"
+                        anchors.verticalCenter: parent.verticalCenter
+
+                        Image {
+                            anchors.centerIn: parent
+                            width: 14
+                            height: 14
+                            source: Qt.resolvedUrl("../assets/refresh-dot.svg")
+                            sourceSize: Qt.size(28, 28)
+                        }
+
+                        MouseArea {
+                            id: rescanMa
+                            anchors.fill: parent
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: root.queryWifi()
+                        }
+                    }
+
+                    // Radio Toggle Switch
+                    Rectangle {
+                        width: 38
+                        height: 18
+                        radius: 9
+                        anchors.verticalCenter: parent.verticalCenter
+                        color: (root.wifiData && root.wifiData.wifi_enabled) ? "#222222" : "#181818"
+                        border.color: (root.wifiData && root.wifiData.wifi_enabled) ? "#444444" : "#333333"
+                        border.width: 1
+
+                        Rectangle {
+                            width: 12
+                            height: 12
+                            radius: 6
+                            anchors.verticalCenter: parent.verticalCenter
+                            x: (root.wifiData && root.wifiData.wifi_enabled) ? 22 : 4
+                            color: (root.wifiData && root.wifiData.wifi_enabled) ? "#FFFFFF" : "#555555"
+                            Behavior on x { NumberAnimation { duration: 150; easing.type: Easing.OutCubic } }
+                        }
+
+                        MouseArea {
+                            anchors.fill: parent
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: root.toggleWifiRadio()
+                        }
+                    }
+
+                    // Close Button
+                    Rectangle {
+                        width: 18
+                        height: 18
+                        radius: 9
+                        color: closeWifiMa.containsMouse ? "#333333" : "transparent"
+                        anchors.verticalCenter: parent.verticalCenter
+
+                        Text {
+                            anchors.centerIn: parent
+                            text: "✕"
+                            font.pixelSize: 10
+                            color: "#888888"
+                        }
+
+                        MouseArea {
+                            id: closeWifiMa
+                            anchors.fill: parent
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: root.closeWifiMenu()
+                        }
+                    }
+                }
+            }
+
+            // Separator Line
+            Rectangle {
+                id: wifiSep
+                anchors.top: wifiHeader.bottom
+                anchors.topMargin: 4
+                anchors.left: parent.left
+                anchors.right: parent.right
+                height: 1
+                color: "#1F1F1F"
+            }
+
+            // 2. Network List (ListView)
+            ListView {
+                id: wifiListView
+                anchors.top: wifiSep.bottom
+                anchors.topMargin: 4
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.bottom: wifiFooter.top
+                anchors.bottomMargin: 8
+                clip: true
+                spacing: 3
+                model: root.wifiNetworks
+
+                delegate: Rectangle {
+                    id: netItem
+                    width: wifiListView.width
+                    height: (root.passwordPromptSsid === modelData.ssid) ? 66 : 34
+                    radius: 6
+                    color: netMouse.containsMouse ? "#1E1E1E" : "#121212"
+                    border.color: modelData.is_connected ? "#333333" : (netMouse.containsMouse ? "#2A2A2A" : "transparent")
+                    border.width: 1
+
+                    Behavior on height { NumberAnimation { duration: 150; easing.type: Easing.OutCubic } }
+                    Behavior on color { ColorAnimation { duration: 100 } }
+
+                    // Row when not prompting password
+                    Item {
+                        anchors.top: parent.top
+                        anchors.left: parent.left
+                        anchors.right: parent.right
+                        height: 34
+
+                        // Left: Indicator + SSID
+                        Row {
+                            anchors.left: parent.left
+                            anchors.leftMargin: 8
+                            anchors.verticalCenter: parent.verticalCenter
+                            spacing: 8
+
+                            Rectangle {
+                                width: 5
+                                height: 5
+                                radius: 2.5
+                                color: modelData.is_connected ? "#D71921" : (modelData.is_saved ? "#888888" : "transparent")
+                                border.color: modelData.is_connected ? "#D71921" : (modelData.is_saved ? "#888888" : "#444444")
+                                border.width: 1
+                                anchors.verticalCenter: parent.verticalCenter
+                            }
+
+                            Text {
+                                text: modelData.ssid
+                                font.family: fontNType.name || "Fira Sans"
+                                font.pixelSize: 11
+                                font.bold: modelData.is_connected
+                                color: modelData.is_connected ? "#FFFFFF" : (netMouse.containsMouse ? "#FFFFFF" : "#CCCCCC")
+                                elide: Text.ElideRight
+                                width: 175
+                                anchors.verticalCenter: parent.verticalCenter
+                            }
+                        }
+
+                        // Right: Sinyal Dot-Matrix + Lock Icon
+                        Row {
+                            anchors.right: parent.right
+                            anchors.rightMargin: 8
+                            anchors.verticalCenter: parent.verticalCenter
+                            spacing: 8
+
+                            // Lock Icon (if secured)
+                            Image {
+                                width: 12
+                                height: 12
+                                source: Qt.resolvedUrl("../assets/lock-dot.svg")
+                                sourceSize: Qt.size(24, 24)
+                                visible: modelData.is_locked
+                                opacity: 0.7
+                                anchors.verticalCenter: parent.verticalCenter
+                            }
+
+                            // Nothing OS Dot-Matrix Signal Bar (4 discrete vertical dot columns)
+                            Row {
+                                anchors.verticalCenter: parent.verticalCenter
+                                spacing: 2.5
+
+                                Rectangle {
+                                    width: 2.5
+                                    height: 4
+                                    radius: 1
+                                    color: (modelData.bars >= 1) ? "#FFFFFF" : "#333333"
+                                    anchors.bottom: parent.bottom
+                                }
+                                Rectangle {
+                                    width: 2.5
+                                    height: 7
+                                    radius: 1
+                                    color: (modelData.bars >= 2) ? "#FFFFFF" : "#333333"
+                                    anchors.bottom: parent.bottom
+                                }
+                                Rectangle {
+                                    width: 2.5
+                                    height: 10
+                                    radius: 1
+                                    color: (modelData.bars >= 3) ? "#FFFFFF" : "#333333"
+                                    anchors.bottom: parent.bottom
+                                }
+                                Rectangle {
+                                    width: 2.5
+                                    height: 13
+                                    radius: 1
+                                    color: (modelData.bars >= 4) ? "#FFFFFF" : "#333333"
+                                    anchors.bottom: parent.bottom
+                                }
+                            }
+                        }
+
+                        MouseArea {
+                            id: netMouse
+                            anchors.fill: parent
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: {
+                                if (modelData.is_connected) {
+                                    root.disconnectCurrent();
+                                } else if (modelData.is_saved || !modelData.is_locked) {
+                                    root.connectToNetwork(modelData.ssid, "");
+                                } else {
+                                    root.passwordPromptSsid = (root.passwordPromptSsid === modelData.ssid) ? "" : modelData.ssid;
+                                    root.enteredPassword = "";
+                                }
+                            }
+                        }
+                    }
+
+                    // Inline Password Input Drawer
+                    Item {
+                        anchors.bottom: parent.bottom
+                        anchors.left: parent.left
+                        anchors.right: parent.right
+                        height: 30
+                        visible: root.passwordPromptSsid === modelData.ssid
+
+                        Row {
+                            anchors.fill: parent
+                            anchors.margins: 3
+                            spacing: 6
+
+                            Rectangle {
+                                width: parent.width - 68
+                                height: parent.height
+                                radius: 4
+                                color: "#000000"
+                                border.color: pwdInput.activeFocus ? "#D71921" : "#444444"
+                                border.width: 1
+
+                                TextInput {
+                                    id: pwdInput
+                                    anchors.fill: parent
+                                    anchors.leftMargin: 6
+                                    anchors.rightMargin: 6
+                                    verticalAlignment: TextInput.AlignVCenter
+                                    font.family: fontNMono.name || "monospace"
+                                    font.pixelSize: 10
+                                    color: "#FFFFFF"
+                                    echoMode: TextInput.Password
+                                    focus: root.passwordPromptSsid === modelData.ssid
+                                    onTextChanged: root.enteredPassword = text
+                                    onAccepted: {
+                                        root.connectToNetwork(modelData.ssid, text);
+                                    }
+
+                                    Text {
+                                        anchors.fill: parent
+                                        verticalAlignment: Text.AlignVCenter
+                                        text: "ENTER PASSWORD..."
+                                        font.family: fontNMono.name || "monospace"
+                                        font.pixelSize: 9
+                                        color: "#555555"
+                                        visible: !pwdInput.text
+                                    }
+                                }
+                            }
+
+                            Rectangle {
+                                width: 56
+                                height: parent.height
+                                radius: 4
+                                color: "#D71921"
+
+                                Text {
+                                    anchors.centerIn: parent
+                                    text: "CONNECT"
+                                    font.family: fontNMono.name || "monospace"
+                                    font.pixelSize: 9
+                                    font.bold: true
+                                    color: "#FFFFFF"
+                                }
+
+                                MouseArea {
+                                    anchors.fill: parent
+                                    cursorShape: Qt.PointingHandCursor
+                                    onClicked: root.connectToNetwork(modelData.ssid, root.enteredPassword)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            // 3. Footer: Shortcuts & status hint
+            Item {
+                id: wifiFooter
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.bottom: parent.bottom
+                anchors.bottomMargin: 8
+                height: 18
+
+                Text {
+                    anchors.left: parent.left
+                    anchors.leftMargin: 4
+                    anchors.verticalCenter: parent.verticalCenter
+                    text: (root.wifiData && root.wifiData.active_ip) ? ("IP: " + root.wifiData.active_ip) : "NO INTERNET"
+                    font.family: fontNMono.name || "monospace"
+                    font.pixelSize: 9
+                    color: "#666666"
+                }
+
+                Text {
+                    anchors.right: parent.right
+                    anchors.rightMargin: 4
+                    anchors.verticalCenter: parent.verticalCenter
+                    text: "[SUPER+W] TOGGLE"
+                    font.family: fontNMono.name || "monospace"
+                    font.pixelSize: 9
+                    color: "#666666"
                 }
             }
         }

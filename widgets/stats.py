@@ -189,6 +189,14 @@ else:
         data["weather_temp"] = cached_weather.get("weather_temp", "28°C")
         data["weather_condition"] = cached_weather.get("weather_condition", "🌦️")
 
+
+# 4b. Poster auto-reload timestamp (tracks file changes)
+poster_file = os.path.expanduser("~/.config/quickshell/DesktopWidgetsApp/assets/poster.jpg")
+if os.path.exists(poster_file):
+    data["poster_mtime"] = int(os.path.getmtime(poster_file))
+else:
+    data["poster_mtime"] = 0
+
 # 5. Media Player Info, Bottom Color Extraction, and Live Lyrics
 data["lyrics"] = []
 data["album_color"] = "#2c2628"

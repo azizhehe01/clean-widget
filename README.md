@@ -20,17 +20,31 @@ Koleksi widget desktop modern bertema **Chameleon Frosted Glass Bento Grid**, **
 * **Hover-to-Reveal:** Cukup tempelkan kursor ke ujung paling atas layar (`y <= 8px`), notch akan meluncur turun agar lo bisa melihat mata atau mengubah volume langsung via scroll.
 * **Kontrol Mouse Cepat:** Scroll wheel di atas notch untuk menaikkan/menurunkan volume (step 5%), klik kanan untuk toggle Mute/Unmute.
 
-### 2. 🕒 Jam Digital & Tanggal Nothing OS (`widgets/`)
+### 2. 📶 WiFi Network Manager Nothing OS Dot-Matrix (`Super + W`)
+* **Akses Cepat & Zero-Dependency:** Menggunakan daemon Python ringan yang terhubung langsung ke `nmcli` bawaan Linux.
+* **Shortcut Universal (`Super + W`):** Notch meluncur turun dan bertransformasi (*morphing*) menjadi popover WiFi dot-matrix lengkap.
+* **Klik Langsung di Notch:** Selain shortcut keyboard, notch juga bisa langsung diklik saat idle untuk membuka menu WiFi.
+* **Tampilan Jaringan Nothing OS:**
+  * **Bar Sinyal Dot-Matrix:** 4 kolom titik bertingkat (`:` `::` `:::` `::::`) yang menyala presisi sesuai kekuatan sinyal.
+  * **Icon Gembok Dot-Matrix:** Menandai jaringan yang diproteksi password.
+  * **Titik Merah (Red Dot):** Menandai jaringan WiFi yang sedang terhubung aktif.
+  * **Info IP Address:** Menampilkan alamat IP lokal aktif (misal `IP: 192.168.1.41`) di footer.
+* **Koneksi Pintar (1-Click Connect & Inline Password):**
+  * Jaringan yang sudah tersimpan / pernah terkoneksi: cukup 1x klik, langsung terhubung otomatis tanpa nanya password.
+  * Jaringan baru: muncul kolom input password mini di dalam notch, ketik password lalu tekan Enter!
+* **Toggle Radio WiFi ON/OFF:** Switch kapsul dot-matrix untuk mematikan/menyalakan radio WiFi laptop dengan cepat.
+
+### 3. 🕒 Jam Digital & Tanggal Nothing OS (`widgets/`)
 * Jam digital besar berdesain titik-titik khas Nothing OS menggunakan font resmi `Ndot57`.
 * Hari dan tanggal bergaya technical monospace menggunakan font resmi `LetteraMonoLL`.
 * Didukung langsung oleh `Quickshell.SystemClock` yang hemat daya dan sinkron per menit.
 
-### 3. 🌦️ Kartu Cuaca & Lokasi Real-Time (`widgets/`)
+### 4. 🌦️ Kartu Cuaca & Lokasi Real-Time (`widgets/`)
 * Icon cuaca dot-matrix putih (`assets/weather-dot.svg`).
 * Suhu harian tertinggi & terendah (`H 29°` / `L 23°`), serta suhu besar `Ndot55`.
 * Kondisi cuaca, deteksi lokasi kota otomatis berdasarkan IP publik (`ip-api.com` / `wttr.in`), serta kelembapan dan kecepatan angin (`74% · 7 KM/H`) dengan sistem caching lokal 15 menit agar tidak membebani jaringan.
 
-### 4. 🎵 BitChord & AutoMix Media Player (`widgets/`)
+### 5. 🎵 BitChord & AutoMix Media Player (`widgets/`)
 * **Desain Cover Bleed ke Blurred Glass:** Cover album lagu tampil di bagian atas kartu dan bertransisi secara halus (*gradient bleed*) ke lapisan frosted glass di bawahnya.
 * **Ambient Glass Color Wash (AutoMix Style):** Warna latar belakang frosted glass secara otomatis mendeteksi dan mengikuti warna dominan pada bagian bawah cover album lagu yang sedang diputar.
 * **Hierarki BitChord Bersih:**
@@ -40,18 +54,18 @@ Koleksi widget desktop modern bertema **Chameleon Frosted Glass Bento Grid**, **
 * **Progress Bar & Durasi:** Timeline kapsul minimalis dengan penunjuk waktu berjalan (*elapsed*) dan sisa durasi lagu (*remaining*).
 * **Kontrol Dot-Matrix Nothing OS:** Tombol *Previous*, *Play/Pause* kapsul melingkar, dan *Next* didesain khusus bergaya titik-titik dot-matrix khas Nothing OS.
 
-### 5. 🖼️ Frame Poster / Foto Estetik (`widgets/`)
+### 6. 🖼️ Frame Poster / Foto Estetik (`widgets/`)
 * Frame foto portrait elegan ber-radius 20px dengan pinggiran kaca halus.
 * Menampilkan gambar lokal dari [`assets/poster.jpg`](assets/poster.jpg).
 
-### 6. 📊 Monitor Sistem Linux (`widgets/`)
+### 7. 📊 Monitor Sistem Linux (`widgets/`)
 * Pemantau partisi Linux: penggunaan ruang `Root (/)` dan `Home (/home)` lengkap dengan bar kapasitas.
 * Indikator persentase baterai laptop langsung dari `sysfs` hardware.
 
-### 7. ⚡ Kapsul Tombol Daya (`widgets/`)
+### 8. ⚡ Kapsul Tombol Daya (`widgets/`)
 * Tombol cepat dengan icon Nerd Font untuk *Sleep/Suspend*, *Power Off (Shutdown)*, dan *Reboot*.
 
-### 8. 🔔 Server & Popup Notifikasi Frosted Glass Native (`notifications/`)
+### 9. 🔔 Server & Popup Notifikasi Frosted Glass Native (`notifications/`)
 * Menggantikan daemon notifikasi eksternal seperti `swaync`, `dunst`, atau `mako` via D-Bus `org.freedesktop.Notifications`.
 * Menggunakan estetika **Chameleon Frosted Glass** yang serasi dengan widget desktop (radius 20px, border highlight kaca, dan real-time GPU Dual-Kawase blur).
 * **Scrollable:** Notifikasi panjang tidak terpotong, bisa di-scroll menggunakan mouse wheel / dua jari touchpad.
@@ -180,7 +194,7 @@ Buka file `notch/NotchWindow.qml` dan perhatikan baris konfigurasi berikut:
 ### 2. Mengganti Poster Karakter / Foto
 Untuk mengganti foto pada frame poster di widget:
 * Cukup timpa file gambar di [`assets/poster.jpg`](assets/poster.jpg) dengan gambar foto portrait pilihan lo (rasio disarankan 9:16 atau 3:4).
-* Gambar akan langsung terpasang otomatis dengan sudut membulat 20px.
+* Gambar akan langsung terpasang otomatis dengan sudut membulat 20px (otomatis ter-reload dalam 2 detik tanpa perlu restart).
 
 ### 3. Mengganti Cover Album Default
 Jika pemutar musik sedang tidak aktif, widget menampilkan cover default dari [`assets/album.jpg`](assets/album.jpg). Lo bisa menggantinya dengan artwork album favorit lo.
@@ -211,12 +225,17 @@ DesktopWidgetsApp/
 │   ├── media-play-dot.svg        # Tombol Play dot-matrix Nothing OS
 │   ├── media-pause-dot.svg       # Tombol Pause dot-matrix Nothing OS
 │   ├── media-next-dot.svg        # Tombol Next dot-matrix Nothing OS
+│   ├── wifi-dot.svg              # Icon WiFi dot-matrix
+│   ├── wifi-off-dot.svg          # Icon WiFi off dot-matrix
+│   ├── lock-dot.svg              # Icon gembok dot-matrix
+│   ├── refresh-dot.svg           # Icon reload dot-matrix
 │   ├── volume-dot.svg            # Icon speaker dot-matrix
 │   ├── volume-mute-dot.svg       # Icon speaker mute dot-matrix
 │   ├── weather-dot.svg           # Icon cuaca dot-matrix
 │   └── rocket.svg                # Icon aksi notifikasi
 ├── notch/
-│   ├── NotchWindow.qml           # Window Top Notch interaktif & Volume HUD Nothing OS
+│   ├── NotchWindow.qml
+│   ├── wifi.py                   # Service background manajemen WiFi (nmcli)           # Window Top Notch interaktif & Volume HUD Nothing OS
 │   └── cursor.py                 # Daemon IPC Hyprland pelacak kursor & active window
 ├── notifications/
 │   └── NotificationPopupWindow.qml # Server notifikasi native frosted glass
