@@ -24,7 +24,7 @@ PanelWindow {
 
     // Durasi berapa lama menu display HDMI (Super+P) muncul sebelum otomatis terpilih & menutup (ms)
     // 1000 = 1.0 detik, 1400 = 1.4 detik, 2000 = 2.0 detik, 2800 = 2.8 detik
-    property int displayTimeoutMs: 1400
+    property int displayTimeoutMs: 1000
 
     // Kecepatan animasi transisi morphing (ms)
     property int animDuration: 200
