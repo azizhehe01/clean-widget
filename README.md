@@ -125,7 +125,7 @@ Fitur sidebar pengganti ML4W yang dirancang khusus untuk produktivitas tanpa men
 * **Scrollable:** Notifikasi panjang tidak terpotong, bisa di-scroll menggunakan mouse wheel / dua jari touchpad.
 * **Tombol Aksi D-Bus:** Mendukung tombol interaktif (Approve, Deny, Open, dll.).
 * **Fokus Cepat Window:** Khusus notifikasi aplikasi tertentu (mis. Antigravity IDE), otomatis menampilkan tombol aksi dengan aktivasi workspace akurat via `xdg_activation_v1`.
-* **Suara Notifikasi Native (`assets/notif.mp3`):** Memutar efek suara notifikasi secara otomatis lewat PipeWire (`pw-play`) dilengkapi *anti-spam cooldown* agar suara tidak tumpang tindih saat banyak notifikasi masuk bersamaan.
+* **Suara Notifikasi Native (`assets/notif.mp3`) & Efek Cekrek Screenshot (`assets/camera-shutter.oga`):** Memutar efek suara notifikasi secara otomatis lewat PipeWire (`pw-play`). Khusus untuk hasil **Screenshot**, popup notifikasi otomatis disembunyikan dan diganti dengan efek suara *shutter* kamera bawaan GNOME (*cekrek*).
 * **Dismiss Cepat:** Klik di mana saja pada kartu notifikasi untuk menutupnya. Timer auto-dismiss otomatis berhenti saat kursor berada di atas kartu.
 
 ---
@@ -321,6 +321,7 @@ DesktopWidgetsApp/
 │   │   ├── NType82-Regular.otf     # Font sans-serif bento grid & judul musik
 │   │   └── LetteraMonoLL-Regular.otf # Font tanggal, artis & teks teknikal monospace
 │   ├── notif.mp3                   # Efek suara notifikasi masuk
+│   ├── camera-shutter.oga          # Efek suara cekrek kamera (GNOME) saat screenshot
 │   ├── album.jpg                   # Fallback cover album
 │   ├── poster.jpg                  # Foto portrait frame poster
 │   ├── preview.png                 # Gambar pratinjau desktop widgets

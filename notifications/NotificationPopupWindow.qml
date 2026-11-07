@@ -16,6 +16,7 @@ PanelWindow {
     // Notification Sound Configuration
     property bool soundEnabled: true
     readonly property string soundFile: Quickshell.shellDir + "/assets/notif.mp3"
+    readonly property string shutterSoundFile: Quickshell.shellDir + "/assets/camera-shutter.oga"
 
     Timer {
         id: soundCooldownTimer
@@ -99,13 +100,23 @@ PanelWindow {
         imageSupported: true
 
         onNotification: function(notif) {
-            notif.tracked = true;
-            let nid = notif.id;
-            root.liveNotifs[nid] = notif;
-
             let appNameStr = notif.appName || "System";
             let summaryStr = notif.summary || "Notification";
             let cleanBody = (notif.body || "").replace(/<[^>]*>?/gm, "");
+
+            // Jika dari Screenshot, jangan tampilkan popup notifikasi — cukup putar suara cekrek kamera (GNOME shutter)
+            let isScreenshot = /screenshot|grimblast|screen capture|flameshot/i.test(appNameStr + " " + summaryStr) && !/taking screenshot in/i.test(summaryStr + " " + cleanBody);
+            if (isScreenshot) {
+                if (root.soundEnabled) {
+                    Quickshell.execDetached(["pw-play", root.shutterSoundFile]);
+                }
+                notif.dismiss();
+                return;
+            }
+
+            notif.tracked = true;
+            let nid = notif.id;
+            root.liveNotifs[nid] = notif;
             let isAgy = /antigravity|agy|code/i.test(appNameStr + " " + summaryStr);
             let isPermRequest = /permission|approve|allow|confirm|sandbox|command|input|review/i.test(summaryStr + " " + cleanBody);
 
