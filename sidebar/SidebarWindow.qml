@@ -20,7 +20,7 @@ PanelWindow {
 
     WlrLayershell.namespace: "quickshell:sidebar"
     WlrLayershell.layer: WlrLayer.Overlay
-    WlrLayershell.keyboardFocus: root.isOpen ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
+    WlrLayershell.keyboardFocus: root.showWindow ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
     exclusionMode: WlrLayershell.Ignore
 
     anchors {
@@ -33,7 +33,8 @@ PanelWindow {
     color: "transparent"
 
     property bool isOpen: false
-    visible: isOpen || slideXAnim.running
+    property bool showWindow: false
+    visible: showWindow
 
     HyprlandFocusGrab {
         id: focusGrab
@@ -157,6 +158,7 @@ PanelWindow {
     readonly property int cardRadius: 24
 
     function open(): void {
+        root.showWindow = true;
         root.isOpen = true;
         keyScope.forceActiveFocus();
         grabDelayTimer.restart();
@@ -169,6 +171,20 @@ PanelWindow {
     function close(): void {
         focusGrab.active = false;
         root.isOpen = false;
+        if (!slideXAnim.running) {
+            closeFallbackTimer.restart();
+        }
+    }
+
+    Timer {
+        id: closeFallbackTimer
+        interval: 300
+        repeat: false
+        onTriggered: {
+            if (!root.isOpen && !slideXAnim.running) {
+                root.showWindow = false;
+            }
+        }
     }
 
     function toggle(): void {
@@ -378,22 +394,29 @@ PanelWindow {
         width: root.drawerW
         anchors.top: parent.top
         anchors.bottom: parent.bottom
+        anchors.right: parent.right
         anchors.topMargin: 16
         anchors.bottomMargin: 16
 
         // Smooth Slide In/Out from Right Screen Edge
-        x: root.isOpen ? (root.width - width - 16) : root.width + 20
+        property real targetRightMargin: root.isOpen ? 16 : -(root.drawerW + 32)
+        anchors.rightMargin: targetRightMargin
         opacity: root.isOpen ? 1.0 : 0.0
 
-        Behavior on x {
+        Behavior on targetRightMargin {
             NumberAnimation {
                 id: slideXAnim
-                duration: 280
-                easing.type: Easing.OutCubic
+                duration: 320
+                easing.type: Easing.OutQuint
+                onRunningChanged: {
+                    if (!running && !root.isOpen) {
+                        root.showWindow = false;
+                    }
+                }
             }
         }
         Behavior on opacity {
-            NumberAnimation { duration: 220; easing.type: Easing.OutCubic }
+            NumberAnimation { duration: 260; easing.type: Easing.OutCubic }
         }
 
         // Prevent click-through to backdrop
