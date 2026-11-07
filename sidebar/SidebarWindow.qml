@@ -20,6 +20,7 @@ PanelWindow {
 
     WlrLayershell.namespace: "quickshell:sidebar"
     WlrLayershell.layer: WlrLayer.Overlay
+    WlrLayershell.keyboardFocus: root.isOpen ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
     exclusionMode: WlrLayershell.Ignore
 
     anchors {
@@ -32,7 +33,42 @@ PanelWindow {
     color: "transparent"
 
     property bool isOpen: false
-    visible: isOpen || drawerCard.x < root.width
+    visible: isOpen || slideXAnim.running
+
+    HyprlandFocusGrab {
+        id: focusGrab
+        windows: [root]
+        active: false
+        onCleared: {
+            if (root.isOpen) {
+                root.close();
+            }
+        }
+    }
+
+    Timer {
+        id: grabDelayTimer
+        interval: 50
+        repeat: false
+        onTriggered: {
+            focusGrab.active = root.isOpen;
+            if (root.isOpen) {
+                keyScope.forceActiveFocus();
+            }
+        }
+    }
+
+    Shortcut {
+        sequence: "Escape"
+        enabled: root.isOpen
+        onActivated: root.close()
+    }
+
+    Shortcut {
+        sequence: "Ctrl+Meta+S"
+        enabled: root.isOpen
+        onActivated: root.close()
+    }
 
     // =========================================================================
     // Typography System (Official Nothing OS Fonts)
@@ -122,6 +158,8 @@ PanelWindow {
 
     function open(): void {
         root.isOpen = true;
+        keyScope.forceActiveFocus();
+        grabDelayTimer.restart();
         autoPickActivePlayer();
         refreshStats();
         refreshPlaylist();
@@ -129,6 +167,7 @@ PanelWindow {
     }
 
     function close(): void {
+        focusGrab.active = false;
         root.isOpen = false;
     }
 
@@ -306,12 +345,28 @@ PanelWindow {
     }
 
     // =========================================================================
-    // Backdrop Scrim (Click outside or Escape to close)
+    // Keyboard Listener & Backdrop Scrim (Click outside or Escape to close)
     // =========================================================================
-    MouseArea {
+    FocusScope {
+        id: keyScope
         anchors.fill: parent
-        hoverEnabled: false
-        onClicked: root.close()
+        focus: root.isOpen
+        Keys.onEscapePressed: root.close()
+        Keys.onPressed: (event) => {
+            if (event.key === Qt.Key_Escape) {
+                root.close();
+                event.accepted = true;
+            } else if (event.key === Qt.Key_S && (event.modifiers & Qt.ControlModifier) && (event.modifiers & Qt.MetaModifier)) {
+                root.close();
+                event.accepted = true;
+            }
+        }
+
+        MouseArea {
+            anchors.fill: parent
+            hoverEnabled: false
+            onClicked: root.close()
+        }
     }
 
     // =========================================================================
@@ -331,7 +386,11 @@ PanelWindow {
         opacity: root.isOpen ? 1.0 : 0.0
 
         Behavior on x {
-            NumberAnimation { duration: 280; easing.type: Easing.OutCubic }
+            NumberAnimation {
+                id: slideXAnim
+                duration: 280
+                easing.type: Easing.OutCubic
+            }
         }
         Behavior on opacity {
             NumberAnimation { duration: 220; easing.type: Easing.OutCubic }
@@ -1176,14 +1235,23 @@ PanelWindow {
                 }
             }
 
-            // Keyboard Hint Footer
+            // Keyboard Hint Footer (Also clickable to close)
             Text {
                 anchors.horizontalCenter: parent.horizontalCenter
                 text: "PRESS CTRL + SUPER + S OR ESC TO CLOSE"
                 font.pixelSize: 9
                 font.letterSpacing: 1.0
-                color: Qt.rgba(1.0, 1.0, 1.0, 0.30)
+                color: footerCloseArea.containsMouse ? Qt.rgba(1.0, 1.0, 1.0, 0.75) : Qt.rgba(1.0, 1.0, 1.0, 0.35)
                 font.family: fontNMono.name || "Fira Sans"
+
+                MouseArea {
+                    id: footerCloseArea
+                    anchors.fill: parent
+                    anchors.margins: -6
+                    hoverEnabled: true
+                    cursorShape: Qt.PointingHandCursor
+                    onClicked: root.close()
+                }
             }
         }
 
