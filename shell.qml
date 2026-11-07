@@ -10,6 +10,7 @@ ShellRoot {
     }
 
     NotificationPopupWindow {
+        id: notifPopup
         wallpaperUrl: desktopWidgets.wallpaperUrl
     }
 
@@ -17,5 +18,6 @@ ShellRoot {
 
     SidebarWindow {
         id: musicSidebar
+        notifServer: notifPopup
     }
 }

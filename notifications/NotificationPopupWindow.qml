@@ -79,6 +79,23 @@ PanelWindow {
     // Store live Notification object references by id for actions/dismissal
     property var liveNotifs: ({})
 
+    // Persistent in-memory notification history for SidebarWindow (max 30 items)
+    property var historyList: []
+
+    function clearHistory() {
+        root.historyList = [];
+    }
+
+    function removeHistoryById(hid) {
+        let updated = [];
+        for (let i = 0; i < root.historyList.length; i++) {
+            if (root.historyList[i].id !== hid) {
+                updated.push(root.historyList[i]);
+            }
+        }
+        root.historyList = updated;
+    }
+
     function removeById(nid) {
         for (let i = 0; i < notifModel.count; i++) {
             if (notifModel.get(i).nid === nid) {
@@ -194,6 +211,28 @@ PanelWindow {
                 }
                 notifModel.insert(0, entry);
             }
+
+            // Record into Sidebar Notification History (up to 30 recent notifications)
+            let now = new Date();
+            let hh = String(now.getHours()).padStart(2, "0");
+            let mm = String(now.getMinutes()).padStart(2, "0");
+            let histEntry = {
+                "id": String(Date.now()) + "_" + String(nid) + "_" + String(Math.floor(Math.random() * 1000)),
+                "nid": nid,
+                "appName": appNameStr,
+                "summary": summaryStr,
+                "body": cleanBody,
+                "timeStr": hh + ":" + mm
+            };
+            let nextHist = [histEntry];
+            for (let h = 0; h < root.historyList.length && nextHist.length < 30; h++) {
+                let prev = root.historyList[h];
+                if (prev.nid === nid && prev.summary === summaryStr && prev.body === cleanBody) {
+                    continue;
+                }
+                nextHist.push(prev);
+            }
+            root.historyList = nextHist;
 
             // Play notification sound (with cooldown so burst notifications do not overlap)
             if (root.soundEnabled && !soundCooldownTimer.running) {

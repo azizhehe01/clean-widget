@@ -153,6 +153,10 @@ PanelWindow {
     property bool isCurrentTrackSaved: false
     property string toastMessage: ""
 
+    // Notification Server reference & history list
+    property var notifServer: null
+    readonly property var notifHistory: (notifServer && notifServer.historyList) ? notifServer.historyList : []
+
     // Drawer dimensions
     readonly property int drawerW: 380
     readonly property int cardRadius: 24
@@ -477,9 +481,10 @@ PanelWindow {
         // Drawer Content Column
         // =====================================================================
         Column {
+            id: drawerContentCol
             anchors.fill: parent
             anchors.margins: 18
-            spacing: 14
+            spacing: 12
 
             // 1. TOP HEADER (Branding, Dot Indicator, Close Button)
             Item {
@@ -1103,7 +1108,7 @@ PanelWindow {
             // Scrollable Saved Tracks List
             Rectangle {
                 width: parent.width
-                height: 230
+                height: 165
                 radius: 18
                 color: Qt.rgba(1.0, 1.0, 1.0, 0.04)
                 border.width: 1
@@ -1252,6 +1257,246 @@ PanelWindow {
                                         root.removePlaylistTrack(modelData.id);
                                     }
                                 }
+                            }
+                        }
+                    }
+                }
+            }
+
+            // 6. "NOTIFICATIONS" HISTORY SECTION (Fills remaining bottom space)
+            Item {
+                width: parent.width
+                height: 22
+
+                Row {
+                    anchors.left: parent.left
+                    anchors.verticalCenter: parent.verticalCenter
+                    spacing: 6
+
+                    Text {
+                        text: "NOTIFICATIONS"
+                        font.pixelSize: 11
+                        font.letterSpacing: 1.2
+                        font.bold: true
+                        color: "#FFFFFF"
+                        font.family: fontNMono.name || "Fira Sans"
+                    }
+
+                    Text {
+                        text: "(" + root.notifHistory.length + ")"
+                        font.pixelSize: 10
+                        font.family: fontNdot55.name || "Fira Sans"
+                        color: Qt.rgba(1, 1, 1, 0.50)
+                    }
+                }
+
+                // Clear All Button (when history is not empty)
+                Rectangle {
+                    anchors.right: parent.right
+                    anchors.verticalCenter: parent.verticalCenter
+                    visible: root.notifHistory.length > 0
+                    width: clearTxt.width + 14
+                    height: 20
+                    radius: 10
+                    color: clearNotifArea.containsMouse ? Qt.rgba(1, 0.23, 0.19, 0.28) : Qt.rgba(1, 1, 1, 0.08)
+                    border.width: 1
+                    border.color: clearNotifArea.containsMouse ? "#FF3B30" : Qt.rgba(1, 1, 1, 0.14)
+
+                    Text {
+                        id: clearTxt
+                        anchors.centerIn: parent
+                        text: "CLEAR ALL"
+                        font.pixelSize: 8
+                        font.letterSpacing: 0.8
+                        font.bold: true
+                        color: clearNotifArea.containsMouse ? "#FF453A" : Qt.rgba(1, 1, 1, 0.70)
+                        font.family: fontNMono.name || "Fira Sans"
+                    }
+
+                    MouseArea {
+                        id: clearNotifArea
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: {
+                            if (root.notifServer) {
+                                root.notifServer.clearHistory();
+                                root.showToast("Notifications cleared");
+                            }
+                        }
+                    }
+                }
+
+                Text {
+                    anchors.right: parent.right
+                    anchors.verticalCenter: parent.verticalCenter
+                    visible: root.notifHistory.length === 0
+                    text: "HISTORY"
+                    font.pixelSize: 9
+                    font.letterSpacing: 0.8
+                    color: Qt.rgba(1, 1, 1, 0.35)
+                    font.family: fontNMono.name || "Fira Sans"
+                }
+            }
+
+            // Scrollable Notification History Box (Dynamically fills down to footer)
+            Rectangle {
+                id: notifHistoryBox
+                width: parent.width
+                height: Math.max(120, drawerContentCol.height - y - 24)
+                radius: 18
+                color: Qt.rgba(1.0, 1.0, 1.0, 0.04)
+                border.width: 1
+                border.color: Qt.rgba(1.0, 1.0, 1.0, 0.08)
+                clip: true
+
+                // Empty State Placeholder
+                Column {
+                    anchors.centerIn: parent
+                    spacing: 6
+                    visible: root.notifHistory.length === 0
+
+                    Text {
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        text: "NO NOTIFICATIONS"
+                        font.pixelSize: 11
+                        font.letterSpacing: 1.0
+                        color: Qt.rgba(1, 1, 1, 0.50)
+                        font.family: fontNMono.name || "Fira Sans"
+                    }
+
+                    Text {
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        text: "Recent desktop notifications will appear here"
+                        font.pixelSize: 10
+                        color: Qt.rgba(1, 1, 1, 0.35)
+                        font.family: fontNType.name || "Fira Sans"
+                    }
+                }
+
+                // Notification History ListView
+                ListView {
+                    id: notifHistoryListView
+                    anchors.fill: parent
+                    anchors.margins: 8
+                    model: root.notifHistory
+                    spacing: 6
+                    clip: true
+                    visible: root.notifHistory.length > 0
+
+                    delegate: Rectangle {
+                        width: notifHistoryListView.width
+                        height: notifItemCol.implicitHeight + 16
+                        radius: 12
+                        color: Qt.rgba(1, 1, 1, 0.05)
+                        border.width: 1
+                        border.color: Qt.rgba(1, 1, 1, 0.08)
+
+                        Column {
+                            id: notifItemCol
+                            anchors.left: parent.left
+                            anchors.right: parent.right
+                            anchors.top: parent.top
+                            anchors.margins: 10
+                            spacing: 4
+
+                            // Top Row: Dot + App Name + Time + Delete (✕)
+                            Item {
+                                width: parent.width
+                                height: 18
+
+                                Row {
+                                    anchors.left: parent.left
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    spacing: 6
+
+                                    Rectangle {
+                                        width: 5
+                                        height: 5
+                                        radius: 2.5
+                                        color: "#FF3B30"
+                                        anchors.verticalCenter: parent.verticalCenter
+                                    }
+
+                                    Text {
+                                        text: (modelData.appName || "SYSTEM").toUpperCase()
+                                        font.pixelSize: 9
+                                        font.letterSpacing: 0.8
+                                        font.bold: true
+                                        color: Qt.rgba(1, 1, 1, 0.65)
+                                        font.family: fontNMono.name || "Fira Sans"
+                                        anchors.verticalCenter: parent.verticalCenter
+                                    }
+                                }
+
+                                Row {
+                                    anchors.right: parent.right
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    spacing: 8
+
+                                    Text {
+                                        text: modelData.timeStr || ""
+                                        font.pixelSize: 9
+                                        color: Qt.rgba(1, 1, 1, 0.45)
+                                        font.family: fontNMono.name || "Fira Sans"
+                                        anchors.verticalCenter: parent.verticalCenter
+                                    }
+
+                                    Rectangle {
+                                        width: 18
+                                        height: 18
+                                        radius: 9
+                                        color: delNotifArea.containsMouse ? Qt.rgba(1, 0.23, 0.19, 0.35) : Qt.rgba(1, 1, 1, 0.08)
+                                        border.width: 1
+                                        border.color: delNotifArea.containsMouse ? "#FF3B30" : Qt.rgba(1, 1, 1, 0.14)
+                                        anchors.verticalCenter: parent.verticalCenter
+
+                                        Text {
+                                            anchors.centerIn: parent
+                                            text: "✕"
+                                            font.pixelSize: 8
+                                            font.bold: true
+                                            color: delNotifArea.containsMouse ? "#FF453A" : Qt.rgba(1, 1, 1, 0.65)
+                                        }
+
+                                        MouseArea {
+                                            id: delNotifArea
+                                            anchors.fill: parent
+                                            hoverEnabled: true
+                                            cursorShape: Qt.PointingHandCursor
+                                            onClicked: {
+                                                if (root.notifServer) {
+                                                    root.notifServer.removeHistoryById(modelData.id);
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                            // Summary
+                            Text {
+                                width: parent.width
+                                text: modelData.summary || ""
+                                visible: text !== ""
+                                font.pixelSize: 12
+                                font.bold: true
+                                color: "#FFFFFF"
+                                elide: Text.ElideRight
+                                font.family: fontNType.name || "Fira Sans"
+                            }
+
+                            // Body
+                            Text {
+                                width: parent.width
+                                text: modelData.body || ""
+                                visible: text !== ""
+                                font.pixelSize: 11
+                                color: Qt.rgba(1, 1, 1, 0.72)
+                                wrapMode: Text.WordWrap
+                                maximumLineCount: 2
+                                elide: Text.ElideRight
+                                font.family: fontNType.name || "Fira Sans"
                             }
                         }
                     }
