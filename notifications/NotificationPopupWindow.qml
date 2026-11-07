@@ -13,6 +13,16 @@ PanelWindow {
     // Shared blurred wallpaper URL from DesktopWidgetsWindow
     property string wallpaperUrl: ""
 
+    // Notification Sound Configuration
+    property bool soundEnabled: true
+    readonly property string soundFile: Quickshell.shellDir + "/assets/notif.mp3"
+
+    Timer {
+        id: soundCooldownTimer
+        interval: 600
+        repeat: false
+    }
+
     WlrLayershell.namespace: "quickshell:notifications"
     WlrLayershell.layer: WlrLayer.Overlay
     exclusionMode: WlrLayershell.Ignore
@@ -172,6 +182,12 @@ PanelWindow {
                     notifModel.remove(notifModel.count - 1);
                 }
                 notifModel.insert(0, entry);
+            }
+
+            // Play notification sound (with cooldown so burst notifications do not overlap)
+            if (root.soundEnabled && !soundCooldownTimer.running) {
+                soundCooldownTimer.restart();
+                Quickshell.execDetached(["pw-play", root.soundFile]);
             }
 
             notif.closed.connect(function() {

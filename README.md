@@ -125,6 +125,7 @@ Fitur sidebar pengganti ML4W yang dirancang khusus untuk produktivitas tanpa men
 * **Scrollable:** Notifikasi panjang tidak terpotong, bisa di-scroll menggunakan mouse wheel / dua jari touchpad.
 * **Tombol Aksi D-Bus:** Mendukung tombol interaktif (Approve, Deny, Open, dll.).
 * **Fokus Cepat Window:** Khusus notifikasi aplikasi tertentu (mis. Antigravity IDE), otomatis menampilkan tombol aksi dengan aktivasi workspace akurat via `xdg_activation_v1`.
+* **Suara Notifikasi Native (`assets/notif.mp3`):** Memutar efek suara notifikasi secara otomatis lewat PipeWire (`pw-play`) dilengkapi *anti-spam cooldown* agar suara tidak tumpang tindih saat banyak notifikasi masuk bersamaan.
 * **Dismiss Cepat:** Klik di mana saja pada kartu notifikasi untuk menutupnya. Timer auto-dismiss otomatis berhenti saat kursor berada di atas kartu.
 
 ---
@@ -292,10 +293,14 @@ Untuk mengganti foto pada frame poster di widget:
 * Cukup timpa file gambar di [`assets/poster.jpg`](assets/poster.jpg) dengan gambar foto portrait pilihan lo (rasio disarankan 9:16 atau 3:4).
 * Gambar akan langsung terpasang otomatis dengan sudut membulat 20px (otomatis ter-reload dalam 2 detik tanpa perlu restart).
 
-### 3. Mengganti Cover Album Default
+### 3. Mengganti Suara Notifikasi
+* Suara notifikasi diambil dari [`assets/notif.mp3`](assets/notif.mp3). Cukup timpa file tersebut dengan file audio `.mp3` atau `.wav` pilihan lo.
+* Untuk mematikan suara notifikasi, ubah `property bool soundEnabled: false` di bagian atas [`notifications/NotificationPopupWindow.qml`](notifications/NotificationPopupWindow.qml).
+
+### 4. Mengganti Cover Album Default
 Jika pemutar musik sedang tidak aktif, widget menampilkan cover default dari [`assets/album.jpg`](assets/album.jpg). Lo bisa menggantinya dengan artwork album favorit lo.
 
-### 4. Mengatur Kota & Layanan Cuaca ([`widgets/stats.py`](widgets/stats.py))
+### 5. Mengatur Kota & Layanan Cuaca ([`widgets/stats.py`](widgets/stats.py))
 * Secara default, script mendeteksi lokasi kota lo secara otomatis menggunakan IP Geolocation publik.
 * Jika lo ingin menentukan kota tertentu secara manual, lo bisa mengedit pemanggilan URL di file `widgets/stats.py`:
   ```python
@@ -315,6 +320,7 @@ DesktopWidgetsApp/
 │   │   ├── Ndot57-Regular.otf      # Font jam digital, volume & brightness Nothing OS
 │   │   ├── NType82-Regular.otf     # Font sans-serif bento grid & judul musik
 │   │   └── LetteraMonoLL-Regular.otf # Font tanggal, artis & teks teknikal monospace
+│   ├── notif.mp3                   # Efek suara notifikasi masuk
 │   ├── album.jpg                   # Fallback cover album
 │   ├── poster.jpg                  # Foto portrait frame poster
 │   ├── preview.png                 # Gambar pratinjau desktop widgets
