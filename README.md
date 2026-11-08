@@ -141,6 +141,14 @@ Fitur sidebar pengganti ML4W yang dirancang khusus untuk produktivitas tanpa men
 
 ---
 
+### 13. 🚀 Unified App & IDE Project Launcher (`launcher/`)
+* Menggantikan Rofi bawaan ML4W dengan modal **Chameleon Frosted Glass** di tengah layar (`Ctrl + Super + Enter`).
+* **Unified Smart Search (Opsi B):** Satu kolom pencarian cerdas untuk mencari **Aplikasi Desktop** sekaligus **Folder Project / Repo Git** secara instan.
+* **Open Folder in Antigravity IDE:** Memilih item bertipe folder (`IDE` badge) dan menekan `Enter` atau klik akan langsung membuka folder project tersebut di **Antigravity IDE** (`/opt/antigravity/antigravity-ide <path>`).
+* **Layout Grid 2D (5 Kolom) & Navigasi 4 Arah:** Menampilkan icon aplikasi berukuran besar dengan nama singkat yang ringkas, mendukung navigasi keyboard penuh ke **Kiri (`←`), Kanan (`→`), Atas (`↑`), dan Bawah (`↓`)**, serta tombol `Tab` untuk memfilter `ALL` / `APPS` / `FOLDERS`.
+
+---
+
 ## ⌨️ Shortcut Keyboard & Kontrol Cepat
 
 | Shortcut / Aksi | Fungsi | Deskripsi |
@@ -149,6 +157,7 @@ Fitur sidebar pengganti ML4W yang dirancang khusus untuk produktivitas tanpa men
 | **`Super + P`** | **Display Projection** | Buka/tutup menu proyeksi monitor (PC, Mirror, Extend, Second) |
 | **`Ctrl + Super + S`** | **Music Sidebar** | Buka/tutup panel sidebar pemutar musik, playlist & riwayat notifikasi |
 | **`Ctrl + Super + L`** | **Nothing Lock Screen** | Kunci layar dengan Nothing OS Dot-Matrix Lock Screen (`lockscreen/lock.sh`) |
+| **`Ctrl + Super + Enter`** | **App & IDE Launcher** | Buka/tutup Unified Application & Project Folder Launcher (2D Grid) |
 | **`XF86AudioRaiseVolume`** | Volume Up | Naikkan volume + munculkan HUD Volume Nothing OS |
 | **`XF86AudioLowerVolume`** | Volume Down | Turunkan volume + munculkan HUD Volume Nothing OS |
 | **`XF86AudioMute`** | Toggle Mute | Mute/unmute audio |
@@ -356,6 +365,9 @@ DesktopWidgetsApp/
 │   ├── volume-mute-dot.svg         # Icon speaker mute dot-matrix
 │   ├── weather-dot.svg             # Icon cuaca dot-matrix
 │   └── rocket.svg                  # Icon aksi notifikasi
+├── launcher/
+│   ├── LauncherWindow.qml          # Modal Chameleon Frosted Glass 2D Grid App & IDE Folder Launcher
+│   └── apps.py                     # Indexer aplikasi .desktop & pembuka folder project ke Antigravity IDE
 ├── lockscreen/
 │   ├── hyprlock.conf               # Konfigurasi visual Nothing OS Dot-Matrix untuk hyprlock
 │   ├── lock.sh                     # Launcher script sinkronisasi wallpaper aktif & hyprlock

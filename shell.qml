@@ -3,6 +3,7 @@ import "widgets"
 import "notifications"
 import "notch"
 import "sidebar"
+import "launcher"
 
 ShellRoot {
     DesktopWidgetsWindow {
@@ -19,5 +20,9 @@ ShellRoot {
     SidebarWindow {
         id: musicSidebar
         notifServer: notifPopup
+    }
+
+    LauncherWindow {
+        id: appLauncher
     }
 }
