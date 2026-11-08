@@ -82,7 +82,7 @@ def get_music_header():
     elif status == "Paused":
         p = f" · {player}" if player else ""
         return f'<span foreground="#ffffff88">○</span> PAUSED{html.escape(p)}'
-    return '<span foreground="#ffffff55">[:::]</span> NOTHING MEDIA'
+    return '<span foreground="#ffffff55">[:::]</span> MEDIA IDLE'
 
 
 def get_music_title():
@@ -105,7 +105,7 @@ def get_music_artist():
                 artist = artist[:35] + "..."
             return html.escape(artist)
         return "UNKNOWN ARTIST"
-    return "PLAY AUDIO TO ACTIVATE GLYPH PLAYER"
+    return "PLAY AUDIO TO ACTIVATE MEDIA PLAYER"
 
 
 def get_music_play_label():
