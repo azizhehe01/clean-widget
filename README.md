@@ -115,7 +115,7 @@ Fitur sidebar pengganti ML4W yang dirancang khusus untuk produktivitas tanpa men
 ---
 
 ### 10. ⚡ Kapsul Tombol Daya (`widgets/`)
-* Tombol cepat dengan icon Nerd Font untuk *Sleep/Suspend*, *Power Off (Shutdown)*, dan *Reboot*.
+* Tombol cepat dengan icon Nerd Font untuk *Lock Screen* (`lockscreen/lock.sh`), *Sleep/Suspend*, *Power Off (Shutdown)*, dan *Reboot*.
 
 ---
 
@@ -127,6 +127,17 @@ Fitur sidebar pengganti ML4W yang dirancang khusus untuk produktivitas tanpa men
 * **Fokus Cepat Window:** Khusus notifikasi aplikasi tertentu (mis. Antigravity IDE), otomatis menampilkan tombol aksi dengan aktivasi workspace akurat via `xdg_activation_v1`.
 * **Suara Notifikasi Native (`assets/notif.mp3`) & Efek Cekrek Screenshot (`assets/camera-shutter.oga`):** Memutar efek suara notifikasi secara otomatis lewat PipeWire (`pw-play`). Khusus untuk hasil **Screenshot**, popup notifikasi otomatis disembunyikan dan diganti dengan efek suara *shutter* kamera bawaan GNOME (*cekrek*).
 * **Dismiss Cepat:** Klik di mana saja pada kartu notifikasi untuk menutupnya. Timer auto-dismiss otomatis berhenti saat kursor berada di atas kartu.
+* **Notification History di Sidebar (`sidebar/`):** Seluruh riwayat notifikasi otomatis tersimpan di bagian bawah Sidebar dengan tombol `CLEAR ALL` dan hapus per item (`✕`).
+
+---
+
+### 12. 🔒 Nothing OS Lock Screen (`lockscreen/`)
+* Menggantikan lock screen bawaan/ML4W menggunakan engine native **`hyprlock`** yang dibalut estetika **Nothing OS 3.0 Dot-Matrix + Chameleon Frosted Glass**.
+* **Dynamic Wallpaper Blur:** Script [`lockscreen/lock.sh`](lockscreen/lock.sh) otomatis mendeteksi wallpaper desktop aktif dan memberikan efek *deep Dual-Kawase blur* (`blur_passes = 4`, `blur_size = 8`).
+* **Top Glyph Status Bar:** Menampilkan status jaringan WiFi aktif (`[:::] WIFI · <SSID>`) di kiri atas dan indikator baterai dot-matrix (`BAT XX% [●●●○○]`) di kanan atas menggunakan font `Lettera Mono LL`.
+* **Hero Dot-Matrix Clock & Cuaca:** Jam digital ukuran besar di tengah atas dengan font resmi `Ndot 57`, diikuti baris tanggal dan suhu cuaca real-time dari cache lokal.
+* **Frosted Glass Media Pill Interaktif:** Menampilkan status lagu yang sedang diputar (`● NOW PLAYING`), judul lagu (`NType 82 Headline`), nama artis (`Lettera Mono LL`), serta tombol interaktif `[ |◁ PREV ]`, `[ ⏸ PAUSE ]`, dan `[ NEXT ▷| ]` yang bisa langsung diklik dari layar kunci.
+* **Glyph Password Capsule:** Input kapsul password minimalis (`ENTER PASSCODE`) dengan indikator dot-matrix dan warna merah khas Nothing OS (`#D71921` / `ACCESS DENIED`) saat password salah.
 
 ---
 
@@ -136,7 +147,8 @@ Fitur sidebar pengganti ML4W yang dirancang khusus untuk produktivitas tanpa men
 | :--- | :--- | :--- |
 | **`Super + W`** | **WiFi Manager** | Buka/tutup menu WiFi dot-matrix di Notch |
 | **`Super + P`** | **Display Projection** | Buka/tutup menu proyeksi monitor (PC, Mirror, Extend, Second) |
-| **`Ctrl + Super + S`** | **Music Sidebar** | Buka/tutup panel sidebar pemutar musik & playlist drawer |
+| **`Ctrl + Super + S`** | **Music Sidebar** | Buka/tutup panel sidebar pemutar musik, playlist & riwayat notifikasi |
+| **`Ctrl + Super + L`** | **Nothing Lock Screen** | Kunci layar dengan Nothing OS Dot-Matrix Lock Screen (`lockscreen/lock.sh`) |
 | **`XF86AudioRaiseVolume`** | Volume Up | Naikkan volume + munculkan HUD Volume Nothing OS |
 | **`XF86AudioLowerVolume`** | Volume Down | Turunkan volume + munculkan HUD Volume Nothing OS |
 | **`XF86AudioMute`** | Toggle Mute | Mute/unmute audio |
@@ -344,6 +356,10 @@ DesktopWidgetsApp/
 │   ├── volume-mute-dot.svg         # Icon speaker mute dot-matrix
 │   ├── weather-dot.svg             # Icon cuaca dot-matrix
 │   └── rocket.svg                  # Icon aksi notifikasi
+├── lockscreen/
+│   ├── hyprlock.conf               # Konfigurasi visual Nothing OS Dot-Matrix untuk hyprlock
+│   ├── lock.sh                     # Launcher script sinkronisasi wallpaper aktif & hyprlock
+│   └── status.py                   # Provider data cepat WiFi, baterai, cuaca & MPRIS media
 ├── notch/
 │   ├── NotchWindow.qml             # Window Top Notch interaktif, Angry Eyes, HUD OSD, WiFi & HDMI
 │   └── cursor.py                   # Daemon IPC Hyprland pelacak kursor & active window

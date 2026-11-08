@@ -940,7 +940,25 @@ PanelWindow {
 
                 Row {
                     anchors.centerIn: parent
-                    spacing: 42
+                    spacing: 30
+
+                    // Lock Screen (Nothing OS Lockscreen)
+                    Text {
+                        text: "󰌾"
+                        font.family: "FiraCode Nerd Font"
+                        font.pixelSize: 20
+                        color: lockMouse.containsMouse ? root.barFill : root.textPrimary
+                        scale: lockMouse.pressed ? 0.9 : 1.0
+
+                        MouseArea {
+                            id: lockMouse
+                            anchors.fill: parent
+                            anchors.margins: -8
+                            hoverEnabled: true
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: Quickshell.execDetached([Quickshell.shellDir + "/lockscreen/lock.sh"])
+                        }
+                    }
 
                     // Sleep / Suspend
                     Text {
