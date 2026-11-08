@@ -274,6 +274,7 @@ PanelWindow {
     // ---------------------------------------------------------------------
     readonly property int baseBodyW: 168
     readonly property int volumeBodyW: 248
+    readonly property int statusBodyW: 376
     readonly property int displayBodyW: 460
     readonly property int wifiBodyW: 340
     property real animatedBodyW: {
@@ -281,6 +282,7 @@ PanelWindow {
         if (showDisplayMenu) return displayBodyW;
         if (showBrightness) return brightnessBodyW;
         if (showVolume) return volumeBodyW;
+        if (showStatusPeek) return statusBodyW;
         return baseBodyW;
     }
 
@@ -289,11 +291,13 @@ PanelWindow {
     }
 
     readonly property int baseNotchH: 38
+    readonly property int statusNotchH: 42
     readonly property int displayNotchH: 84
     readonly property int wifiNotchH: 284
     property real animatedNotchH: {
         if (showWifiMenu) return wifiNotchH;
         if (showDisplayMenu) return displayNotchH;
+        if (showStatusPeek) return statusNotchH;
         return baseNotchH;
     }
 
@@ -534,11 +538,85 @@ PanelWindow {
     property string activeAppClass: "none"
     property int workspaceWindows: 0
 
-    // Auto-hide & window focus intelligence
+    // Auto-hide & window focus intelligence + Dynamic Island Hover Status Capsule
     readonly property bool isAntigravityActive: activeAppClass.toLowerCase().indexOf("antigravity") !== -1 || activeAppClass.toLowerCase().indexOf("code") !== -1
     readonly property bool hasActiveWindow: activeAppClass !== "none" && activeAppClass !== ""
     readonly property bool hasWindow: hasActiveWindow || workspaceWindows > 0
-    readonly property bool isHoveringTop: cursorY <= 8 && Math.abs(cursorX - screenCenterX) <= (windowWidth / 2)
+
+    // Live Clock for Status Capsule
+    SystemClock {
+        id: notchClock
+        precision: SystemClock.Minutes
+    }
+
+    // Battery & WiFi Status for Hover Capsule
+    property int batteryPct: 100
+    property string batteryStatus: "Full"
+    property string activeWifiSsid: "WIFI"
+    property bool activeWifiConnected: true
+
+    Process {
+        id: notchStatusProc
+        command: ["python3", Quickshell.shellDir + "/notch/status.py"]
+        running: true
+        stdout: StdioCollector {
+            onStreamFinished: {
+                try {
+                    let raw = this.text.trim();
+                    if (raw) {
+                        let d = JSON.parse(raw);
+                        if (d.battery_pct !== undefined) root.batteryPct = d.battery_pct;
+                        if (d.battery_status !== undefined) root.batteryStatus = d.battery_status;
+                        if (d.wifi_ssid !== undefined) root.activeWifiSsid = d.wifi_ssid;
+                        if (d.wifi_connected !== undefined) root.activeWifiConnected = d.wifi_connected;
+                    }
+                } catch (e) {}
+            }
+        }
+    }
+
+    Timer {
+        interval: 5000
+        running: true
+        repeat: true
+        onTriggered: {
+            if (!notchStatusProc.running) notchStatusProc.running = true;
+        }
+    }
+
+    // Hover detection:
+    // - When notch is tucked away: flick cursor to top edge (cursorY <= 10) near center
+    // - When notch is visible: keep open while cursor is inside the expanded notch capsule
+    property bool showStatusPeek: false
+    readonly property bool rawHoverNotch: {
+        if (showStatusPeek || !hasWindow) {
+            return cursorY <= (root.animatedNotchH + 10) && Math.abs(cursorX - screenCenterX) <= (root.animatedBodyW / 2 + 24);
+        }
+        return cursorY <= 10 && Math.abs(cursorX - screenCenterX) <= 190;
+    }
+
+    onRawHoverNotchChanged: {
+        if (rawHoverNotch) {
+            hoverHoldTimer.stop();
+            root.showStatusPeek = true;
+            if (!notchStatusProc.running) notchStatusProc.running = true;
+        } else {
+            hoverHoldTimer.restart();
+        }
+    }
+
+    Timer {
+        id: hoverHoldTimer
+        interval: 480
+        repeat: false
+        onTriggered: {
+            if (!root.rawHoverNotch) {
+                root.showStatusPeek = false;
+            }
+        }
+    }
+
+    readonly property bool isHoveringTop: root.rawHoverNotch || root.showStatusPeek
 
     readonly property bool shouldHide: {
         // Jangan sembunyikan jika menu WiFi sedang dibuka
@@ -547,7 +625,7 @@ PanelWindow {
         if (showDisplayMenu) return false;
         // Jangan sembunyikan jika volume atau brightness HUD sedang aktif
         if (showVolume || showBrightness) return false;
-        // Munculkan jika user mengarahkan kursor ke ujung atas layar (hover-to-reveal)
+        // Munculkan jika user mengarahkan kursor ke ujung atas layar / notch (hover-to-peek)
         if (isHoveringTop) return false;
 
         if (autoHideMode === "any_window") {
@@ -718,7 +796,7 @@ PanelWindow {
         }
 
         // -----------------------------------------------------------------
-        // DEFAULT VIEW: Interactive Angry Eyes
+        // DEFAULT VIEW: Interactive Angry Eyes (when idle & not hovered)
         // -----------------------------------------------------------------
         Row {
             id: eyeRow
@@ -727,15 +805,134 @@ PanelWindow {
             anchors.verticalCenterOffset: 1
             spacing: root.eyeGap
 
-            opacity: (!root.showVolume && !root.showBrightness && !root.showDisplayMenu && !root.showWifiMenu) ? 1.0 : 0.0
-            scale: (!root.showVolume && !root.showBrightness && !root.showDisplayMenu && !root.showWifiMenu) ? 1.0 : 0.85
-            visible: !root.showVolume && !root.showBrightness && !root.showDisplayMenu && !root.showWifiMenu
+            readonly property bool activeView: !root.showVolume && !root.showBrightness && !root.showDisplayMenu && !root.showWifiMenu && !root.showStatusPeek
+            opacity: activeView ? 1.0 : 0.0
+            scale: activeView ? 1.0 : 0.85
+            visible: activeView || opacity > 0.05
 
             Behavior on opacity { NumberAnimation { duration: root.animDuration; easing.type: Easing.OutCubic } }
             Behavior on scale   { NumberAnimation { duration: root.animDuration; easing.type: Easing.OutCubic } }
 
             Eye { side: -1 }
             Eye { side: 1 }
+        }
+
+        // -----------------------------------------------------------------
+        // HOVER STATUS VIEW: Dynamic Island Status Capsule (Battery · Clock · WiFi)
+        // -----------------------------------------------------------------
+        Row {
+            id: statusPeekRow
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.verticalCenter: parent.verticalCenter
+            spacing: 14
+
+            readonly property bool activeView: root.showStatusPeek && !root.showVolume && !root.showBrightness && !root.showDisplayMenu && !root.showWifiMenu
+            opacity: activeView ? 1.0 : 0.0
+            scale: activeView ? 1.0 : 0.90
+            visible: activeView || opacity > 0.05
+
+            Behavior on opacity { NumberAnimation { duration: root.animDuration; easing.type: Easing.OutCubic } }
+            Behavior on scale   { NumberAnimation { duration: root.animDuration; easing.type: Easing.OutCubic } }
+
+            // 1. Left Segment: Battery Icon + Dot-Matrix Percentage
+            Row {
+                anchors.verticalCenter: parent.verticalCenter
+                spacing: 6
+
+                Text {
+                    anchors.verticalCenter: parent.verticalCenter
+                    text: {
+                        if (root.batteryStatus === "Charging") return "󰂄";
+                        if (root.batteryPct >= 85) return "󰁹";
+                        if (root.batteryPct >= 65) return "󰂀";
+                        if (root.batteryPct >= 45) return "󰁾";
+                        if (root.batteryPct >= 25) return "󰁼";
+                        return "󰁺";
+                    }
+                    font.family: "FiraCode Nerd Font"
+                    font.pixelSize: 15
+                    color: {
+                        if (root.batteryStatus === "Charging") return "#30D158";
+                        if (root.batteryPct <= 20) return "#FF3B30";
+                        return "#30D158";
+                    }
+                }
+
+                Text {
+                    anchors.verticalCenter: parent.verticalCenter
+                    text: root.batteryPct + "%"
+                    font.family: fontNdot57.name || "monospace"
+                    font.pixelSize: 15
+                    color: (root.batteryPct <= 20 && root.batteryStatus !== "Charging") ? "#FF3B30" : "#FFFFFF"
+                }
+            }
+
+            // Dot Separator
+            Rectangle {
+                width: 3
+                height: 3
+                radius: 1.5
+                color: Qt.rgba(1.0, 1.0, 1.0, 0.32)
+                anchors.verticalCenter: parent.verticalCenter
+            }
+
+            // 2. Center Segment: Live Clock & Short Date
+            Row {
+                anchors.verticalCenter: parent.verticalCenter
+                spacing: 7
+
+                Text {
+                    anchors.verticalCenter: parent.verticalCenter
+                    text: Qt.formatDateTime(notchClock.date, "HH:mm")
+                    font.family: fontNdot57.name || "monospace"
+                    font.pixelSize: 15
+                    color: "#FFFFFF"
+                }
+
+                Text {
+                    anchors.verticalCenter: parent.verticalCenter
+                    text: Qt.formatDateTime(notchClock.date, "ddd dd MMM").toUpperCase()
+                    font.family: fontNMono.name || "monospace"
+                    font.pixelSize: 10
+                    font.letterSpacing: 0.6
+                    color: Qt.rgba(1.0, 1.0, 1.0, 0.65)
+                }
+            }
+
+            // Dot Separator
+            Rectangle {
+                width: 3
+                height: 3
+                radius: 1.5
+                color: Qt.rgba(1.0, 1.0, 1.0, 0.32)
+                anchors.verticalCenter: parent.verticalCenter
+            }
+
+            // 3. Right Segment: Active WiFi SSID
+            Row {
+                anchors.verticalCenter: parent.verticalCenter
+                spacing: 6
+
+                Image {
+                    width: 14
+                    height: 14
+                    anchors.verticalCenter: parent.verticalCenter
+                    source: root.activeWifiConnected
+                        ? Qt.resolvedUrl("../assets/wifi-dot.svg")
+                        : Qt.resolvedUrl("../assets/wifi-off-dot.svg")
+                    sourceSize: Qt.size(14, 14)
+                    opacity: 0.9
+                }
+
+                Text {
+                    anchors.verticalCenter: parent.verticalCenter
+                    text: root.activeWifiSsid || "OFFLINE"
+                    font.family: fontNMono.name || "monospace"
+                    font.pixelSize: 10
+                    font.letterSpacing: 0.6
+                    color: root.activeWifiConnected ? "#FFFFFF" : Qt.rgba(1.0, 1.0, 1.0, 0.50)
+                }
+            }
         }
 
         // -----------------------------------------------------------------
