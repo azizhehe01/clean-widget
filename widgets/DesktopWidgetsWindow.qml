@@ -86,6 +86,8 @@ PanelWindow {
         "weather_meta": "78% · 14 KM/H",
         "battery_pct": 100,
         "battery_status": "Full",
+        "ram_pct": 35,
+        "ram_used": "5.6G",
         "lyrics": [],
         "album_color": "#2c2628",
         "track_position": 0.0,
@@ -812,7 +814,7 @@ PanelWindow {
                 }
             }
 
-            // Right Column Top: System Monitor Card (Fills 100% height cleanly with zero empty gap below Battery)
+            // Right Column Top: Circular Ring Gauges Card (Battery, RAM, Root /, Home /home)
             FrostedCard {
                 id: sysMonitorCard
                 x: row3.leftColW + root.gridGap
@@ -823,104 +825,130 @@ PanelWindow {
                 globalOffsetX: row3.leftColW + root.gridGap
                 globalOffsetY: row3.y
 
-                Column {
-                    x: 20
-                    y: 18
-                    width: parent.width - 40
-                    spacing: 16
+                Grid {
+                    anchors.centerIn: parent
+                    columns: 2
+                    rowSpacing: 10
+                    columnSpacing: 14
 
-                    // Linux Root Partition: Root (/)
-                    Column {
-                        width: parent.width
-                        spacing: 5
-                        Text {
-                            text: "ROOT (/)"
-                            font.pixelSize: 14
-                            font.letterSpacing: 0.8
-                            color: root.textPrimary
-                            font.family: fontNType.name || "Fira Sans"
-                        }
-                        Text {
-                            text: (root.stats.root_used || "114.7 GB") + " / " + (root.stats.root_total || "712.8 GB")
-                            font.pixelSize: 11
-                            font.letterSpacing: 0.5
-                            color: root.textSecondary
-                            font.family: fontNMono.name || "Fira Sans"
-                        }
-                        Rectangle {
-                            width: parent.width
-                            height: 8
-                            radius: 4
-                            color: root.barTrack
-                            Rectangle {
-                                width: parent.width * Math.min(1.0, Math.max(0.06, (root.stats.root_pct || 16) / 100.0))
-                                height: parent.height
-                                radius: 4
-                                color: root.barFill
+                    Repeater {
+                        model: [
+                            {
+                                icon: (root.stats.battery_status === "Charging") ? "󰂄" : "󰌢",
+                                pct: root.stats.battery_pct !== undefined ? root.stats.battery_pct : 100,
+                                label: "BATTERY",
+                                ringColor: (root.stats.battery_pct !== undefined && root.stats.battery_pct <= 20 && root.stats.battery_status !== "Charging")
+                                    ? "#FF453A"
+                                    : "#30D158"
+                            },
+                            {
+                                icon: "󰍛",
+                                pct: root.stats.ram_pct !== undefined ? root.stats.ram_pct : 35,
+                                label: "RAM · " + (root.stats.ram_used || "5.6G"),
+                                ringColor: (root.stats.ram_pct !== undefined && root.stats.ram_pct >= 85)
+                                    ? "#FF9F0A"
+                                    : "#30D158"
+                            },
+                            {
+                                icon: "󰋊",
+                                pct: root.stats.root_pct !== undefined ? root.stats.root_pct : 16,
+                                label: "ROOT · " + ((root.stats.root_used || "116G").split(" ")[0] + "G"),
+                                ringColor: (root.stats.root_pct !== undefined && root.stats.root_pct >= 85)
+                                    ? "#FF453A"
+                                    : "#30D158"
+                            },
+                            {
+                                icon: "󱂵",
+                                pct: root.stats.home_pct !== undefined ? root.stats.home_pct : 16,
+                                label: "HOME · " + ((root.stats.home_used || "116G").split(" ")[0] + "G"),
+                                ringColor: (root.stats.home_pct !== undefined && root.stats.home_pct >= 85)
+                                    ? "#FF453A"
+                                    : "#30D158"
                             }
-                        }
-                    }
+                        ]
 
-                    // Linux Home Partition: Home (/home)
-                    Column {
-                        width: parent.width
-                        spacing: 5
-                        Text {
-                            text: "HOME (/HOME)"
-                            font.pixelSize: 14
-                            font.letterSpacing: 0.8
-                            color: root.textPrimary
-                            font.family: fontNType.name || "Fira Sans"
-                        }
-                        Text {
-                            text: (root.stats.home_used || "114.7 GB") + " / " + (root.stats.home_total || "712.8 GB")
-                            font.pixelSize: 11
-                            font.letterSpacing: 0.5
-                            color: root.textSecondary
-                            font.family: fontNMono.name || "Fira Sans"
-                        }
-                        Rectangle {
-                            width: parent.width
-                            height: 8
-                            radius: 4
-                            color: root.barTrack
-                            Rectangle {
-                                width: parent.width * Math.min(1.0, Math.max(0.06, (root.stats.home_pct || 16) / 100.0))
-                                height: parent.height
-                                radius: 4
-                                color: root.barFill
+                        delegate: Column {
+                            width: 98
+                            spacing: 4
+
+                            // Circular Progress Ring + Center Device/Storage Icon
+                            Item {
+                                width: 64
+                                height: 64
+                                anchors.horizontalCenter: parent.horizontalCenter
+
+                                Canvas {
+                                    id: ringCanvas
+                                    anchors.fill: parent
+                                    antialiasing: true
+
+                                    property real progress: Math.max(0.0, Math.min(1.0, (modelData.pct || 0) / 100.0))
+                                    property string arcColor: modelData.ringColor || "#30D158"
+
+                                    onProgressChanged: requestPaint()
+                                    onArcColorChanged: requestPaint()
+
+                                    onPaint: {
+                                        var ctx = getContext("2d");
+                                        ctx.reset();
+                                        var cx = width / 2.0;
+                                        var cy = height / 2.0;
+                                        var r = (Math.min(width, height) / 2.0) - 5.0;
+                                        var lw = 6.2;
+
+                                        // 1. Track Ring
+                                        ctx.beginPath();
+                                        ctx.arc(cx, cy, r, 0, Math.PI * 2.0, false);
+                                        ctx.lineWidth = lw;
+                                        ctx.strokeStyle = "rgba(255, 255, 255, 0.16)";
+                                        ctx.stroke();
+
+                                        // 2. Active Progress Arc (starts at top -90 deg)
+                                        if (progress > 0.005) {
+                                            var startAngle = -Math.PI / 2.0;
+                                            var endAngle = startAngle + (Math.PI * 2.0 * progress);
+                                            ctx.beginPath();
+                                            ctx.arc(cx, cy, r, startAngle, endAngle, false);
+                                            ctx.lineWidth = lw;
+                                            ctx.lineCap = "round";
+                                            ctx.strokeStyle = arcColor;
+                                            ctx.stroke();
+                                        }
+                                    }
+                                }
+
+                                // Center Icon inside the Ring
+                                Text {
+                                    anchors.centerIn: parent
+                                    text: modelData.icon
+                                    font.family: "FiraCode Nerd Font"
+                                    font.pixelSize: 21
+                                    color: Qt.rgba(1.0, 1.0, 1.0, 0.90)
+                                }
                             }
-                        }
-                    }
 
-                    // Battery:
-                    Column {
-                        width: parent.width
-                        spacing: 5
-                        Text {
-                            text: "BATTERY"
-                            font.pixelSize: 14
-                            font.letterSpacing: 0.8
-                            color: root.textPrimary
-                            font.family: fontNType.name || "Fira Sans"
-                        }
-                        Text {
-                            text: (root.stats.battery_pct || 100) + "%"
-                            font.pixelSize: 11
-                            font.letterSpacing: 0.5
-                            color: root.textSecondary
-                            font.family: fontNMono.name || "Fira Sans"
-                        }
-                        Rectangle {
-                            width: parent.width
-                            height: 8
-                            radius: 4
-                            color: root.barTrack
-                            Rectangle {
-                                width: parent.width * Math.min(1.0, Math.max(0.06, (root.stats.battery_pct || 100) / 100.0))
-                                height: parent.height
-                                radius: 4
-                                color: root.barFill
+                            // Percentage Readout (e.g. 62%)
+                            Text {
+                                width: parent.width
+                                horizontalAlignment: Text.AlignHCenter
+                                text: (modelData.pct !== undefined ? modelData.pct : 0) + "%"
+                                font.family: fontNType.name || "Fira Sans"
+                                font.pixelSize: 14
+                                font.bold: true
+                                color: root.textPrimary
+                            }
+
+                            // Micro Label (BATTERY, RAM, ROOT, HOME)
+                            Text {
+                                width: parent.width
+                                horizontalAlignment: Text.AlignHCenter
+                                text: modelData.label
+                                font.family: fontNMono.name || "monospace"
+                                font.pixelSize: 9
+                                font.letterSpacing: 0.5
+                                color: Qt.rgba(1.0, 1.0, 1.0, 0.62)
+                                elide: Text.ElideRight
+                                maximumLineCount: 1
                             }
                         }
                     }

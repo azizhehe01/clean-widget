@@ -120,6 +120,25 @@ except Exception:
     data["home_total"] = "712.8 GB"
     data["home_pct"] = 16
 
+# 1b. RAM / Memory usage (/proc/meminfo)
+data["ram_pct"] = 35
+data["ram_used"] = "5.6G"
+try:
+    mem_total = 0
+    mem_avail = 0
+    with open("/proc/meminfo", "r") as f:
+        for line in f:
+            if line.startswith("MemTotal:"):
+                mem_total = int(line.split()[1])
+            elif line.startswith("MemAvailable:"):
+                mem_avail = int(line.split()[1])
+    if mem_total > 0:
+        used_kb = max(0, mem_total - mem_avail)
+        data["ram_pct"] = round((used_kb / mem_total) * 100)
+        data["ram_used"] = f"{used_kb / (1024**2):.1f}G"
+except Exception:
+    pass
+
 # 2. Battery
 data["battery_pct"] = 100
 data["battery_status"] = "Full"
