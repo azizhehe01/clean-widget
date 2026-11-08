@@ -131,6 +131,13 @@ PanelWindow {
                 return;
             }
 
+            // Jika notifikasi baterai lemah / charging dari sistem, sembunyikan popup karena sudah ditangani Notch Rage & Relief Mode
+            let isBatteryNotif = /battery|baterai|upower|powerdevil|energi/i.test(appNameStr + " " + summaryStr + " " + cleanBody) && /low|critical|empty|charging|discharging|full|habis|lemah|%/i.test(summaryStr + " " + cleanBody);
+            if (isBatteryNotif) {
+                notif.dismiss();
+                return;
+            }
+
             notif.tracked = true;
             let nid = notif.id;
             root.liveNotifs[nid] = notif;

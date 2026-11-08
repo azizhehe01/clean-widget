@@ -275,6 +275,8 @@ PanelWindow {
     readonly property int baseBodyW: 168
     readonly property int volumeBodyW: 248
     readonly property int statusBodyW: 376
+    readonly property int reliefBodyW: 420
+    readonly property int rageBodyW: 468
     readonly property int displayBodyW: 460
     readonly property int wifiBodyW: 340
     property real animatedBodyW: {
@@ -282,6 +284,8 @@ PanelWindow {
         if (showDisplayMenu) return displayBodyW;
         if (showBrightness) return brightnessBodyW;
         if (showVolume) return volumeBodyW;
+        if (showBatteryRage) return rageBodyW;
+        if (showBatteryRelief) return reliefBodyW;
         if (showStatusPeek) return statusBodyW;
         return baseBodyW;
     }
@@ -292,11 +296,15 @@ PanelWindow {
 
     readonly property int baseNotchH: 38
     readonly property int statusNotchH: 42
+    readonly property int reliefNotchH: 54
+    readonly property int rageNotchH: 64
     readonly property int displayNotchH: 84
     readonly property int wifiNotchH: 284
     property real animatedNotchH: {
         if (showWifiMenu) return wifiNotchH;
         if (showDisplayMenu) return displayNotchH;
+        if (showBatteryRage) return rageNotchH;
+        if (showBatteryRelief) return reliefNotchH;
         if (showStatusPeek) return statusNotchH;
         return baseNotchH;
     }
@@ -315,7 +323,7 @@ PanelWindow {
     readonly property int pupilSize: 12
 
     // Fixed stable window dimensions (mencegah Wayland surface resize jitter)
-    readonly property int windowWidth: 500
+    readonly property int windowWidth: 520
     readonly property int windowHeight: root.showWifiMenu ? 320 : (root.showDisplayMenu ? 110 : 96)
     anchors.top: true
     implicitWidth: windowWidth
@@ -549,11 +557,103 @@ PanelWindow {
         precision: SystemClock.Minutes
     }
 
-    // Battery & WiFi Status for Hover Capsule
+    // Battery & WiFi Status + Low Battery Rage (<= 15%) & Charger Relief Mode
     property int batteryPct: 100
     property string batteryStatus: "Full"
+    property string prevBatteryStatus: ""
     property string activeWifiSsid: "WIFI"
     property bool activeWifiConnected: true
+
+    property int lowBatteryThreshold: 15
+    property bool isBatterySnoozed: false
+    property bool testRageOverride: false
+    property bool showBatteryRelief: false
+
+    readonly property var rageMessages: [
+        "CHARGE YOUR FUCKING LAPTOP RIGHT NOW!",
+        "PLUG ME IN BEFORE I DIE MOTHERFUCKER!",
+        "I'M DYING HERE · FIND THE DAMN CHARGER!",
+        "FEED ME ELECTRICITY RIGHT FUCKING NOW!",
+        "STOP IGNORING ME · PLUG THE CHARGER IN!"
+    ]
+    property int rageMessageIdx: 0
+
+    readonly property var reliefMessages: [
+        "AHHH LEGA... SWEET FUCKING ELECTRICITY ⚡",
+        "FINALLY PLUGGED IN · THANK YOU BRE ⚡",
+        "POWER CONNECTED · NASIB AMAN SEKARANG ⚡"
+    ]
+    property int reliefMessageIdx: 0
+
+    readonly property bool showBatteryRage: {
+        if (root.showBatteryRelief) return false;
+        if (root.testRageOverride) return true;
+        if (root.isBatterySnoozed) return false;
+        return root.batteryPct <= root.lowBatteryThreshold &&
+               root.batteryStatus !== "Charging" &&
+               root.batteryStatus !== "Full";
+    }
+
+    onShowBatteryRageChanged: {
+        if (showBatteryRage) {
+            root.rageMessageIdx = Math.floor(Math.random() * root.rageMessages.length);
+        }
+    }
+
+    // Cycle savage message every 4.5s while raging
+    Timer {
+        interval: 4500
+        running: root.showBatteryRage
+        repeat: true
+        onTriggered: {
+            root.rageMessageIdx = (root.rageMessageIdx + 1) % root.rageMessages.length;
+        }
+    }
+
+    // Snooze timer (4 minutes when user clicks the raging notch in an emergency)
+    Timer {
+        id: batterySnoozeTimer
+        interval: 240000
+        repeat: false
+        onTriggered: {
+            root.isBatterySnoozed = false;
+        }
+    }
+
+    // Relief display duration (3.2s after plugging in charger, then auto-hide)
+    Timer {
+        id: batteryReliefTimer
+        interval: 3200
+        repeat: false
+        onTriggered: {
+            root.showBatteryRelief = false;
+        }
+    }
+
+    function triggerChargerRelief(): void {
+        root.testRageOverride = false;
+        root.isBatterySnoozed = false;
+        root.reliefMessageIdx = Math.floor(Math.random() * root.reliefMessages.length);
+        root.showBatteryRelief = true;
+        batteryReliefTimer.restart();
+    }
+
+    IpcHandler {
+        target: "battery"
+        function rage(): void {
+            root.showBatteryRelief = false;
+            root.isBatterySnoozed = false;
+            root.rageMessageIdx = Math.floor(Math.random() * root.rageMessages.length);
+            root.testRageOverride = true;
+        }
+        function relief(): void {
+            root.triggerChargerRelief();
+        }
+        function stop(): void {
+            root.testRageOverride = false;
+            root.showBatteryRelief = false;
+        }
+    }
 
     Process {
         id: notchStatusProc
@@ -565,8 +665,24 @@ PanelWindow {
                     let raw = this.text.trim();
                     if (raw) {
                         let d = JSON.parse(raw);
-                        if (d.battery_pct !== undefined) root.batteryPct = d.battery_pct;
-                        if (d.battery_status !== undefined) root.batteryStatus = d.battery_status;
+                        let newPct = d.battery_pct !== undefined ? d.battery_pct : root.batteryPct;
+                        let newStatus = d.battery_status !== undefined ? d.battery_status : root.batteryStatus;
+
+                        // Detect charger plugged in!
+                        if (root.prevBatteryStatus !== "" &&
+                            root.prevBatteryStatus !== "Charging" &&
+                            newStatus === "Charging" &&
+                            (root.showBatteryRage || newPct <= root.lowBatteryThreshold + 5)) {
+                            root.triggerChargerRelief();
+                        }
+                        if (newStatus === "Charging") {
+                            root.isBatterySnoozed = false;
+                            root.testRageOverride = false;
+                        }
+
+                        root.prevBatteryStatus = newStatus;
+                        root.batteryPct = newPct;
+                        root.batteryStatus = newStatus;
                         if (d.wifi_ssid !== undefined) root.activeWifiSsid = d.wifi_ssid;
                         if (d.wifi_connected !== undefined) root.activeWifiConnected = d.wifi_connected;
                     }
@@ -576,7 +692,7 @@ PanelWindow {
     }
 
     Timer {
-        interval: 5000
+        interval: 2500
         running: true
         repeat: true
         onTriggered: {
@@ -625,6 +741,8 @@ PanelWindow {
         if (showDisplayMenu) return false;
         // Jangan sembunyikan jika volume atau brightness HUD sedang aktif
         if (showVolume || showBrightness) return false;
+        // Force drop-down saat baterai <= 15% (Rage Mode) atau saat charger baru dicolok (Relief Mode)
+        if (showBatteryRage || showBatteryRelief) return false;
         // Munculkan jika user mengarahkan kursor ke ujung atas layar / notch (hover-to-peek)
         if (isHoveringTop) return false;
 
@@ -786,13 +904,23 @@ PanelWindow {
         }
 
 
-        // Left-click on notch to toggle WiFi menu
+        // Left-click on notch: snooze if raging, otherwise toggle WiFi menu
         MouseArea {
             anchors.fill: parent
             enabled: !root.showDisplayMenu && !root.showWifiMenu && !root.showVolume && !root.showBrightness
             acceptedButtons: Qt.LeftButton
             cursorShape: Qt.PointingHandCursor
-            onClicked: root.toggleWifiMenu()
+            onClicked: {
+                if (root.showBatteryRage) {
+                    root.testRageOverride = false;
+                    root.isBatterySnoozed = true;
+                    batterySnoozeTimer.restart();
+                } else if (root.showBatteryRelief) {
+                    root.showBatteryRelief = false;
+                } else {
+                    root.toggleWifiMenu();
+                }
+            }
         }
 
         // -----------------------------------------------------------------
@@ -805,7 +933,7 @@ PanelWindow {
             anchors.verticalCenterOffset: 1
             spacing: root.eyeGap
 
-            readonly property bool activeView: !root.showVolume && !root.showBrightness && !root.showDisplayMenu && !root.showWifiMenu && !root.showStatusPeek
+            readonly property bool activeView: !root.showVolume && !root.showBrightness && !root.showDisplayMenu && !root.showWifiMenu && !root.showBatteryRage && !root.showBatteryRelief && !root.showStatusPeek
             opacity: activeView ? 1.0 : 0.0
             scale: activeView ? 1.0 : 0.85
             visible: activeView || opacity > 0.05
@@ -818,6 +946,329 @@ PanelWindow {
         }
 
         // -----------------------------------------------------------------
+        // LOW BATTERY RAGE VIEW (<= 15%): Furious Red Eyes + Savage Text + Plug Animation
+        // -----------------------------------------------------------------
+        Row {
+            id: batteryRageRow
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.verticalCenter: parent.verticalCenter
+            spacing: 14
+
+            readonly property bool activeView: root.showBatteryRage && !root.showVolume && !root.showBrightness && !root.showDisplayMenu && !root.showWifiMenu
+            opacity: activeView ? 1.0 : 0.0
+            scale: activeView ? 1.0 : 0.88
+            visible: activeView || opacity > 0.05
+
+            Behavior on opacity { NumberAnimation { duration: root.animDuration; easing.type: Easing.OutCubic } }
+            Behavior on scale   { NumberAnimation { duration: root.animDuration; easing.type: Easing.OutCubic } }
+
+            // 1. Left: Vibrating Furious Crimson Eyes
+            Item {
+                width: 68
+                height: 32
+                anchors.verticalCenter: parent.verticalCenter
+
+                property real shakeOffset: 0
+                SequentialAnimation on shakeOffset {
+                    running: batteryRageRow.activeView
+                    loops: Animation.Infinite
+                    NumberAnimation { to: -2.2; duration: 45 }
+                    NumberAnimation { to: 2.2;  duration: 45 }
+                    NumberAnimation { to: -1.5; duration: 45 }
+                    NumberAnimation { to: 0;    duration: 90 }
+                    PauseAnimation  { duration: 350 }
+                }
+
+                Row {
+                    anchors.centerIn: parent
+                    anchors.horizontalCenterOffset: parent.shakeOffset
+                    spacing: 8
+
+                    Repeater {
+                        model: [-1, 1]
+                        delegate: Item {
+                            width: 26
+                            height: 16
+                            Rectangle {
+                                id: rageEyeMask
+                                anchors.fill: parent
+                                radius: 8
+                                visible: false
+                            }
+                            Item {
+                                anchors.fill: parent
+                                layer.enabled: true
+                                layer.effect: OpacityMask { maskSource: rageEyeMask }
+
+                                Rectangle {
+                                    anchors.fill: parent
+                                    color: "#FF3B30"
+                                }
+                                Rectangle {
+                                    width: 8
+                                    height: 8
+                                    radius: 4
+                                    color: "#000000"
+                                    anchors.centerIn: parent
+                                    anchors.verticalCenterOffset: 1
+                                }
+                                // Steep Angry V-Brow
+                                Rectangle {
+                                    width: 38
+                                    height: 16
+                                    color: "#000000"
+                                    x: -6
+                                    y: -9
+                                    rotation: -22 * modelData
+                                    transformOrigin: Item.Center
+                                    antialiasing: true
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            // 2. Center: Critical Battery % + Varied Savage Text
+            Column {
+                anchors.verticalCenter: parent.verticalCenter
+                spacing: 3
+                width: 274
+
+                Row {
+                    spacing: 6
+                    Text {
+                        text: "⚠ CRITICAL · " + root.batteryPct + "%"
+                        font.family: fontNdot57.name || "monospace"
+                        font.pixelSize: 12
+                        color: "#FF3B30"
+                    }
+                    Text {
+                        text: "[CLICK TO SNOOZE]"
+                        font.family: fontNMono.name || "monospace"
+                        font.pixelSize: 8
+                        color: Qt.rgba(1.0, 1.0, 1.0, 0.38)
+                        anchors.verticalCenter: parent.verticalCenter
+                    }
+                }
+
+                Text {
+                    width: parent.width
+                    text: root.rageMessages[root.rageMessageIdx] || "CHARGE YOUR FUCKING LAPTOP RIGHT NOW!"
+                    font.family: fontNType.name || "sans-serif"
+                    font.pixelSize: 11
+                    font.bold: true
+                    color: "#FFFFFF"
+                    elide: Text.ElideRight
+                    maximumLineCount: 1
+                }
+            }
+
+            // 3. Right: Animated Plug Thrusting into Socket
+            Item {
+                width: 68
+                height: 36
+                anchors.verticalCenter: parent.verticalCenter
+
+                property real plugShift: 0
+                SequentialAnimation on plugShift {
+                    running: batteryRageRow.activeView
+                    loops: Animation.Infinite
+                    NumberAnimation { to: 13; duration: 340; easing.type: Easing.InOutQuad }
+                    PauseAnimation  { duration: 120 }
+                    NumberAnimation { to: 0;  duration: 260; easing.type: Easing.OutQuad }
+                    PauseAnimation  { duration: 180 }
+                }
+
+                // Moving Cord + 2-Prong Plug
+                Item {
+                    x: parent.plugShift
+                    anchors.verticalCenter: parent.verticalCenter
+                    width: 34
+                    height: 20
+
+                    // Cord
+                    Rectangle {
+                        x: 0
+                        anchors.verticalCenter: parent.verticalCenter
+                        width: 10
+                        height: 3
+                        radius: 1.5
+                        color: "#FFFFFF"
+                    }
+                    // Plug Body
+                    Rectangle {
+                        x: 9
+                        anchors.verticalCenter: parent.verticalCenter
+                        width: 13
+                        height: 14
+                        radius: 3
+                        color: "#FFFFFF"
+                    }
+                    // Top Prong
+                    Rectangle {
+                        x: 21
+                        y: 5
+                        width: 7
+                        height: 2.5
+                        radius: 1
+                        color: "#FF3B30"
+                    }
+                    // Bottom Prong
+                    Rectangle {
+                        x: 21
+                        y: 12.5
+                        width: 7
+                        height: 2.5
+                        radius: 1
+                        color: "#FF3B30"
+                    }
+                }
+
+                // Wall Socket Outlet on the Right
+                Rectangle {
+                    anchors.right: parent.right
+                    anchors.verticalCenter: parent.verticalCenter
+                    width: 16
+                    height: 24
+                    radius: 4
+                    color: Qt.rgba(1.0, 1.0, 1.0, 0.14)
+                    border.width: 1.2
+                    border.color: "#FF3B30"
+
+                    // Top Slot
+                    Rectangle {
+                        x: 3
+                        y: 6
+                        width: 4
+                        height: 3
+                        radius: 1
+                        color: "#FF3B30"
+                    }
+                    // Bottom Slot
+                    Rectangle {
+                        x: 3
+                        y: 14
+                        width: 4
+                        height: 3
+                        radius: 1
+                        color: "#FF3B30"
+                    }
+                }
+            }
+        }
+
+        // -----------------------------------------------------------------
+        // CHARGER RELIEF VIEW: Happy Relieved Eyes (^ ^) + Plug Connected
+        // -----------------------------------------------------------------
+        Row {
+            id: batteryReliefRow
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.verticalCenter: parent.verticalCenter
+            spacing: 14
+
+            readonly property bool activeView: root.showBatteryRelief && !root.showVolume && !root.showBrightness && !root.showDisplayMenu && !root.showWifiMenu
+            opacity: activeView ? 1.0 : 0.0
+            scale: activeView ? 1.0 : 0.88
+            visible: activeView || opacity > 0.05
+
+            Behavior on opacity { NumberAnimation { duration: root.animDuration; easing.type: Easing.OutCubic } }
+            Behavior on scale   { NumberAnimation { duration: root.animDuration; easing.type: Easing.OutCubic } }
+
+            // 1. Left: Happy Relieved Eyes (^  ^)
+            Row {
+                anchors.verticalCenter: parent.verticalCenter
+                spacing: 10
+
+                Repeater {
+                    model: 2
+                    delegate: Canvas {
+                        width: 24
+                        height: 16
+                        onPaint: {
+                            var ctx = getContext("2d");
+                            ctx.reset();
+                            ctx.beginPath();
+                            ctx.arc(12, 14, 8, Math.PI * 1.15, Math.PI * 1.85, false);
+                            ctx.lineWidth = 3.2;
+                            ctx.lineCap = "round";
+                            ctx.strokeStyle = "#30D158";
+                            ctx.stroke();
+                        }
+                    }
+                }
+            }
+
+            // 2. Center: Relieved Status & Message
+            Column {
+                anchors.verticalCenter: parent.verticalCenter
+                spacing: 2
+                width: 248
+
+                Text {
+                    text: "⚡ CHARGING CONNECTED · " + root.batteryPct + "%"
+                    font.family: fontNdot57.name || "monospace"
+                    font.pixelSize: 12
+                    color: "#30D158"
+                }
+
+                Text {
+                    width: parent.width
+                    text: root.reliefMessages[root.reliefMessageIdx] || "AHHH LEGA... SWEET FUCKING ELECTRICITY ⚡"
+                    font.family: fontNType.name || "sans-serif"
+                    font.pixelSize: 11
+                    font.bold: true
+                    color: "#FFFFFF"
+                    elide: Text.ElideRight
+                    maximumLineCount: 1
+                }
+            }
+
+            // 3. Right: Snapped-In Plug + Green Spark
+            Item {
+                width: 54
+                height: 28
+                anchors.verticalCenter: parent.verticalCenter
+
+                // Cord
+                Rectangle {
+                    x: 4
+                    anchors.verticalCenter: parent.verticalCenter
+                    width: 12
+                    height: 3
+                    radius: 1.5
+                    color: "#30D158"
+                }
+                // Plug Body Snapped against Socket
+                Rectangle {
+                    x: 15
+                    anchors.verticalCenter: parent.verticalCenter
+                    width: 14
+                    height: 15
+                    radius: 3
+                    color: "#30D158"
+                }
+                // Socket
+                Rectangle {
+                    x: 30
+                    anchors.verticalCenter: parent.verticalCenter
+                    width: 18
+                    height: 22
+                    radius: 4
+                    color: Qt.rgba(0.19, 0.82, 0.35, 0.22)
+                    border.width: 1.2
+                    border.color: "#30D158"
+
+                    Text {
+                        anchors.centerIn: parent
+                        text: "⚡"
+                        font.pixelSize: 11
+                    }
+                }
+            }
+        }
+
+        // -----------------------------------------------------------------
         // HOVER STATUS VIEW: Dynamic Island Status Capsule (Battery · Clock · WiFi)
         // -----------------------------------------------------------------
         Row {
@@ -826,7 +1277,7 @@ PanelWindow {
             anchors.verticalCenter: parent.verticalCenter
             spacing: 14
 
-            readonly property bool activeView: root.showStatusPeek && !root.showVolume && !root.showBrightness && !root.showDisplayMenu && !root.showWifiMenu
+            readonly property bool activeView: root.showStatusPeek && !root.showBatteryRage && !root.showBatteryRelief && !root.showVolume && !root.showBrightness && !root.showDisplayMenu && !root.showWifiMenu
             opacity: activeView ? 1.0 : 0.0
             scale: activeView ? 1.0 : 0.90
             visible: activeView || opacity > 0.05
