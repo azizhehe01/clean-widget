@@ -1,173 +1,149 @@
-# Chameleon Frosted Glass Desktop Widgets, Notifikasi, Interactive Notch & Sidebar
-
-Koleksi widget desktop modern bertema **Chameleon Frosted Glass Bento Grid**, **Server Notifikasi Native**, **Top Notch Interaktif** (Dynamic Island bergaya Nothing OS Volume & Brightness OSD, Angry Eyes, WiFi Manager, & Display Projection), serta **Music Sidebar & Playlist Drawer** untuk Wayland / Hyprland. Dibuat secara native menggunakan **[Quickshell](https://quickshell.outfoxxed.me/) (Qt6 / QML)** dengan akselerasi penuh GPU Hyprland dan background daemon Python yang sangat ringan.
-
 <p align="center">
-  <img src="assets/preview.png" alt="Desktop Widgets & Notch Preview" width="100%" />
+  <h1 align="center">GLYPH-SHELL</h1>
+  <p align="center">
+    <strong>Nothing OS 3.0 Dot-Matrix & Chameleon Frosted Glass Desktop Shell Suite for Hyprland</strong>
+  </p>
+  <p align="center">
+    <a href="https://quickshell.outfoxxed.me/"><img src="https://img.shields.io/badge/Engine-Quickshell%20Qt6-black?style=for-the-badge&logo=qt" alt="Engine"></a>
+    <a href="https://hyprland.org/"><img src="https://img.shields.io/badge/Compositor-Hyprland%20Wayland-00aaee?style=for-the-badge" alt="Compositor"></a>
+    <a href="https://nothing.tech/"><img src="https://img.shields.io/badge/Style-Nothing%20OS%203.0-D71921?style=for-the-badge" alt="Design"></a>
+    <a href="https://lrclib.net/"><img src="https://img.shields.io/badge/Lyrics-LRCLIB%20API-30D158?style=for-the-badge" alt="Lyrics"></a>
+  </p>
 </p>
 
 ---
 
-## ✨ Fitur-Fitur Utama
+## 🌟 Tentang glyph-shell
 
-### 1. 👁️ Interactive Top Notch & Nothing OS Volume/Brightness OSD (`notch/`)
-* **Mata Interaktif Pelacak Kursor:** Sepasang mata putih bergaya *angry eyes* dengan efek paralaks 2-layer yang melacak posisi kursor mouse secara *real-time* di seluruh layar melalui Hyprland IPC daemon (`cursor.py`), dilengkapi animasi kedipan acak (*random blinks*).
-* **Nothing OS Dot-Matrix Volume HUD:** Saat volume suara diubah (via tombol shortcut keyboard, scroll wheel di notch, atau mixer), notch bermorfosis secara mulus menjadi HUD Volume Nothing OS dengan icon speaker dot-matrix, 16 kapsul titik bar progress, dan persentase angka font `Ndot57`.
-* **Nothing OS Dot-Matrix Brightness HUD:** Saat kecerahan layar diubah (`XF86MonBrightnessUp/Down` atau Shift + Scroll pada notch), notch menampilkan HUD Kecerahan Layar dengan icon matahari bersinar dot-matrix (`assets/brightness-dot.svg`), 16 kapsul bar, dan persentase angka `Ndot57`.
-* **Smart Auto-Hide (`autoHideMode: "any_window"`):**
-  * Notch otomatis **meluncur naik dan bersembunyi** saat ada jendela aplikasi terbuka atau aktif (misal saat membuka terminal lewat `Super + Enter`, browser, atau editor).
-  * Layar tetap **100% lega tanpa terpotong** (`reserveSpace: false` / `exclusiveZone: 0`).
-  * Saat mengubah volume/kecerahan, notch otomatis meluncur turun menampilkan HUD indikator Nothing OS, lalu kembali bersembunyi setelah timeout (1 detik).
-* **Hover-to-Reveal:** Cukup tempelkan kursor ke ujung paling atas layar (`y <= 8px`), notch akan meluncur turun agar lo bisa melihat mata atau mengubah volume langsung via scroll.
-* **Kontrol Cepat Mouse:**
-  * **Scroll:** Naik/turunkan volume suara (step 5%).
-  * **Shift + Scroll:** Naik/turunkan kecerahan layar (step 5%).
-  * **Klik Kiri (Idle):** Membuka WiFi Network Manager.
-  * **Klik Tengah (Scroll Click):** Membuka Display / HDMI Projection Manager.
-  * **Klik Kanan:** Toggle Mute/Unmute audio.
+**`glyph-shell`** adalah *desktop shell suite* modern, elegan, dan kaya fitur yang dirancang khusus untuk ekosistem Wayland / Hyprland. Terinspirasi dari filosofi desain perangkat keras dan perangkat lunak **Nothing OS 3.0**, proyek ini menggabungkan estetika **Tipografi Dot-Matrix**, **Chameleon Frosted Glass** (GPU Dual-Kawase blur yang warnanya mengekstrak secara cerdas dari wallpaper dan cover album), serta komponen interaktif yang saling terintegrasi penuh tanpa memerlukan status bar konvensional (Waybar).
+
+Dibangun secara native menggunakan framework **[Quickshell](https://quickshell.outfoxxed.me/) (Qt6 / QML)** dengan dukungan background daemon Python yang sangat ringan, hemat baterai, dan responsif.
+
+<p align="center">
+  <img src="assets/preview.png" alt="glyph-shell Desktop Preview" width="100%" />
+</p>
 
 ---
 
-### 2. 📶 WiFi Network Manager Nothing OS Dot-Matrix (`Super + W`)
-* **Akses Cepat & Zero-Dependency:** Menggunakan daemon Python ringan yang terhubung langsung ke `nmcli` bawaan Linux.
-* **Shortcut Universal (`Super + W`):** Notch meluncur turun dan bertransformasi (*morphing*) menjadi popover WiFi dot-matrix lengkap.
-* **Klik Langsung di Notch:** Selain shortcut keyboard, notch juga bisa langsung diklik saat idle untuk membuka menu WiFi.
-* **Tampilan Jaringan Nothing OS:**
-  * **Bar Sinyal Dot-Matrix:** 4 kolom titik bertingkat (`:` `::` `:::` `::::`) yang menyala presisi sesuai kekuatan sinyal.
-  * **Icon Gembok Dot-Matrix:** Menandai jaringan yang diproteksi password.
-  * **Titik Merah (Red Dot):** Menandai jaringan WiFi yang sedang terhubung aktif.
-  * **Info IP Address:** Menampilkan alamat IP lokal aktif (misal `IP: 192.168.1.41`) di bagian footer.
-* **Koneksi Pintar (1-Click Connect & Inline Password):**
-  * Jaringan yang sudah tersimpan / pernah terkoneksi: cukup 1x klik, langsung terhubung otomatis tanpa nanya password.
-  * Jaringan baru: muncul kolom input password mini di dalam notch, ketik password lalu tekan Enter!
-* **Toggle Radio WiFi ON/OFF:** Switch kapsul dot-matrix untuk mematikan/menyalakan radio WiFi laptop dengan cepat.
+## 🏛️ Arsitektur & Fitur Utama
+
+```text
+                               ┌────────────────────────────────────────────────┐
+                               │   TOP NOTCH & DYNAMIC ISLAND STATUS (notch/)   │
+                               └──────────────────────┬─────────────────────────┘
+                                                      │
+         ┌────────────────────────────────────────────┼────────────────────────────────────────┐
+         │                                            │                                        │
+┌────────▼─────────────────────────┐   ┌──────────────▼────────────────────┐   ┌───────────────▼────────────────────────┐
+│  DESKTOP BENTO GRID (widgets/)   │   │ UNIFIED APP LAUNCHER (launcher/)  │   │  NOTIF & SIDEBAR (notifications/side/) │
+│  • Nothing Dot-Matrix Clock      │   │ • 2D Icon Grid Matrix (4-Arah)    │   │  • Native D-Bus Frosted Notif Server   │
+│  • Weather & IP Geolocation      │   │ • Smart App Fuzzy Search          │   │  • Shutter Sound Screenshot Suppress   │
+│  • AutoMix Player + Synced Lyric │   │ • Instant Antigravity IDE Folder  │   │  • Slide-Out Music & Multi-Player      │
+│  • Circular Ring Gauges (Gauges) │   │ • Tab Mode: [ALL] [APP] [FOLDER]  │   │  • Live Notification History Drawer    │
+│  • Power & Sleep Capsule         │   └───────────────────────────────────┘   └────────────────────────────────────────┘
+└──────────────────────────────────┘                                                           │
+         │                                                                                     │
+         └────────────────────────────────────────────┬────────────────────────────────────────┘
+                                                      │
+                               ┌──────────────────────▼─────────────────────────┐
+                               │   DOT-MATRIX LOCK SCREEN (lockscreen/hyprlock) │
+                               │   • Native PAM hyprlock + Dynamic WP Blur      │
+                               │   • Media Player Pill + Glyph Passcode Capsule │
+                               └────────────────────────────────────────────────┘
+```
 
 ---
 
-### 3. 🖥️ Display & HDMI Projection Manager (`Super + P`)
-* **Menu Proyeksi Layar Windows-Style:** Morphing menu proyeksi monitor bergaya Nothing OS dot-matrix yang dipicu lewat shortcut keyboard `Super + P` atau klik tengah pada notch.
-* **4 Pilihan Mode Proyeksi:**
-  1. **PC Screen Only (`PC ONLY`):** Hanya menggunakan monitor internal laptop (`eDP-1`), mematikan output HDMI eksternal.
-  2. **Duplicate (`DUPLICATE`):** Mode cermin (*mirroring*), menampilkan gambar yang sama di laptop dan monitor HDMI.
-  3. **Extend (`EXTEND`):** Memperluas area kerja ke kanan (`eDP-1` di kiri, `HDMI-A-1` di kanan secara side-by-side).
-  4. **Second Screen Only (`SECOND`):** Hanya menampilkan gambar di monitor eksternal HDMI, mematikan layar laptop.
-* **Indikator Aktif Dot-Matrix:** Status mode yang sedang aktif ditandai dengan titik merah (*red dot indicator*) dan border highlight.
-* **Eksekusi Native Hyprland:** Mengatur monitor secara instan menggunakan perintah `hyprctl keyword monitor` tanpa perlu reload konfigurasi atau aplikasi pihak ketiga.
+### 1. 👁️ Interactive Top Notch & Dynamic Island (`notch/`)
+* **Mata Pelacak Kursor Interaktif:** Sepasang mata putih bergaya *Angry Eyes* dengan paralaks 2-layer dinamis yang melacak pergerakan kursor mouse di seluruh layar lewat Hyprland IPC daemon (`cursor.py`), lengkap dengan kedipan acak (*random blinks*).
+* **Hover-to-Peek Status Capsule:** Tempelkan kursor ke ujung atas tengah layar untuk menampilkan kapsul status (*Dynamic Island*) horizontal 3-segmen:
+  1. 🔋 **Baterai:** Icon dinamis (`󰂄` saat charging / `󰁹` saat baterai) + persentase dot-matrix `Ndot57`.
+  2. 🕒 **Jam & Tanggal:** Jam digital dot-matrix + tanggal ringkas monospace.
+  3. 📶 **WiFi Aktif:** Icon dot-matrix + nama SSID aktif (`HANA`).
+* **Low Battery Rage Mode ($\le 15\%$):** 
+  * Saat baterai kritis dan belum dicolok charger, Notch otomatis turun ke layar (*force drop-down*).
+  * Sepasang mata merah menyala bergetar marah (*rage vibration*), teks savage dot-matrix yang berganti tiap 4.5s (*"CHARGE YOUR FUCKING LAPTOP RIGHT NOW!"*), dan animasi colokan yang bergerak maju-mundur meminta dicolok.
+  * Klik Notch sekali untuk *snooze* selama 4 menit jika sedang dalam keadaan darurat.
+* **Charger Relief Mode (Saat Dicolok):**
+  * Begitu charger dicolok, Notch berubah menjadi hijau segar (`#30D158`), mata tersenyum lega (`^  ^`), teks adem (*"AHHH LEGA... SWEET ELECTRICITY ⚡"*), dan colokan nancep rapat dengan kilat `⚡` sebelum kembali sembunyi mulus.
+* **Nothing OS Volume & Brightness HUD OSD:** Notch bermorfosis menjadi indikator volume/kecerahan dot-matrix saat tombol multimedia ditekan atau saat di-scroll langsung di atas notch.
+* **WiFi Network Manager Popover (`Super + W`):** Menu koneksi WiFi bergaya dot-matrix dengan kekuatan sinyal bertingkat, inline password input, dan toggle ON/OFF.
+* **Display / HDMI Projection Menu (`Super + P`):** Pengalih mode multi-monitor instan (PC Only, Duplicate, Extend, Second Screen) menggunakan perintah native Hyprland.
 
 ---
 
-### 4. 🎛️ Music Sidebar & Playlist Drawer (`Ctrl + Super + S`)
-Fitur sidebar pengganti ML4W yang dirancang khusus untuk produktivitas tanpa mengganggu alur kerja (*workspace switching*):
-* **Panel Slide-Out Kanan:** Dibuka dengan shortcut `Ctrl + Super + S` atau tombol `ESC` untuk menutup.
-* **Multi-Player Switcher Tabs:**
-  * Mendeteksi otomatis semua media player yang aktif (misal **Spotify** dan browser **YouTube · Brave**).
-  * Cukup 1x klik tab untuk berganti kontrol antar pemutar musik dan video browser tanpa perlu berpindah jendela atau workspace!
-* **Kontrol Cepat Audio & Kecerahan:** Dilengkapi slider volume dan brightness bergaya Nothing OS di bagian atas panel.
-* **Now Playing Card:**
-  * Menampilkan artwork album ber-radius, judul lagu tebal, artis, live timeline scrubber, dan kontrol pemutaran dot-matrix (*Prev, Play/Pause, Next*).
-* **Tombol `+` (Save to Playlist):**
-  * Menambahkan lagu yang sedang diputar ke playlist lokal tersimpan (`sidebar/playlist.json`) dalam 1x klik.
-  * Menampilkan feedback animasi icon checklist hijau setelah lagu berhasil disimpan.
-* **My Playlist Drawer:**
-  * Menampilkan daftar lagu tersimpan lengkap dengan nomor urut, judul, artis, dan badge jumlah lagu.
-  * **Tombol Play (`▶`):** Terintegrasi langsung dengan D-Bus Spotify (`org.mpris.MediaPlayer2.Player.OpenUri`) untuk langsung memutar track Spotify secara instan!
-  * **Tombol Hapus (`✕`):** Menghapus lagu dari playlist secara cepat.
+### 2. 🍱 Desktop Bento Grid Widgets (`widgets/`)
+* **Jam & Tanggal Digital Nothing OS:** Jam digital besar menggunakan font resmi `Ndot57` dan tanggal monospace `LetteraMonoLL`.
+* **Kartu Cuaca & Lokasi Real-Time:** Icon cuaca dot-matrix, suhu tertinggi/terendah harian, suhu besar `Ndot55`, kondisi cuaca, serta deteksi lokasi otomatis berdasarkan IP publik dengan cache lokal 15 menit.
+* **AutoMix BitChord Media Player:**
+  * **Cover Bleed ke Blurred Glass:** Cover album bertransisi mulus (*smoothstep S-curve opacity mask*) ke frosted glass di bawahnya.
+  * **Ambient Glass Color Wash:** Latar belakang kaca mengekstrak warna dominan bagian bawah cover album lagu yang sedang diputar.
+  * **Lirik Tersinkronisasi Real-Time:** Mengambil lirik sinkron dari [LRCLIB](https://lrclib.net/) berdasarkan posisi pemutaran `playerctl` dengan baris aktif yang disorot otomatis.
+* **Circular Ring Gauges (Grid 2x2):**
+  * Menggantikan bar garis konvensional dengan 4 cincin melingkar (*circular gauges*) bergaya iOS/macOS:
+    1. 💻 **BATTERY:** Persentase baterai laptop + icon dinamis (hijau / merah saat kritis).
+    2. 🧠 **RAM / MEMORY:** Persentase dan jumlah pemakaian RAM real-time dari `/proc/meminfo`.
+    3. 💾 **ROOT (`/`):** Kapasitas dan pemakaian partisi sistem Linux.
+    4. 📁 **HOME (`/home`):** Kapasitas dan pemakaian partisi user.
+* **Poster Frame Estetik:** Frame foto portrait 20px dengan *auto-reload* otomatis saat file [`assets/poster.jpg`](assets/poster.jpg) diganti.
+* **Kapsul Kontrol Daya:** Tombol cepat untuk *Lock Screen* (`󰌾`), *Sleep/Suspend* (`󰤄`), *Power Off* (`󰐥`), dan *Reboot* (`󰑐`).
 
 ---
 
-### 5. 🎵 BitChord & AutoMix Media Player (`widgets/`)
-* **Desain Cover Bleed ke Blurred Glass:** Cover album lagu tampil di bagian atas kartu dan bertransisi secara halus (*smoothstep S-curve opacity mask*) ke lapisan frosted glass di bawahnya tanpa garis pemisah yang kaku.
-* **Ambient Glass Color Wash (AutoMix Style):** Warna latar belakang frosted glass secara dinamis mengekstrak dan mengikuti warna dominan pada bagian bawah cover album lagu yang sedang diputar.
-* **Hierarki BitChord Bersih:**
-  1. **Judul Lagu:** Ditampilkan mencolok di bagian atas dengan font Nothing `NType82` putih tegas.
-  2. **Nama Artis:** Ditampilkan tepat di bawah judul lagu dengan font technical monospace `LetteraMonoLL`.
-  3. **Lirik Tersinkronisasi Real-Time:** Menampilkan lirik lagu tersinkron dari [LRCLIB](https://lrclib.net/) berdasarkan posisi playback lagu (`playerctl position`), dengan baris aktif yang disorot jelas.
-* **Progress Bar & Durasi:** Timeline kapsul minimalis dengan penunjuk waktu berjalan (*elapsed*) dan sisa durasi lagu (*remaining*).
-* **Kontrol Dot-Matrix Nothing OS:** Tombol *Previous*, *Play/Pause* kapsul melingkar, dan *Next* didesain khusus bergaya titik-titik dot-matrix khas Nothing OS.
+### 3. 🔔 Chameleon Notification Server (`notifications/`)
+* Menggantikan daemon eksternal (seperti `dunst`, `mako`, atau `swaync`) melalui interface D-Bus `org.freedesktop.Notifications`.
+* Kartu notifikasi floating dengan sudut membulat 20px, highlight tepi kaca, dan GPU Dual-Kawase blur.
+* **Filter Khusus Screenshot:** Hasil tangkapan layar tidak menampilkan popup notifikasi, melainkan langsung memutar efek suara *shutter* kamera bawaan GNOME (*cekrek*) via PipeWire (`pw-play`).
+* **Suppress Notif Baterai Sistem:** Notifikasi baterai bawaan otomatis diredam karena sudah ditangani secara interaktif oleh Notch Rage & Relief Mode.
+* **Aksi Pintar Antigravity IDE:** Menampilkan tombol cepat interaktif untuk berpindah workspace ke Antigravity IDE saat ada prompt permission atau input.
 
 ---
 
-### 6. 🕒 Jam Digital & Tanggal Nothing OS (`widgets/`)
-* Jam digital besar berdesain titik-titik khas Nothing OS menggunakan font resmi `Ndot57`.
-* Hari dan tanggal bergaya technical monospace menggunakan font resmi `LetteraMonoLL`.
-* Didukung langsung oleh `Quickshell.SystemClock` yang hemat daya dan sinkron per menit.
+### 4. 🎛️ Music Sidebar & Notification History Drawer (`sidebar/`)
+* Dibuka/tutup dengan shortcut **`Ctrl + Super + S`** atau klik tombol di widget.
+* **Multi-Player Switcher:** Beralih antar pemutar musik (Spotify, YouTube di Brave/Firefox/Chrome, VLC) secara instan.
+* **My Playlist Drawer:** Simpan lagu favorit ke playlist lokal, langsung diputar via Spotify D-Bus (`org.mpris.MediaPlayer2.Player.OpenUri`).
+* **Live Notification History:** Bagian bawah sidebar menampung seluruh riwayat notifikasi masuk yang dapat dihapus per item (`✕`) atau sekaligus (`CLEAR ALL`).
 
 ---
 
-### 7. 🌦️ Kartu Cuaca & Lokasi Real-Time (`widgets/`)
-* Icon cuaca dot-matrix putih (`assets/weather-dot.svg`).
-* Suhu harian tertinggi & terendah (`H 29°` / `L 23°`), serta suhu besar `Ndot55`.
-* Kondisi cuaca, deteksi lokasi kota otomatis berdasarkan IP publik (`ip-api.com` / `wttr.in`), serta kelembapan dan kecepatan angin (`74% · 7 KM/H`) dengan sistem caching lokal 15 menit agar tidak membebani jaringan.
+### 5. 🔒 Nothing OS Dot-Matrix Lock Screen (`lockscreen/`)
+* Menggantikan lockscreen bawaan dengan engine native **`hyprlock` (v0.9.6)** yang aman dan hemat daya.
+* **Dynamic Desktop Wallpaper Blur:** Script [`lockscreen/lock.sh`](lockscreen/lock.sh) mendeteksi wallpaper aktif lo saat itu untuk efek *deep Dual-Kawase blur* (`blur_passes = 4`, `blur_size = 8`).
+* **Top Status Header:** Menampilkan `[:::] WIFI · <SSID>` di kiri atas dan `BAT XX% [●●●○○]` di kanan atas.
+* **Hero Clock & Weather:** Jam raksasa dengan font resmi `Ndot 57` dan baris tanggal/cuaca dari cache lokal.
+* **Interactive Media Pill:** Menampilkan judul lagu, artis, serta tombol klik `[ |◁ PREV ]`, `[ ⏸ PAUSE ]`, dan `[ NEXT ▷| ]`.
+* **Glyph Passcode Capsule:** Input password kapsul kaca gelap dengan placeholder `ENTER PASSCODE` (tanpa teks fingerprint), titik password dot-matrix, dan fail state merah Nothing OS (`#D71921` — `ACCESS DENIED`).
 
 ---
 
-### 8. 🖼️ Frame Poster / Foto Estetik (`widgets/`)
-* Frame foto portrait elegan ber-radius 20px dengan pinggiran kaca halus.
-* Menampilkan gambar lokal dari [`assets/poster.jpg`](assets/poster.jpg).
-* Auto-reload otomatis saat file gambar ditimpa tanpa perlu me-restart Quickshell.
-
----
-
-### 9. 📊 Monitor Sistem Linux (`widgets/`)
-* Pemantau partisi Linux: penggunaan ruang `Root (/)` dan `Home (/home)` lengkap dengan bar kapasitas.
-* Indikator persentase baterai laptop langsung dari `sysfs` hardware.
-
----
-
-### 10. ⚡ Kapsul Tombol Daya (`widgets/`)
-* Tombol cepat dengan icon Nerd Font untuk *Lock Screen* (`lockscreen/lock.sh`), *Sleep/Suspend*, *Power Off (Shutdown)*, dan *Reboot*.
-
----
-
-### 11. 🔔 Server & Popup Notifikasi Frosted Glass Native (`notifications/`)
-* Menggantikan daemon notifikasi eksternal seperti `swaync`, `dunst`, atau `mako` via D-Bus `org.freedesktop.Notifications`.
-* Menggunakan estetika **Chameleon Frosted Glass** yang serasi dengan widget desktop (radius 20px, border highlight kaca, dan real-time GPU Dual-Kawase blur).
-* **Scrollable:** Notifikasi panjang tidak terpotong, bisa di-scroll menggunakan mouse wheel / dua jari touchpad.
-* **Tombol Aksi D-Bus:** Mendukung tombol interaktif (Approve, Deny, Open, dll.).
-* **Fokus Cepat Window:** Khusus notifikasi aplikasi tertentu (mis. Antigravity IDE), otomatis menampilkan tombol aksi dengan aktivasi workspace akurat via `xdg_activation_v1`.
-* **Suara Notifikasi Native (`assets/notif.mp3`) & Efek Cekrek Screenshot (`assets/camera-shutter.oga`):** Memutar efek suara notifikasi secara otomatis lewat PipeWire (`pw-play`). Khusus untuk hasil **Screenshot**, popup notifikasi otomatis disembunyikan dan diganti dengan efek suara *shutter* kamera bawaan GNOME (*cekrek*).
-* **Dismiss Cepat:** Klik di mana saja pada kartu notifikasi untuk menutupnya. Timer auto-dismiss otomatis berhenti saat kursor berada di atas kartu.
-* **Notification History di Sidebar (`sidebar/`):** Seluruh riwayat notifikasi otomatis tersimpan di bagian bawah Sidebar dengan tombol `CLEAR ALL` dan hapus per item (`✕`).
-
----
-
-### 12. 🔒 Nothing OS Lock Screen (`lockscreen/`)
-* Menggantikan lock screen bawaan/ML4W menggunakan engine native **`hyprlock`** yang dibalut estetika **Nothing OS 3.0 Dot-Matrix + Chameleon Frosted Glass**.
-* **Dynamic Wallpaper Blur:** Script [`lockscreen/lock.sh`](lockscreen/lock.sh) otomatis mendeteksi wallpaper desktop aktif dan memberikan efek *deep Dual-Kawase blur* (`blur_passes = 4`, `blur_size = 8`).
-* **Top Glyph Status Bar:** Menampilkan status jaringan WiFi aktif (`[:::] WIFI · <SSID>`) di kiri atas dan indikator baterai dot-matrix (`BAT XX% [●●●○○]`) di kanan atas menggunakan font `Lettera Mono LL`.
-* **Hero Dot-Matrix Clock & Cuaca:** Jam digital ukuran besar di tengah atas dengan font resmi `Ndot 57`, diikuti baris tanggal dan suhu cuaca real-time dari cache lokal.
-* **Frosted Glass Media Pill Interaktif:** Menampilkan status lagu yang sedang diputar (`● NOW PLAYING`), judul lagu (`NType 82 Headline`), nama artis (`Lettera Mono LL`), serta tombol interaktif `[ |◁ PREV ]`, `[ ⏸ PAUSE ]`, dan `[ NEXT ▷| ]` yang bisa langsung diklik dari layar kunci.
-* **Glyph Password Capsule:** Input kapsul password minimalis (`ENTER PASSCODE`) dengan indikator dot-matrix dan warna merah khas Nothing OS (`#D71921` / `ACCESS DENIED`) saat password salah.
-
----
-
-### 13. 🚀 Unified App & IDE Project Launcher (`launcher/`)
-* Menggantikan Rofi bawaan ML4W dengan modal **Chameleon Frosted Glass** di tengah layar (`Ctrl + Super + Enter`).
-* **Unified Smart Search (Opsi B):** Satu kolom pencarian cerdas untuk mencari **Aplikasi Desktop** sekaligus **Folder Project / Repo Git** secara instan.
-* **Open Folder in Antigravity IDE:** Memilih item bertipe folder (`IDE` badge) dan menekan `Enter` atau klik akan langsung membuka folder project tersebut di **Antigravity IDE** (`/opt/antigravity/antigravity-ide <path>`).
-* **Layout Grid 2D (5 Kolom) & Navigasi 4 Arah:** Menampilkan icon aplikasi berukuran besar dengan nama singkat yang ringkas, mendukung navigasi keyboard penuh ke **Kiri (`←`), Kanan (`→`), Atas (`↑`), dan Bawah (`↓`)**, serta tombol `Tab` untuk memfilter `ALL` / `APPS` / `FOLDERS`.
+### 6. 🚀 Unified App & IDE Project Launcher (`launcher/`)
+* Dibuka/tutup dengan shortcut **`Ctrl + Super + Enter`**.
+* **Unified Smart Search (Opsi B):** Satu kolom pencarian cerdas untuk mencari **Aplikasi Desktop** sekaligus **Folder Project / Repo Git**.
+* **Open Folder in Antigravity IDE:** Memilih folder project (berbadge merah `IDE`) dan menekan `Enter` akan langsung membuka folder tersebut di **Antigravity IDE** (`/opt/antigravity/antigravity-ide <path>`).
+* **Layout Grid 2D (5 Kolom):** Icon besar dengan nama ringkas, mendukung navigasi keyboard 4 arah penuh (**`←`**, **`→`**, **`↑`**, **`↓`**), dan tombol **`Tab`** untuk beralih filter `[ALL]`, `[APPS]`, dan `[FOLDERS]`.
 
 ---
 
 ## ⌨️ Shortcut Keyboard & Kontrol Cepat
 
-| Shortcut / Aksi | Fungsi | Deskripsi |
+| Shortcut / Aksi | Komponen | Fungsi |
 | :--- | :--- | :--- |
+| **`Ctrl + Super + Enter`** | **Launcher** | Buka/tutup Unified Application & Project Folder Launcher (2D Grid) |
+| **`Ctrl + Super + L`** | **Lockscreen** | Kunci layar dengan Nothing OS Dot-Matrix Lock Screen |
+| **`Ctrl + Super + S`** | **Sidebar** | Buka/tutup panel sidebar pemutar musik & riwayat notifikasi |
 | **`Super + W`** | **WiFi Manager** | Buka/tutup menu WiFi dot-matrix di Notch |
-| **`Super + P`** | **Display Projection** | Buka/tutup menu proyeksi monitor (PC, Mirror, Extend, Second) |
-| **`Ctrl + Super + S`** | **Music Sidebar** | Buka/tutup panel sidebar pemutar musik, playlist & riwayat notifikasi |
-| **`Ctrl + Super + L`** | **Nothing Lock Screen** | Kunci layar dengan Nothing OS Dot-Matrix Lock Screen (`lockscreen/lock.sh`) |
-| **`Ctrl + Super + Enter`** | **App & IDE Launcher** | Buka/tutup Unified Application & Project Folder Launcher (2D Grid) |
-| **`XF86AudioRaiseVolume`** | Volume Up | Naikkan volume + munculkan HUD Volume Nothing OS |
-| **`XF86AudioLowerVolume`** | Volume Down | Turunkan volume + munculkan HUD Volume Nothing OS |
-| **`XF86AudioMute`** | Toggle Mute | Mute/unmute audio |
-| **`XF86MonBrightnessUp`** | Brightness Up | Naikkan kecerahan + munculkan HUD Brightness Nothing OS |
-| **`XF86MonBrightnessDown`** | Brightness Down | Turunkan kecerahan + munculkan HUD Brightness Nothing OS |
-| **Scroll di atas Notch** | Atur Volume | Naik/turunkan volume langsung dengan mouse/touchpad |
-| **Shift + Scroll di Notch** | Atur Kecerahan | Naik/turunkan kecerahan layar langsung |
-| **Klik Kiri di Notch** | Toggle WiFi | Buka daftar jaringan WiFi jika notch sedang idle |
-| **Klik Tengah di Notch** | Toggle HDMI | Buka menu pilihan proyeksi monitor HDMI |
-| **Klik Kanan di Notch** | Toggle Mute | Mute / Unmute audio |
+| **`Super + P`** | **Display** | Buka/tutup menu proyeksi monitor (PC, Duplicate, Extend, Second) |
+| **`XF86AudioRaiseVolume`** | Volume Up | Naikkan volume + tampilkan HUD Nothing OS |
+| **`XF86AudioLowerVolume`** | Volume Down | Turunkan volume + tampilkan HUD Nothing OS |
+| **`XF86AudioMute`** | Audio Mute | Toggle mute/unmute audio |
+| **`XF86MonBrightnessUp`** | Brightness Up | Naikkan kecerahan + tampilkan HUD Nothing OS |
+| **`XF86MonBrightnessDown`**| Brightness Down | Turunkan kecerahan + tampilkan HUD Nothing OS |
+| **Tempel Kursor ke Atas** | **Dynamic Island** | Tampilkan status Baterai, Jam & WiFi di Notch |
+| **Scroll di atas Notch** | Audio Volume | Atur volume langsung dengan mouse/touchpad |
+| **Shift + Scroll di Notch**| Kecerahan | Atur kecerahan layar langsung |
+| **Klik Kiri di Notch** | WiFi | Buka WiFi Manager (atau Snooze saat low battery rage) |
+| **Klik Tengah di Notch** | Display | Buka Display Projection Manager |
 
 ---
 
@@ -175,221 +151,93 @@ Fitur sidebar pengganti ML4W yang dirancang khusus untuk produktivitas tanpa men
 
 Pastikan paket-paket berikut sudah terpasang di sistem Linux lo:
 
-### 1. Quickshell (`qs`)
-* **Fedora:**
-  ```bash
-  sudo dnf copr enable errornointernet/quickshell
-  sudo dnf install quickshell
-  ```
-* **Arch Linux:**
-  ```bash
-  yay -S quickshell-git
-  # atau
-  paru -S quickshell-git
-  ```
-
-### 2. Paket Pendukung
-* **Python 3** (untuk background service cuaca, lirik, partisi, pelacak kursor, WiFi, dan playlist)
-* **playerctl** (untuk kontrol media & sinkronisasi lirik)
-  * Fedora: `sudo dnf install playerctl`
-  * Arch: `sudo pacman -S playerctl`
-* **brightnessctl** (untuk kontrol kecerahan layar)
-  * Fedora: `sudo dnf install brightnessctl`
-  * Arch: `sudo pacman -S brightnessctl`
-* **NetworkManager (`nmcli`)** (bawaan sebagian besar distro Linux untuk manajemen WiFi)
-* **ImageMagick** (`magick`, untuk efek blur wallpaper)
-  * Fedora: `sudo dnf install ImageMagick`
-  * Arch: `sudo pacman -S imagemagick`
-* **Fonts:**
-  * Font resmi Nothing OS (`Ndot55`, `Ndot57`, `NType82`, `LetteraMonoLL`) **sudah disertakan langsung di dalam folder `assets/fonts/`** dan otomatis dimuat oleh QML.
-  * **FiraCode Nerd Font** (untuk icon media, baterai, dan power):
-    * Fedora: `sudo dnf install fira-code-fonts`
-    * Arch: `sudo pacman -S ttf-fira-code`
+1. **Quickshell (`qs`)** (Framework UI Wayland Qt6)
+   * Fedora: `sudo dnf copr enable errornointernet/quickshell && sudo dnf install quickshell`
+   * Arch Linux: `yay -S quickshell-git`
+2. **Hyprland** (Compositor Wayland) & **hyprlock** (Lock screen engine)
+3. **playerctl** (Kontrol MPRIS & sinkronisasi lirik)
+4. **brightnessctl** (Kontrol backlight kecerahan layar)
+5. **NetworkManager (`nmcli`)** (Manajemen jaringan WiFi)
+6. **ImageMagick (`magick`)** (Pemrosesan blur wallpaper)
+7. **Python 3** (Daemon lirik, cuaca, partisi, pelacak kursor, dan playlist)
+8. **Font:**
+   * Font resmi Nothing OS (`Ndot55`, `Ndot57`, `NType82`, `LetteraMonoLL`) **sudah disertakan di dalam folder `assets/fonts/`** dan otomatis dipasang oleh script installer.
+   * **FiraCode Nerd Font** (icon baterai, RAM, disk, media): `sudo dnf install fira-code-fonts` / `sudo pacman -S ttf-fira-code`.
 
 ---
 
-## 🚀 Panduan Instalasi & Menjalankan
+## 🚀 Panduan Instalasi Cepat
 
-### Langkah 1: Pasang ke Direktori Quickshell
-Pastikan folder ditaruh di `~/.config/quickshell/DesktopWidgetsApp`:
-
+### 1. Clone Repository
+Clone repo ini ke direktori konfigurasi Quickshell:
 ```bash
-git clone https://github.com/azizhehe01/clean-widget.git ~/.config/quickshell/DesktopWidgetsApp
+git clone https://github.com/azizhehe01/glyph-shell.git ~/.config/quickshell/glyph-shell
+cd ~/.config/quickshell/glyph-shell
 ```
 
-### Langkah 2: Berikan Izin Eksekusi pada Script Pembantu
+### 2. Jalankan Installer Otomatis
+Jalankan script installer yang sudah disediakan:
 ```bash
-chmod +x ~/.config/quickshell/DesktopWidgetsApp/widgets/stats.py
-chmod +x ~/.config/quickshell/DesktopWidgetsApp/notch/cursor.py
-chmod +x ~/.config/quickshell/DesktopWidgetsApp/sidebar/playlist.py
+chmod +x install.sh
+./install.sh
 ```
+*Script ini otomatis menginstal font Nothing OS, mengonfigurasi Fontconfig alias Pango, mengatur permission script, menghubungkan lockscreen ke Hyprland, dan memeriksa kelengkapan paket sistem.*
 
-### Langkah 3: Uji Coba Menjalankan
-Jalankan melalui terminal untuk melihat output:
-```bash
-qs -p ~/.config/quickshell/DesktopWidgetsApp
-```
-
----
-
-## 🌫️ Konfigurasi Autostart & Blur Hyprland
-
-### 1. Konfigurasi Autostart
-Tambahkan baris berikut ke konfigurasi Hyprland lo (misalnya `~/.config/hypr/hyprland.conf` atau script autostart lo):
-
+### 3. Autostart di Hyprland
+Tambahkan baris berikut ke konfigurasi autostart Hyprland lo (misal di `~/.config/hypr/hyprland.conf`):
 ```ini
-# Autostart DesktopWidgetsApp (Widgets, Notifikasi, Notch & Sidebar)
-exec-once = qs -p ~/.config/quickshell/DesktopWidgetsApp
+exec-once = qs -p ~/.config/quickshell/glyph-shell
 ```
-
-### 2. Konfigurasi Blur GPU Dual-Kawase di Hyprland
-Agar efek frosted glass transparan menghasilkan blur kaca buram yang mewah di Wayland, tambahkan `layerrule` berikut ke `~/.config/hypr/hyprland.conf` (atau konfigurasi dekorasi Hyprland lo):
-
-```ini
-# Rule blur untuk Desktop Widgets, Notifikasi & Sidebar
-layerrule = blur, quickshell:desktop-widgets
-layerrule = ignorealpha 0.1, quickshell:desktop-widgets
-
-layerrule = blur, quickshell:notifications
-layerrule = ignorealpha 0.1, quickshell:notifications
-
-layerrule = blur, quickshell:sidebar
-layerrule = ignorealpha 0.1, quickshell:sidebar
-```
-
-### 3. Konfigurasi Shortcut Keyboard di Hyprland
-Tambahkan binding berikut ke file keybindings Hyprland lo (misal `~/.config/hypr/conf/keybindings/default.lua` atau `keybindings.conf`):
-
-```lua
--- WiFi Network Manager (Super + W)
-hl.bind("SUPER", "w", hl.dsp.exec_cmd("qs ipc call notch wifi toggle"), { description = "Toggle WiFi Manager" })
-
--- Display / HDMI Projection Manager (Super + P)
-hl.bind("SUPER", "p", hl.dsp.exec_cmd("qs ipc call notch display toggle"), { description = "Toggle HDMI Projection Manager" })
-
--- Music Sidebar & Playlist Drawer (Ctrl + Super + S)
-hl.bind("CTRL_SUPER", "s", hl.dsp.exec_cmd("qs ipc call sidebar toggle"), { description = "Toggle Music Sidebar" })
-
--- Volume Control dengan Notch OSD
-hl.bind("", "XF86AudioRaiseVolume", hl.dsp.exec_cmd("qs ipc call notch volume up"), { description = "Volume Up" })
-hl.bind("", "XF86AudioLowerVolume", hl.dsp.exec_cmd("qs ipc call notch volume down"), { description = "Volume Down" })
-hl.bind("", "XF86AudioMute", hl.dsp.exec_cmd("qs ipc call notch volume mute"), { description = "Mute Audio" })
-
--- Brightness Control dengan Notch OSD
-hl.bind("", "XF86MonBrightnessUp", hl.dsp.exec_cmd("brightnessctl s 5%+ && qs ipc call notch brightness up"), { description = "Brightness Up" })
-hl.bind("", "XF86MonBrightnessDown", hl.dsp.exec_cmd("brightnessctl s 5%- && qs ipc call notch brightness down"), { description = "Brightness Down" })
-```
-
----
-
-## ⚙️ Panduan Pengaturan & Kustomisasi (Cara Setting)
-
-Semua pengaturan utama telah diletakkan di bagian paling atas file masing-masing komponen agar sangat mudah diubah:
-
-### 1. Mengatur Top Notch, Volume & Brightness ([`notch/NotchWindow.qml`](notch/NotchWindow.qml))
-Buka file `notch/NotchWindow.qml` dan perhatikan baris konfigurasi:
-
-```qml
-    // 1. Durasi berapa lama HUD volume/kecerahan muncul sebelum kembali sembunyi / jadi mata (dalam ms)
-    property int volumeTimeoutMs: 1000
-
-    // 2. Kecepatan animasi transisi pembesaran/morphing notch (ms)
-    property int animDuration: 200
-
-    // 3. Mode Auto-Hide Notch:
-    //    "any_window"      : Sembunyi jika ada jendela aplikasi apapun terbuka/aktif (Default)
-    //    "not_antigravity" : Sembunyi jika aplikasi yang aktif BUKAN Antigravity
-    //    "antigravity"     : Sembunyi jika aplikasi aktif ADALAH Antigravity
-    //    "never"           : Selalu tampilkan notch (tidak pernah sembunyi)
-    property string autoHideMode: "any_window"
-
-    // 4. Reservasi ruang layar untuk jendela aplikasi:
-    //    false = Jendela aplikasi dapat layar penuh 100% tanpa terpotong (Rekomendasi)
-    //    true  = Hyprland memesan 38px di atas layar untuk notch
-    property bool reserveSpace: false
-```
-
-### 2. Mengganti Poster Karakter / Foto
-Untuk mengganti foto pada frame poster di widget:
-* Cukup timpa file gambar di [`assets/poster.jpg`](assets/poster.jpg) dengan gambar foto portrait pilihan lo (rasio disarankan 9:16 atau 3:4).
-* Gambar akan langsung terpasang otomatis dengan sudut membulat 20px (otomatis ter-reload dalam 2 detik tanpa perlu restart).
-
-### 3. Mengganti Suara Notifikasi
-* Suara notifikasi diambil dari [`assets/notif.mp3`](assets/notif.mp3). Cukup timpa file tersebut dengan file audio `.mp3` atau `.wav` pilihan lo.
-* Untuk mematikan suara notifikasi, ubah `property bool soundEnabled: false` di bagian atas [`notifications/NotificationPopupWindow.qml`](notifications/NotificationPopupWindow.qml).
-
-### 4. Mengganti Cover Album Default
-Jika pemutar musik sedang tidak aktif, widget menampilkan cover default dari [`assets/album.jpg`](assets/album.jpg). Lo bisa menggantinya dengan artwork album favorit lo.
-
-### 5. Mengatur Kota & Layanan Cuaca ([`widgets/stats.py`](widgets/stats.py))
-* Secara default, script mendeteksi lokasi kota lo secara otomatis menggunakan IP Geolocation publik.
-* Jika lo ingin menentukan kota tertentu secara manual, lo bisa mengedit pemanggilan URL di file `widgets/stats.py`:
-  ```python
-  # Ganti "Jakarta" dengan nama kota lo (misal: "Banyumas", "Bandung", "Surabaya")
-  req = urllib.request.Request("https://wttr.in/Jakarta?format=%c+%t", headers={"User-Agent": "curl/7.68.0"})
-  ```
 
 ---
 
 ## 📁 Struktur Direktori Proyek
 
 ```text
-DesktopWidgetsApp/
-├── assets/                         # Aset gambar, font Nothing OS, dan icon SVG
+glyph-shell/
+├── assets/                         # Font Nothing OS, icon SVG dot-matrix, suara, dan gambar
 │   ├── fonts/
-│   │   ├── Ndot55-Regular.otf      # Font angka suhu cuaca
-│   │   ├── Ndot57-Regular.otf      # Font jam digital, volume & brightness Nothing OS
+│   │   ├── Ndot55-Regular.otf      # Font angka suhu cuaca dot-matrix
+│   │   ├── Ndot57-Regular.otf      # Font jam digital, volume & baterai dot-matrix
 │   │   ├── NType82-Regular.otf     # Font sans-serif bento grid & judul musik
 │   │   └── LetteraMonoLL-Regular.otf # Font tanggal, artis & teks teknikal monospace
-│   ├── notif.mp3                   # Efek suara notifikasi masuk
 │   ├── camera-shutter.oga          # Efek suara cekrek kamera (GNOME) saat screenshot
-│   ├── album.jpg                   # Fallback cover album
-│   ├── poster.jpg                  # Foto portrait frame poster
-│   ├── preview.png                 # Gambar pratinjau desktop widgets
-│   ├── brightness-dot.svg          # Icon matahari dot-matrix HUD brightness
-│   ├── check-dot.svg               # Icon checklist dot-matrix konfirmasi simpan lagu
-│   ├── plus-dot.svg                # Icon tambah playlist dot-matrix
-│   ├── display-laptop.svg          # Icon mode layar PC Only dot-matrix
-│   ├── display-duplicate.svg       # Icon mode layar Duplicate dot-matrix
-│   ├── display-extend.svg          # Icon mode layar Extend dot-matrix
-│   ├── display-second.svg          # Icon mode layar Second Screen Only dot-matrix
-│   ├── wifi-dot.svg                # Icon WiFi dot-matrix
-│   ├── wifi-off-dot.svg            # Icon WiFi off dot-matrix
-│   ├── lock-dot.svg                # Icon gembok dot-matrix
-│   ├── refresh-dot.svg             # Icon reload dot-matrix
-│   ├── media-prev-dot.svg          # Tombol Previous dot-matrix Nothing OS
-│   ├── media-play-dot.svg          # Tombol Play dot-matrix Nothing OS
-│   ├── media-pause-dot.svg         # Tombol Pause dot-matrix Nothing OS
-│   ├── media-next-dot.svg          # Tombol Next dot-matrix Nothing OS
-│   ├── volume-dot.svg              # Icon speaker dot-matrix
-│   ├── volume-mute-dot.svg         # Icon speaker mute dot-matrix
-│   ├── weather-dot.svg             # Icon cuaca dot-matrix
-│   └── rocket.svg                  # Icon aksi notifikasi
+│   ├── notif.mp3                   # Efek suara notifikasi masuk
+│   ├── poster.jpg                  # Foto portrait frame bento grid (auto-reload)
+│   ├── album.jpg                   # Cover album fallback
+│   ├── folder-dot.svg              # Icon folder project dot-matrix
+│   ├── search-dot.svg              # Icon search dot-matrix
+│   └── *.svg                       # Icon WiFi, display, media, volume, cuaca, dll.
 ├── launcher/
-│   ├── LauncherWindow.qml          # Modal Chameleon Frosted Glass 2D Grid App & IDE Folder Launcher
-│   └── apps.py                     # Indexer aplikasi .desktop & pembuka folder project ke Antigravity IDE
+│   ├── LauncherWindow.qml          # Modal Chameleon Frosted Glass 2D Grid App & IDE Launcher
+│   └── apps.py                     # Provider aplikasi .desktop & pembuka folder project Antigravity IDE
 ├── lockscreen/
-│   ├── hyprlock.conf               # Konfigurasi visual Nothing OS Dot-Matrix untuk hyprlock
-│   ├── lock.sh                     # Launcher script sinkronisasi wallpaper aktif & hyprlock
-│   └── status.py                   # Provider data cepat WiFi, baterai, cuaca & MPRIS media
+│   ├── hyprlock.conf               # Konfigurasi visual Dot-Matrix untuk engine hyprlock
+│   ├── lock.sh                     # Launcher script deteksi wallpaper aktif & hyprlock
+│   └── status.py                   # Provider data WiFi, baterai, cuaca & kontrol MPRIS
 ├── notch/
-│   ├── NotchWindow.qml             # Window Top Notch interaktif, Angry Eyes, HUD OSD, WiFi & HDMI
-│   └── cursor.py                   # Daemon IPC Hyprland pelacak kursor & active window
+│   ├── NotchWindow.qml             # Window Top Notch, Angry Eyes, Dynamic Island, Rage & Relief Mode
+│   ├── cursor.py                   # Daemon IPC pelacak kursor & active window
+│   ├── display.py                  # Handler proyeksi layar multi-monitor HDMI
+│   ├── status.py                   # Provider status cepat baterai & WiFi
+│   └── wifi.py                     # Daemon pemindaian dan koneksi WiFi nmcli
 ├── notifications/
 │   └── NotificationPopupWindow.qml # Server notifikasi native frosted glass
 ├── sidebar/
-│   ├── SidebarWindow.qml           # Panel slide-out musik, multi-player switcher & playlist drawer
+│   ├── SidebarWindow.qml           # Panel slide-out musik, multi-player switcher & riwayat notifikasi
 │   └── playlist.py                 # Service D-Bus & JSON manager playlist lagu
 ├── widgets/
-│   ├── DesktopWidgetsWindow.qml    # Window utama bento grid widget desktop
-│   └── stats.py                    # Service pengambil data lirik, cuaca, & partisi sistem
-├── shell.qml                       # Entry point Quickshell yang memuat seluruh window
-└── README.md                       # Dokumentasi panduan lengkap
+│   ├── DesktopWidgetsWindow.qml    # Window utama bento grid widget desktop & circular ring gauges
+│   └── stats.py                    # Service pengambil lirik, cuaca, RAM, partisi sistem & baterai
+├── install.sh                      # Turnkey setup & installer script
+├── shell.qml                       # Entry point Quickshell yang memuat seluruh modul
+└── README.md                       # Dokumentasi lengkap
 ```
 
 ---
 
 ## 📜 Lisensi & Kredit
-* Dibuat untuk ekosistem Wayland / Hyprland menggunakan framework hebat [Quickshell](https://quickshell.outfoxxed.me/).
-* Tipografi & gaya dot-matrix terinspirasi dari filosofi desain hardware dan software [Nothing OS](https://nothing.tech/).
+* Dikembangkan oleh [@azizhehe01](https://github.com/azizhehe01) untuk ekosistem Wayland / Hyprland.
+* Dibuat menggunakan framework [Quickshell](https://quickshell.outfoxxed.me/).
+* Estetika visual terinspirasi dari filosofi desain hardware & software [Nothing OS](https://nothing.tech/).
 * Database lirik musik didukung oleh komunitas terbuka [LRCLIB](https://lrclib.net/).
