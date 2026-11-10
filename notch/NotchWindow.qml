@@ -14,46 +14,12 @@ PanelWindow {
     id: root
 
     WlrLayershell.namespace: "quickshell:notch"
-    WlrLayershell.layer: WlrLayer.Top
-    WlrLayershell.keyboardFocus: (root.showWifiMenu || root.showBluetoothMenu) ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
+    WlrLayershell.layer: WlrLayer.Overlay
 
-    // Click Outside (onCleared) & Escape to Close WiFi & Bluetooth Menus
-    HyprlandFocusGrab {
-        id: menuFocusGrab
-        windows: [root]
-        active: false
-        onCleared: {
-            if (root.showWifiMenu) root.closeWifiMenu();
-            if (root.showBluetoothMenu) root.closeBluetoothMenu();
-        }
-    }
-
-    Timer {
-        id: menuGrabTimer
-        interval: 40
-        repeat: false
-        onTriggered: {
-            menuFocusGrab.active = (root.showWifiMenu || root.showBluetoothMenu);
-        }
-    }
-
-    onShowWifiMenuChanged: {
-        if (showWifiMenu) menuGrabTimer.restart();
-        else if (!showBluetoothMenu) menuFocusGrab.active = false;
-    }
-
-    onShowBluetoothMenuChanged: {
-        if (showBluetoothMenu) menuGrabTimer.restart();
-        else if (!showWifiMenu) menuFocusGrab.active = false;
-    }
-
-    Shortcut {
-        sequence: "Escape"
-        enabled: root.showWifiMenu || root.showBluetoothMenu
-        onActivated: {
-            if (root.showWifiMenu) root.closeWifiMenu();
-            if (root.showBluetoothMenu) root.closeBluetoothMenu();
-        }
+    readonly property bool isMenuOpen: showWifiMenu || showBluetoothMenu
+    function closeAllMenus(): void {
+        closeWifiMenu();
+        closeBluetoothMenu();
     }
 
     // =========================================================================
