@@ -120,8 +120,16 @@ if [[ -f "$SCRIPT_DIR/lockscreen/hyprlock.conf" ]]; then
     printf "  ${C_GREEN}✓${C_RESET} Symlink Hyprlock aktif: %s/hyprlock.conf\n" "$HYPR_DIR"
 fi
 
+# Initialize glyph-shell wallpapers folder & thumbnail cache
+mkdir -p "$SCRIPT_DIR/wallpapers" "$HOME/.cache/glyph-shell/thumbs"
+if [[ -f "$SCRIPT_DIR/wallpaper/wallpaper.py" ]]; then
+    python3 "$SCRIPT_DIR/wallpaper/wallpaper.py" list >/dev/null 2>&1 || true
+    printf "  ${C_GREEN}✓${C_RESET} Folder Wallpaper & Cache Thumbnail aktif: %s/wallpapers\n" "$SCRIPT_DIR"
+fi
+
 # Wallpaper cache symlink
-WP_CACHE="$HOME/.cache/ml4w/hyprland-dotfiles/current_wallpaper"
+WP_CACHE="$HOME/.cache/glyph-shell/current_wallpaper"
+[[ ! -f "$WP_CACHE" ]] && WP_CACHE="$HOME/.cache/ml4w/hyprland-dotfiles/current_wallpaper"
 if [[ -f "$WP_CACHE" ]]; then
     WP_PATH="$(tr -d '\r\n' < "$WP_CACHE")"
     if [[ -f "$WP_PATH" ]]; then

@@ -6,6 +6,7 @@ import "notifications"
 import "notch"
 import "sidebar"
 import "launcher"
+import "wallpaper"
 
 ShellRoot {
     DesktopWidgetsWindow {
@@ -58,5 +59,10 @@ ShellRoot {
 
     LauncherWindow {
         id: appLauncher
+    }
+
+    WallpaperWindow {
+        id: wallpaperSelector
+        desktopWidgetsRef: desktopWidgets
     }
 }

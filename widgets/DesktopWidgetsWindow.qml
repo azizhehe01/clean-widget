@@ -123,14 +123,16 @@ PanelWindow {
         }
     }
 
+    function refreshStats(): void {
+        statsProc.running = false;
+        statsProc.running = true;
+    }
+
     Timer {
         interval: 2500
         running: true
         repeat: true
-        onTriggered: {
-            statsProc.running = false;
-            statsProc.running = true;
-        }
+        onTriggered: root.refreshStats()
     }
 
     // Live Clock

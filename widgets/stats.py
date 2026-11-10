@@ -17,17 +17,20 @@ lyrics_cache_file = "/tmp/ml4w_desktop_lyrics_cache_v2.json"
 now = time.time()
 data = {}
 
-# 0. Universal Wallpaper Detection (ML4W, awww, swww, waypaper, hyprpaper)
+# 0. Universal Wallpaper Detection (glyph-shell, ML4W, awww, swww, waypaper, hyprpaper)
 def detect_active_wallpaper():
-    ml4w_wp = os.path.expanduser("~/.cache/ml4w/hyprland-dotfiles/current_wallpaper")
-    if os.path.exists(ml4w_wp):
-        try:
-            with open(ml4w_wp, "r") as f:
-                p = f.read().strip()
-                if p and os.path.exists(p):
-                    return p
-        except Exception:
-            pass
+    for wp_cache in (
+        os.path.expanduser("~/.cache/glyph-shell/current_wallpaper"),
+        os.path.expanduser("~/.cache/ml4w/hyprland-dotfiles/current_wallpaper"),
+    ):
+        if os.path.exists(wp_cache):
+            try:
+                with open(wp_cache, "r") as f:
+                    p = f.read().strip()
+                    if p and os.path.exists(p):
+                        return p
+            except Exception:
+                pass
 
     for daemon_cmd in ("awww", "swww"):
         if shutil.which(daemon_cmd):

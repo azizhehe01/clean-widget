@@ -126,11 +126,22 @@ Dibangun secara native menggunakan framework **[Quickshell](https://quickshell.o
 
 ---
 
+### 7. 🖼️ Native Wallpaper Carousel (`wallpaper/`)
+* Dibuka/tutup dengan shortcut **`Ctrl + Super + W`** (dan **`Super + Shift + W`** untuk random wallpaper).
+* **Bottom-Edge Horizontal Filmstrip:** Muncul mulus dari sisi bawah layar (bottom dock), membiarkan 85% layar tetap bersih agar lo bisa menikmati transisi wallpaper secara utuh.
+* **Live Instant Preview (60fps):** Geser menggunakan tombol panah **`←`** / **`→`** (atau scroll mouse) dan wallpaper desktop langsung berubah secara *real-time* via `awww`. Jika menekan **`ESC`** atau klik di luar dock, wallpaper otomatis kembali ke wallpaper semula.
+* **Dedicated Wallpaper Folder:** Mandiri penuh di `~/.config/quickshell/glyph-shell/wallpapers/` (lepas dari ketergantungan ML4W) dengan caching thumbnail 16:9 ringan di `~/.cache/glyph-shell/thumbs/`.
+* **Full Ecosystem Sync:** Menekan **`Enter`** otomatis menyinkronkan wallpaper aktif, Chameleon Frosted Glass pada widget desktop & notifikasi, lockscreen `hyprlock`, serta palet warna `matugen`.
+
+---
+
 ## ⌨️ Shortcut Keyboard & Kontrol Cepat
 
 | Shortcut / Aksi | Komponen | Fungsi |
 | :--- | :--- | :--- |
 | **`Ctrl + Super + Enter`** | **Launcher** | Buka/tutup Unified Application & Project Folder Launcher (2D Grid) |
+| **`Ctrl + Super + W`** | **Wallpaper Carousel** | Buka/tutup Horizontal Wallpaper Selector dengan Live Instant Preview |
+| **`Super + Shift + W`** | **Random Wallpaper** | Ganti ke wallpaper acak secara instan |
 | **`Ctrl + Super + L`** | **Lockscreen** | Kunci layar dengan Nothing OS Dot-Matrix Lock Screen |
 | **`Ctrl + Super + S`** | **Sidebar** | Buka/tutup panel sidebar pemutar musik & riwayat notifikasi |
 | **`Super + W`** | **WiFi Manager** | Buka/tutup menu WiFi dot-matrix di Notch |
@@ -232,6 +243,10 @@ glyph-shell/
 ├── widgets/
 │   ├── DesktopWidgetsWindow.qml    # Window utama bento grid widget desktop & circular ring gauges
 │   └── stats.py                    # Service pengambil lirik, cuaca, RAM, partisi sistem & baterai
+├── wallpaper/
+│   ├── WallpaperWindow.qml         # Bottom-edge horizontal wallpaper filmstrip & live preview
+│   └── wallpaper.py                # Engine wallpaper standalone, thumbnail cache & frosted blur sync
+├── wallpapers/                     # Koleksi wallpaper mandiri glyph-shell
 ├── install.sh                      # Turnkey setup & installer script
 ├── shell.qml                       # Entry point Quickshell yang memuat seluruh modul
 └── README.md                       # Dokumentasi lengkap
