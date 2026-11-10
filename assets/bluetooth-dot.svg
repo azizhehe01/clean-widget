@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="#FFFFFF">
+  <!-- Nothing OS Dot-Matrix Bluetooth Symbol -->
+  <circle cx="12" cy="3" r="1.2"/>
+  <circle cx="12" cy="6" r="1.2"/>
+  <circle cx="12" cy="9" r="1.2"/>
+  <circle cx="12" cy="12" r="1.2"/>
+  <circle cx="12" cy="15" r="1.2"/>
+  <circle cx="12" cy="18" r="1.2"/>
+  <circle cx="12" cy="21" r="1.2"/>
+
+  <!-- Top Loop -->
+  <circle cx="14.8" cy="5.2" r="1.2"/>
+  <circle cx="17.2" cy="7.5" r="1.2"/>
+  <circle cx="14.8" cy="9.8" r="1.2"/>
+
+  <!-- Bottom Loop -->
+  <circle cx="14.8" cy="14.2" r="1.2"/>
+  <circle cx="17.2" cy="16.5" r="1.2"/>
+  <circle cx="14.8" cy="18.8" r="1.2"/>
+
+  <!-- Left Wings -->
+  <circle cx="9.2" cy="9.5" r="1.2"/>
+  <circle cx="6.8" cy="7.2" r="1.2"/>
+  <circle cx="9.2" cy="14.5" r="1.2"/>
+  <circle cx="6.8" cy="16.8" r="1.2"/>
+</svg>

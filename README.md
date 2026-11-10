@@ -68,6 +68,7 @@ Dibangun secara native menggunakan framework **[Quickshell](https://quickshell.o
   * Begitu charger dicolok, Notch berubah menjadi hijau segar (`#30D158`), mata tersenyum lega (`^  ^`), teks adem (*"AHHH LEGA... SWEET ELECTRICITY ⚡"*), dan colokan nancep rapat dengan kilat `⚡` sebelum kembali sembunyi mulus.
 * **Nothing OS Volume & Brightness HUD OSD:** Notch bermorfosis menjadi indikator volume/kecerahan dot-matrix saat tombol multimedia ditekan atau saat di-scroll langsung di atas notch.
 * **WiFi Network Manager Popover (`Super + W`):** Menu koneksi WiFi bergaya dot-matrix dengan kekuatan sinyal bertingkat, inline password input, dan toggle ON/OFF.
+* **Bluetooth Manager Popover (`Ctrl + Super + B`):** Menu Bluetooth native berbasis **BlueZ (`bluetoothctl`)** tanpa ketergantungan `blueman-manager`, menampilkan perangkat TWS/audio/input tersimpan dengan *1-click connect/disconnect*, indikator persentase baterai TWS, tombol scan perangkat sekitar, dan saklar power Bluetooth ON/OFF.
 * **Display / HDMI Projection Menu (`Super + P`):** Pengalih mode multi-monitor instan (PC Only, Duplicate, Extend, Second Screen) menggunakan perintah native Hyprland.
 
 ---
@@ -133,6 +134,7 @@ Dibangun secara native menggunakan framework **[Quickshell](https://quickshell.o
 | **`Ctrl + Super + L`** | **Lockscreen** | Kunci layar dengan Nothing OS Dot-Matrix Lock Screen |
 | **`Ctrl + Super + S`** | **Sidebar** | Buka/tutup panel sidebar pemutar musik & riwayat notifikasi |
 | **`Super + W`** | **WiFi Manager** | Buka/tutup menu WiFi dot-matrix di Notch |
+| **`Ctrl + Super + B`** | **Bluetooth Manager** | Buka/tutup menu Bluetooth dot-matrix di Notch (Pure BlueZ) |
 | **`Super + P`** | **Display** | Buka/tutup menu proyeksi monitor (PC, Duplicate, Extend, Second) |
 | **`XF86AudioRaiseVolume`** | Volume Up | Naikkan volume + tampilkan HUD Nothing OS |
 | **`XF86AudioLowerVolume`** | Volume Down | Turunkan volume + tampilkan HUD Nothing OS |
@@ -217,6 +219,7 @@ glyph-shell/
 │   └── status.py                   # Provider data WiFi, baterai, cuaca & kontrol MPRIS
 ├── notch/
 │   ├── NotchWindow.qml             # Window Top Notch, Angry Eyes, Dynamic Island, Rage & Relief Mode
+│   ├── bluetooth.py                # Daemon Bluetooth native berbasis BlueZ (bluetoothctl)
 │   ├── cursor.py                   # Daemon IPC pelacak kursor & active window
 │   ├── display.py                  # Handler proyeksi layar multi-monitor HDMI
 │   ├── status.py                   # Provider status cepat baterai & WiFi

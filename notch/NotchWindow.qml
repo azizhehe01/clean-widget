@@ -77,6 +77,16 @@ PanelWindow {
     property string passwordPromptSsid: ""
     property string enteredPassword: ""
 
+    // ---------------------------------------------------------------------
+    // Bluetooth Manager Properties (Ctrl + Super + B — Pure BlueZ Native)
+    // ---------------------------------------------------------------------
+    property bool showBluetoothMenu: false
+    property var btData: ({ "bt_enabled": true, "active_device": "", "connected_count": 0, "devices": [] })
+    readonly property var btDevices: (root.btData && root.btData.devices) ? root.btData.devices : []
+    readonly property bool isBtConnected: root.btData && (root.btData.connected_count > 0)
+    property bool isScanningBt: false
+    property string busyBtMac: ""
+
     property bool showVolume: false
     property int lastVolumePercent: -1
     property bool lastMutedState: false
@@ -279,7 +289,9 @@ PanelWindow {
     readonly property int rageBodyW: 468
     readonly property int displayBodyW: 460
     readonly property int wifiBodyW: 340
+    readonly property int btBodyW: 348
     property real animatedBodyW: {
+        if (showBluetoothMenu) return btBodyW;
         if (showWifiMenu) return wifiBodyW;
         if (showDisplayMenu) return displayBodyW;
         if (showBrightness) return brightnessBodyW;
@@ -300,7 +312,9 @@ PanelWindow {
     readonly property int rageNotchH: 64
     readonly property int displayNotchH: 84
     readonly property int wifiNotchH: 284
+    readonly property int btNotchH: 284
     property real animatedNotchH: {
+        if (showBluetoothMenu) return btNotchH;
         if (showWifiMenu) return wifiNotchH;
         if (showDisplayMenu) return displayNotchH;
         if (showBatteryRage) return rageNotchH;
@@ -324,7 +338,7 @@ PanelWindow {
 
     // Fixed stable window dimensions (mencegah Wayland surface resize jitter)
     readonly property int windowWidth: 520
-    readonly property int windowHeight: root.showWifiMenu ? 320 : (root.showDisplayMenu ? 110 : 96)
+    readonly property int windowHeight: (root.showWifiMenu || root.showBluetoothMenu) ? 320 : (root.showDisplayMenu ? 110 : 96)
     anchors.top: true
     implicitWidth: windowWidth
     implicitHeight: windowHeight
@@ -344,6 +358,7 @@ PanelWindow {
 
     function openWifiMenu(): void {
         root.showDisplayMenu = false;
+        root.showBluetoothMenu = false;
         root.showVolume = false;
         root.showWifiMenu = true;
         root.passwordPromptSsid = "";
@@ -434,6 +449,131 @@ PanelWindow {
         running: false
         stdout: StdioCollector {
             onStreamFinished: root.queryWifi()
+        }
+    }
+
+    // ---------------------------------------------------------------------
+    // Bluetooth Manager Integration (Nothing OS Dot-Matrix Style — BlueZ)
+    // ---------------------------------------------------------------------
+    function toggleBluetoothMenu(): void {
+        if (root.showBluetoothMenu) {
+            root.closeBluetoothMenu();
+        } else {
+            root.openBluetoothMenu();
+        }
+    }
+
+    function openBluetoothMenu(): void {
+        root.showDisplayMenu = false;
+        root.showWifiMenu = false;
+        root.showVolume = false;
+        root.showBrightness = false;
+        root.showBluetoothMenu = true;
+        root.busyBtMac = "";
+        root.queryBluetooth(false);
+    }
+
+    function closeBluetoothMenu(): void {
+        root.showBluetoothMenu = false;
+        root.busyBtMac = "";
+    }
+
+    function queryBluetooth(doScan: bool): void {
+        root.isScanningBt = true;
+        queryBtProc.mode = doScan ? "scan" : "status";
+        queryBtProc.running = false;
+        queryBtProc.running = true;
+    }
+
+    function toggleBtRadio(): void {
+        root.isScanningBt = true;
+        toggleBtProc.running = false;
+        toggleBtProc.running = true;
+    }
+
+    function connectBtDevice(mac: string): void {
+        root.busyBtMac = mac;
+        connectBtProc.targetMac = mac;
+        connectBtProc.running = false;
+        connectBtProc.running = true;
+    }
+
+    function disconnectBtDevice(mac: string): void {
+        root.busyBtMac = mac;
+        disconnectBtProc.targetMac = mac;
+        disconnectBtProc.running = false;
+        disconnectBtProc.running = true;
+    }
+
+    IpcHandler {
+        target: "bluetooth"
+        function toggle(): void { root.toggleBluetoothMenu(); }
+        function open(): void { root.openBluetoothMenu(); }
+        function close(): void { root.closeBluetoothMenu(); }
+        function scan(): void { root.queryBluetooth(true); }
+    }
+
+    Process {
+        id: queryBtProc
+        property string mode: "status"
+        command: ["python3", Quickshell.shellDir + "/notch/bluetooth.py", mode]
+        running: false
+        stdout: StdioCollector {
+            onStreamFinished: {
+                root.isScanningBt = false;
+                root.busyBtMac = "";
+                try {
+                    let raw = this.text.trim();
+                    if (raw) root.btData = JSON.parse(raw);
+                } catch (e) {}
+            }
+        }
+    }
+
+    Process {
+        id: toggleBtProc
+        command: ["python3", Quickshell.shellDir + "/notch/bluetooth.py", "toggle"]
+        running: false
+        stdout: StdioCollector {
+            onStreamFinished: {
+                root.isScanningBt = false;
+                try {
+                    let raw = this.text.trim();
+                    if (raw) root.btData = JSON.parse(raw);
+                } catch (e) {}
+            }
+        }
+    }
+
+    Process {
+        id: connectBtProc
+        property string targetMac: ""
+        command: ["python3", Quickshell.shellDir + "/notch/bluetooth.py", "connect", targetMac]
+        running: false
+        stdout: StdioCollector {
+            onStreamFinished: {
+                root.busyBtMac = "";
+                try {
+                    let raw = this.text.trim();
+                    if (raw) root.btData = JSON.parse(raw);
+                } catch (e) {}
+            }
+        }
+    }
+
+    Process {
+        id: disconnectBtProc
+        property string targetMac: ""
+        command: ["python3", Quickshell.shellDir + "/notch/bluetooth.py", "disconnect", targetMac]
+        running: false
+        stdout: StdioCollector {
+            onStreamFinished: {
+                root.busyBtMac = "";
+                try {
+                    let raw = this.text.trim();
+                    if (raw) root.btData = JSON.parse(raw);
+                } catch (e) {}
+            }
         }
     }
 
@@ -736,7 +876,7 @@ PanelWindow {
 
     readonly property bool shouldHide: {
         // Jangan sembunyikan jika menu WiFi sedang dibuka
-        if (showWifiMenu) return false;
+        if (showWifiMenu || showBluetoothMenu) return false;
         // Jangan sembunyikan jika menu Display / HDMI sedang dibuka
         if (showDisplayMenu) return false;
         // Jangan sembunyikan jika volume atau brightness HUD sedang aktif
@@ -881,7 +1021,7 @@ PanelWindow {
 
         // Wheel adjustment & Right-click to mute directly on notch
         WheelHandler {
-            enabled: !root.showDisplayMenu && !root.showWifiMenu
+            enabled: !root.showDisplayMenu && !root.showWifiMenu && !root.showBluetoothMenu
             onWheel: function(event) {
                 let delta = event.angleDelta.y !== 0 ? event.angleDelta.y : event.pixelDelta.y;
                 if (root.showBrightness) {
@@ -897,7 +1037,7 @@ PanelWindow {
 
         MouseArea {
             anchors.fill: parent
-            enabled: !root.showDisplayMenu && !root.showWifiMenu && !root.showVolume && !root.showBrightness
+            enabled: !root.showDisplayMenu && !root.showWifiMenu && !root.showBluetoothMenu && !root.showVolume && !root.showBrightness
             acceptedButtons: Qt.RightButton
             cursorShape: Qt.PointingHandCursor
             onClicked: root.toggleMute()
@@ -907,7 +1047,7 @@ PanelWindow {
         // Left-click on notch: snooze if raging, otherwise toggle WiFi menu
         MouseArea {
             anchors.fill: parent
-            enabled: !root.showDisplayMenu && !root.showWifiMenu && !root.showVolume && !root.showBrightness
+            enabled: !root.showDisplayMenu && !root.showWifiMenu && !root.showBluetoothMenu && !root.showVolume && !root.showBrightness
             acceptedButtons: Qt.LeftButton
             cursorShape: Qt.PointingHandCursor
             onClicked: {
@@ -933,7 +1073,7 @@ PanelWindow {
             anchors.verticalCenterOffset: 1
             spacing: root.eyeGap
 
-            readonly property bool activeView: !root.showVolume && !root.showBrightness && !root.showDisplayMenu && !root.showWifiMenu && !root.showBatteryRage && !root.showBatteryRelief && !root.showStatusPeek
+            readonly property bool activeView: !root.showVolume && !root.showBrightness && !root.showDisplayMenu && !root.showWifiMenu && !root.showBluetoothMenu && !root.showBatteryRage && !root.showBatteryRelief && !root.showStatusPeek
             opacity: activeView ? 1.0 : 0.0
             scale: activeView ? 1.0 : 0.85
             visible: activeView || opacity > 0.05
@@ -954,7 +1094,7 @@ PanelWindow {
             anchors.verticalCenter: parent.verticalCenter
             spacing: 14
 
-            readonly property bool activeView: root.showBatteryRage && !root.showVolume && !root.showBrightness && !root.showDisplayMenu && !root.showWifiMenu
+            readonly property bool activeView: root.showBatteryRage && !root.showVolume && !root.showBrightness && !root.showDisplayMenu && !root.showWifiMenu && !root.showBluetoothMenu
             opacity: activeView ? 1.0 : 0.0
             scale: activeView ? 1.0 : 0.88
             visible: activeView || opacity > 0.05
@@ -1167,7 +1307,7 @@ PanelWindow {
             anchors.verticalCenter: parent.verticalCenter
             spacing: 14
 
-            readonly property bool activeView: root.showBatteryRelief && !root.showVolume && !root.showBrightness && !root.showDisplayMenu && !root.showWifiMenu
+            readonly property bool activeView: root.showBatteryRelief && !root.showVolume && !root.showBrightness && !root.showDisplayMenu && !root.showWifiMenu && !root.showBluetoothMenu
             opacity: activeView ? 1.0 : 0.0
             scale: activeView ? 1.0 : 0.88
             visible: activeView || opacity > 0.05
@@ -1277,7 +1417,7 @@ PanelWindow {
             anchors.verticalCenter: parent.verticalCenter
             spacing: 14
 
-            readonly property bool activeView: root.showStatusPeek && !root.showBatteryRage && !root.showBatteryRelief && !root.showVolume && !root.showBrightness && !root.showDisplayMenu && !root.showWifiMenu
+            readonly property bool activeView: root.showStatusPeek && !root.showBatteryRage && !root.showBatteryRelief && !root.showVolume && !root.showBrightness && !root.showDisplayMenu && !root.showWifiMenu && !root.showBluetoothMenu
             opacity: activeView ? 1.0 : 0.0
             scale: activeView ? 1.0 : 0.90
             visible: activeView || opacity > 0.05
@@ -1395,9 +1535,9 @@ PanelWindow {
             anchors.verticalCenter: parent.verticalCenter
             spacing: 12
 
-            opacity: (root.showVolume && !root.showBrightness && !root.showDisplayMenu && !root.showWifiMenu) ? 1.0 : 0.0
-            scale: (root.showVolume && !root.showBrightness && !root.showDisplayMenu && !root.showWifiMenu) ? 1.0 : 0.85
-            visible: !root.showDisplayMenu && !root.showWifiMenu && !root.showBrightness && (!root.showVolume || opacity > 0.05)
+            opacity: (root.showVolume && !root.showBrightness && !root.showDisplayMenu && !root.showWifiMenu && !root.showBluetoothMenu) ? 1.0 : 0.0
+            scale: (root.showVolume && !root.showBrightness && !root.showDisplayMenu && !root.showWifiMenu && !root.showBluetoothMenu) ? 1.0 : 0.85
+            visible: !root.showDisplayMenu && !root.showWifiMenu && !root.showBluetoothMenu && !root.showBrightness && (!root.showVolume || opacity > 0.05)
 
             Behavior on opacity { NumberAnimation { duration: root.animDuration; easing.type: Easing.OutCubic } }
             Behavior on scale   { NumberAnimation { duration: root.animDuration; easing.type: Easing.OutCubic } }
@@ -1466,9 +1606,9 @@ PanelWindow {
             anchors.verticalCenter: parent.verticalCenter
             spacing: 12
 
-            opacity: (root.showBrightness && !root.showVolume && !root.showDisplayMenu && !root.showWifiMenu) ? 1.0 : 0.0
-            scale: (root.showBrightness && !root.showVolume && !root.showDisplayMenu && !root.showWifiMenu) ? 1.0 : 0.85
-            visible: !root.showDisplayMenu && !root.showWifiMenu && !root.showVolume && (!root.showBrightness || opacity > 0.05)
+            opacity: (root.showBrightness && !root.showVolume && !root.showDisplayMenu && !root.showWifiMenu && !root.showBluetoothMenu) ? 1.0 : 0.0
+            scale: (root.showBrightness && !root.showVolume && !root.showDisplayMenu && !root.showWifiMenu && !root.showBluetoothMenu) ? 1.0 : 0.85
+            visible: !root.showDisplayMenu && !root.showWifiMenu && !root.showBluetoothMenu && !root.showVolume && (!root.showBrightness || opacity > 0.05)
 
             Behavior on opacity { NumberAnimation { duration: root.animDuration; easing.type: Easing.OutCubic } }
             Behavior on scale   { NumberAnimation { duration: root.animDuration; easing.type: Easing.OutCubic } }
@@ -2078,6 +2218,347 @@ PanelWindow {
                     anchors.rightMargin: 4
                     anchors.verticalCenter: parent.verticalCenter
                     text: "[SUPER+W] TOGGLE"
+                    font.family: fontNMono.name || "monospace"
+                    font.pixelSize: 9
+                    color: "#666666"
+                }
+            }
+        }
+
+        // -----------------------------------------------------------------
+        // BLUETOOTH MANAGER MENU (NOTHING OS DOT-MATRIX STYLE — CTRL+SUPER+B)
+        // -----------------------------------------------------------------
+        Item {
+            id: btMenuContainer
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.top: parent.top
+            anchors.topMargin: 4
+            width: parent.width - root.shoulder * 2 - 12
+            height: parent.height - 8
+
+            opacity: (root.showBluetoothMenu && !root.showDisplayMenu && !root.showWifiMenu) ? 1.0 : 0.0
+            scale: (root.showBluetoothMenu && !root.showDisplayMenu && !root.showWifiMenu) ? 1.0 : 0.94
+            visible: root.showBluetoothMenu && !root.showDisplayMenu && !root.showWifiMenu
+
+            Behavior on opacity { NumberAnimation { duration: root.animDuration; easing.type: Easing.OutCubic } }
+            Behavior on scale   { NumberAnimation { duration: root.animDuration; easing.type: Easing.OutCubic } }
+
+            // 1. Header: Bluetooth Dot-Matrix Icon, Title, Active Status, Scan & Power Toggle
+            Item {
+                id: btHeader
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.top: parent.top
+                height: 30
+
+                Row {
+                    anchors.left: parent.left
+                    anchors.leftMargin: 4
+                    anchors.verticalCenter: parent.verticalCenter
+                    spacing: 7
+
+                    Image {
+                        width: 14
+                        height: 14
+                        source: Qt.resolvedUrl("../assets/bluetooth-dot.svg")
+                        sourceSize: Qt.size(20, 20)
+                        opacity: (root.btData && root.btData.bt_enabled) ? 1.0 : 0.4
+                        anchors.verticalCenter: parent.verticalCenter
+                    }
+
+                    Text {
+                        text: "BLUETOOTH"
+                        font.family: fontNMono.name || "monospace"
+                        font.pixelSize: 11
+                        font.letterSpacing: 1.4
+                        font.bold: true
+                        color: "#FFFFFF"
+                        anchors.verticalCenter: parent.verticalCenter
+                    }
+
+                    Text {
+                        text: {
+                            if (!root.btData || !root.btData.bt_enabled) return "· OFF";
+                            if (root.isScanningBt) return "· SCANNING...";
+                            if (root.isBtConnected && root.btData.active_device) return "· " + root.btData.active_device.toUpperCase();
+                            return "· READY";
+                        }
+                        font.family: fontNMono.name || "monospace"
+                        font.pixelSize: 9
+                        font.letterSpacing: 0.6
+                        color: root.isBtConnected ? "#88FF88" : "#777777"
+                        elide: Text.ElideRight
+                        width: 116
+                        anchors.verticalCenter: parent.verticalCenter
+                    }
+                }
+
+                Row {
+                    anchors.right: parent.right
+                    anchors.rightMargin: 4
+                    anchors.verticalCenter: parent.verticalCenter
+                    spacing: 8
+
+                    // Scan Nearby Devices Button
+                    Rectangle {
+                        width: 22
+                        height: 22
+                        radius: 4
+                        color: btScanMa.containsMouse ? "#2A2A2A" : "transparent"
+                        anchors.verticalCenter: parent.verticalCenter
+
+                        Image {
+                            anchors.centerIn: parent
+                            width: 14
+                            height: 14
+                            source: Qt.resolvedUrl("../assets/refresh-dot.svg")
+                            sourceSize: Qt.size(28, 28)
+                            opacity: root.isScanningBt ? 0.45 : 0.9
+                        }
+
+                        MouseArea {
+                            id: btScanMa
+                            anchors.fill: parent
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: root.queryBluetooth(true)
+                        }
+                    }
+
+                    // Bluetooth Power Toggle Switch
+                    Rectangle {
+                        width: 38
+                        height: 18
+                        radius: 9
+                        anchors.verticalCenter: parent.verticalCenter
+                        color: (root.btData && root.btData.bt_enabled) ? "#222222" : "#181818"
+                        border.color: (root.btData && root.btData.bt_enabled) ? "#444444" : "#333333"
+                        border.width: 1
+
+                        Rectangle {
+                            width: 12
+                            height: 12
+                            radius: 6
+                            anchors.verticalCenter: parent.verticalCenter
+                            x: (root.btData && root.btData.bt_enabled) ? 22 : 4
+                            color: (root.btData && root.btData.bt_enabled) ? "#FFFFFF" : "#555555"
+                            Behavior on x { NumberAnimation { duration: 150; easing.type: Easing.OutCubic } }
+                        }
+
+                        MouseArea {
+                            anchors.fill: parent
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: root.toggleBtRadio()
+                        }
+                    }
+
+                    // Close Button
+                    Rectangle {
+                        width: 18
+                        height: 18
+                        radius: 9
+                        color: closeBtMa.containsMouse ? "#333333" : "transparent"
+                        anchors.verticalCenter: parent.verticalCenter
+
+                        Text {
+                            anchors.centerIn: parent
+                            text: "✕"
+                            font.pixelSize: 10
+                            color: "#888888"
+                        }
+
+                        MouseArea {
+                            id: closeBtMa
+                            anchors.fill: parent
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: root.closeBluetoothMenu()
+                        }
+                    }
+                }
+            }
+
+            // Separator Line
+            Rectangle {
+                id: btSep
+                anchors.top: btHeader.bottom
+                anchors.topMargin: 4
+                anchors.left: parent.left
+                anchors.right: parent.right
+                height: 1
+                color: "#1F1F1F"
+            }
+
+            // 2. Bluetooth Devices List (ListView)
+            ListView {
+                id: btListView
+                anchors.top: btSep.bottom
+                anchors.topMargin: 6
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.bottom: btFooter.top
+                anchors.bottomMargin: 6
+                clip: true
+                spacing: 4
+                model: root.btDevices
+
+                // Empty State
+                Text {
+                    anchors.centerIn: parent
+                    visible: root.btDevices.length === 0
+                    text: (!root.btData || !root.btData.bt_enabled)
+                        ? "[ BLUETOOTH POWERED OFF ]"
+                        : (root.isScanningBt ? "[ SCANNING DEVICES... ]" : "[ NO PAIRED DEVICES FOUND ]")
+                    font.family: fontNMono.name || "monospace"
+                    font.pixelSize: 10
+                    color: "#666666"
+                }
+
+                delegate: Rectangle {
+                    id: btRow
+                    width: btListView.width
+                    height: 36
+                    radius: 8
+                    color: modelData.is_connected
+                        ? "#1A1A1A"
+                        : (btMouse.containsMouse ? "#151515" : "#0B0B0B")
+                    border.width: 1
+                    border.color: modelData.is_connected
+                        ? "#3A3A3A"
+                        : (btMouse.containsMouse ? "#2A2A2A" : "#161616")
+
+                    readonly property bool isBusy: root.busyBtMac === modelData.mac
+
+                    Row {
+                        anchors.left: parent.left
+                        anchors.leftMargin: 10
+                        anchors.verticalCenter: parent.verticalCenter
+                        spacing: 9
+
+                        // Status Dot (Red when connected, subtle gray when paired)
+                        Rectangle {
+                            width: 6
+                            height: 6
+                            radius: 3
+                            color: modelData.is_connected ? "#D71921" : (modelData.is_paired ? "#555555" : "#282828")
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
+
+                        // Category Icon (Headset / Input / Bluetooth)
+                        Text {
+                            anchors.verticalCenter: parent.verticalCenter
+                            text: {
+                                if (modelData.icon_type === "audio") return "󰋋";
+                                if (modelData.icon_type === "input") return "󰍽";
+                                if (modelData.icon_type === "phone") return "󰄜";
+                                return "󰂯";
+                            }
+                            font.family: "FiraCode Nerd Font"
+                            font.pixelSize: 14
+                            color: modelData.is_connected ? "#FFFFFF" : "#AAAAAA"
+                        }
+
+                        // Device Name & Battery Badge
+                        Text {
+                            anchors.verticalCenter: parent.verticalCenter
+                            text: modelData.name
+                            font.family: fontNType.name || "Fira Sans"
+                            font.pixelSize: 12
+                            font.bold: modelData.is_connected
+                            color: modelData.is_connected ? "#FFFFFF" : "#D0D0D0"
+                            elide: Text.ElideRight
+                            width: 145
+                        }
+                    }
+
+                    // Right Side: Battery % (if available) + Action Pill
+                    Row {
+                        anchors.right: parent.right
+                        anchors.rightMargin: 10
+                        anchors.verticalCenter: parent.verticalCenter
+                        spacing: 8
+
+                        Text {
+                            visible: modelData.battery !== undefined && modelData.battery >= 0
+                            anchors.verticalCenter: parent.verticalCenter
+                            text: modelData.battery + "%"
+                            font.family: fontNdot57.name || "monospace"
+                            font.pixelSize: 11
+                            color: "#88FF88"
+                        }
+
+                        Rectangle {
+                            height: 20
+                            width: actionLabel.implicitWidth + 14
+                            radius: 6
+                            anchors.verticalCenter: parent.verticalCenter
+                            color: btRow.isBusy
+                                ? "#282828"
+                                : (modelData.is_connected
+                                    ? (btMouse.containsMouse ? "#D71921" : "#242424")
+                                    : (btMouse.containsMouse ? "#FFFFFF" : "#1C1C1C"))
+
+                            Text {
+                                id: actionLabel
+                                anchors.centerIn: parent
+                                text: {
+                                    if (btRow.isBusy) return "WAIT...";
+                                    if (modelData.is_connected) return btMouse.containsMouse ? "DISCONNECT" : "CONNECTED";
+                                    if (modelData.is_paired) return "CONNECT";
+                                    return "PAIR";
+                                }
+                                font.family: fontNMono.name || "monospace"
+                                font.pixelSize: 8
+                                font.letterSpacing: 0.6
+                                font.bold: true
+                                color: (!btRow.isBusy && !modelData.is_connected && btMouse.containsMouse)
+                                    ? "#000000"
+                                    : (modelData.is_connected && !btMouse.containsMouse ? "#88FF88" : "#FFFFFF")
+                            }
+                        }
+                    }
+
+                    MouseArea {
+                        id: btMouse
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: {
+                            if (btRow.isBusy) return;
+                            if (modelData.is_connected) {
+                                root.disconnectBtDevice(modelData.mac);
+                            } else {
+                                root.connectBtDevice(modelData.mac);
+                            }
+                        }
+                    }
+                }
+            }
+
+            // 3. Footer: Status & Shortcut Hint
+            Item {
+                id: btFooter
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.bottom: parent.bottom
+                anchors.bottomMargin: 8
+                height: 18
+
+                Text {
+                    anchors.left: parent.left
+                    anchors.leftMargin: 4
+                    anchors.verticalCenter: parent.verticalCenter
+                    text: root.isBtConnected
+                        ? (root.btData.connected_count + " ACTIVE · BLUEZ NATIVE")
+                        : (root.btDevices.length + " PAIRED · BLUEZ NATIVE")
+                    font.family: fontNMono.name || "monospace"
+                    font.pixelSize: 9
+                    color: "#666666"
+                }
+
+                Text {
+                    anchors.right: parent.right
+                    anchors.rightMargin: 4
+                    anchors.verticalCenter: parent.verticalCenter
+                    text: "[CTRL+SUPER+B] TOGGLE"
                     font.family: fontNMono.name || "monospace"
                     font.pixelSize: 9
                     color: "#666666"
