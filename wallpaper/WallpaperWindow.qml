@@ -59,12 +59,12 @@ PanelWindow {
     FontLoader { id: fontNType;  source: Qt.resolvedUrl("../assets/fonts/NType82-Regular.otf") }
     FontLoader { id: fontNMono;  source: Qt.resolvedUrl("../assets/fonts/LetteraMonoLL-Regular.otf") }
 
-    // Theme Tokens — Obsidian Chameleon Glass & Nothing Crimson
-    readonly property color glassBg: Qt.rgba(0.06, 0.06, 0.075, 0.86)
-    readonly property color glassBorder: Qt.rgba(1.0, 1.0, 1.0, 0.14)
+    // Theme Tokens — Chameleon Frosted Glass (Aligned with Launcher & Sidebar)
+    readonly property color glassBg: Qt.rgba(0.06, 0.07, 0.09, 0.65)
+    readonly property color glassBorder: Qt.rgba(1.0, 1.0, 1.0, 0.16)
     readonly property color nothingRed: "#D71921"
     readonly property color textPrimary: "#FFFFFF"
-    readonly property color textSecondary: Qt.rgba(1.0, 1.0, 1.0, 0.68)
+    readonly property color textSecondary: Qt.rgba(1.0, 1.0, 1.0, 0.72)
     readonly property color textMuted: Qt.rgba(1.0, 1.0, 1.0, 0.42)
 
     HyprlandFocusGrab {
@@ -418,21 +418,11 @@ PanelWindow {
             }
         }
 
-        // Outer Drop Shadow
-        RectangularGlow {
-            anchors.fill: dockCard
-            anchors.topMargin: 8
-            glowRadius: 28
-            spread: 0.15
-            color: Qt.rgba(0, 0, 0, 0.72)
-            cornerRadius: dockCard.radius + glowRadius
-        }
-
-        // Main Frosted Obsidian Container
+        // Main Frosted Obsidian Container (Aligned with Launcher & Sidebar)
         Rectangle {
             id: dockCard
             anchors.fill: parent
-            radius: 28
+            radius: 26
             color: root.glassBg
             border.width: 1
             border.color: root.glassBorder
@@ -443,10 +433,10 @@ PanelWindow {
                 anchors.top: parent.top
                 anchors.left: parent.left
                 anchors.right: parent.right
-                anchors.leftMargin: 28
-                anchors.rightMargin: 28
+                anchors.leftMargin: 26
+                anchors.rightMargin: 26
                 height: 1
-                color: Qt.rgba(1, 1, 1, 0.22)
+                color: Qt.rgba(1.0, 1.0, 1.0, 0.24)
             }
 
             // Subtle Nothing OS Dot-Matrix Background Accent along header
@@ -755,8 +745,63 @@ PanelWindow {
                     Layout.fillWidth: true
                     Layout.fillHeight: true
 
+                    // Empty State if no wallpapers found
+                    Item {
+                        visible: !root.wallpapers || root.wallpapers.length === 0
+                        anchors.fill: parent
+
+                        RowLayout {
+                            anchors.centerIn: parent
+                            spacing: 16
+
+                            Text {
+                                text: "[!] NO WALLPAPERS FOUND IN FOLDER"
+                                font.family: fontNMono.name
+                                font.pixelSize: 12
+                                font.letterSpacing: 1.0
+                                color: root.textMuted
+                            }
+
+                            Rectangle {
+                                height: 28
+                                width: emptyBtnRow.implicitWidth + 20
+                                radius: 14
+                                color: emptyBtnMouse.containsMouse ? Qt.rgba(1, 1, 1, 0.20) : Qt.rgba(1, 1, 1, 0.10)
+                                border.width: 1
+                                border.color: Qt.rgba(1, 1, 1, 0.20)
+
+                                RowLayout {
+                                    id: emptyBtnRow
+                                    anchors.centerIn: parent
+                                    spacing: 6
+                                    Text {
+                                        text: "[O]"
+                                        font.family: fontNMono.name
+                                        font.pixelSize: 11
+                                        color: root.nothingRed
+                                    }
+                                    Text {
+                                        text: "OPEN WALLPAPERS FOLDER"
+                                        font.family: fontNMono.name
+                                        font.pixelSize: 11
+                                        color: "#FFFFFF"
+                                    }
+                                }
+
+                                MouseArea {
+                                    id: emptyBtnMouse
+                                    anchors.fill: parent
+                                    hoverEnabled: true
+                                    cursorShape: Qt.PointingHandCursor
+                                    onClicked: root.openWallpaperFolder()
+                                }
+                            }
+                        }
+                    }
+
                     ListView {
                         id: filmstripList
+                        visible: root.wallpapers && root.wallpapers.length > 0
                         anchors.fill: parent
                         orientation: ListView.Horizontal
                         spacing: 14
@@ -947,3 +992,4 @@ PanelWindow {
         }
     }
 }
+

@@ -372,7 +372,8 @@ def main():
         info = collect_wallpapers()
         wps = info.get("wallpapers", [])
         if not wps:
-            sys.exit(1)
+            print(json.dumps({"status": "empty", "message": "No wallpapers found"}))
+            sys.exit(0)
         current = info.get("current", "")
         candidates = [w for w in wps if os.path.abspath(w["path"]) != os.path.abspath(current)]
         chosen = random.choice(candidates if candidates else wps)
@@ -392,3 +393,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
