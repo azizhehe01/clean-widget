@@ -431,17 +431,17 @@ PanelWindow {
             onWheel: (event) => { event.accepted = true; }
         }
 
-        // 1. Frosted Glass Base Layer (Clean 24px Rounded Corners)
+        // 1. Frosted Glass Base Layer (Aligned with App Launcher Transparency)
         Rectangle {
             id: cardBg
             anchors.fill: parent
             radius: root.cardRadius
-            color: Qt.rgba(0.08, 0.08, 0.09, 0.80)
+            color: Qt.rgba(0.06, 0.07, 0.09, 0.58)
             border.width: 1
             border.color: Qt.rgba(1.0, 1.0, 1.0, 0.16)
         }
 
-        // 2. Ambient Dynamic Album Glow (Radius 24px, zero corner leak)
+        // 2. Ambient Dynamic Album Glow (Subtle translucent tint)
         Rectangle {
             anchors.fill: parent
             radius: root.cardRadius
@@ -450,7 +450,7 @@ PanelWindow {
                     position: 0.0
                     color: {
                         var c = Qt.color(root.stats && root.stats.album_color ? root.stats.album_color : "#282426");
-                        return Qt.rgba(c.r, c.g, c.b, 0.28);
+                        return Qt.rgba(c.r, c.g, c.b, 0.10);
                     }
                 }
                 GradientStop { position: 0.45; color: "transparent" }
@@ -458,7 +458,7 @@ PanelWindow {
                     position: 1.0
                     color: {
                         var c2 = Qt.color(root.stats && root.stats.album_color ? root.stats.album_color : "#282426");
-                        return Qt.rgba(c2.r, c2.g, c2.b, 0.18);
+                        return Qt.rgba(c2.r, c2.g, c2.b, 0.06);
                     }
                 }
             }
