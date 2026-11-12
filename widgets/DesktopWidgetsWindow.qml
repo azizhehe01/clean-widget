@@ -95,7 +95,8 @@ PanelWindow {
         "track_progress": 0.0,
         "position_str": "0:00",
         "duration_str": "--:--",
-        "poster_mtime": 0
+        "poster_mtime": 0,
+        "album_art": ""
     })
 
     readonly property var lyricsList: (root.stats && root.stats.lyrics && root.stats.lyrics.length > 0)
@@ -411,9 +412,11 @@ PanelWindow {
                 Image {
                     id: albumSourceImg
                     anchors.fill: parent
-                    source: (root.activePlayer && root.activePlayer.trackArtUrl)
-                        ? root.activePlayer.trackArtUrl
-                        : Qt.resolvedUrl("../assets/album.jpg")
+                    source: (root.stats && root.stats.album_art && root.stats.album_art !== "")
+                        ? root.stats.album_art
+                        : ((root.activePlayer && root.activePlayer.trackArtUrl)
+                            ? root.activePlayer.trackArtUrl
+                            : Qt.resolvedUrl("../assets/album.jpg"))
                     fillMode: Image.PreserveAspectCrop
                     smooth: true
                     mipmap: true

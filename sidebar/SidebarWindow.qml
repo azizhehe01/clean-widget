@@ -781,9 +781,11 @@ PanelWindow {
 
                         Image {
                             anchors.fill: parent
-                            source: (root.activePlayer && root.activePlayer.trackArtUrl)
-                                ? root.activePlayer.trackArtUrl
-                                : Qt.resolvedUrl("../assets/album.jpg")
+                            source: (root.stats && root.stats.album_art && root.stats.album_art !== "")
+                                ? root.stats.album_art
+                                : ((root.activePlayer && root.activePlayer.trackArtUrl)
+                                    ? root.activePlayer.trackArtUrl
+                                    : Qt.resolvedUrl("../assets/album.jpg"))
                             fillMode: Image.PreserveAspectCrop
                             smooth: true
                             mipmap: true

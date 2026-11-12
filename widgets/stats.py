@@ -320,23 +320,14 @@ try:
                 if os.path.exists(local_p):
                     active_art = local_p
             elif art_url.startswith("http://") or art_url.startswith("https://"):
-                web_art = "/tmp/ml4w_web_art.jpg"
-                web_url_file = "/tmp/ml4w_web_art.url"
-                old_url = ""
-                if os.path.exists(web_url_file):
-                    try:
-                        with open(web_url_file, "r") as f:
-                            old_url = f.read().strip()
-                    except Exception:
-                        pass
-                if old_url != art_url or not os.path.exists(web_art):
+                url_hash = hashlib.md5(art_url.encode("utf-8")).hexdigest()[:10]
+                web_art = f"/tmp/glyph_web_art_{url_hash}.jpg"
+                if not os.path.exists(web_art):
                     try:
                         req = urllib.request.Request(art_url, headers={"User-Agent": "Mozilla/5.0"})
-                        with urllib.request.urlopen(req, timeout=2.0) as resp:
+                        with urllib.request.urlopen(req, timeout=3.0) as resp:
                             with open(web_art, "wb") as f_out:
                                 f_out.write(resp.read())
-                        with open(web_url_file, "w") as f:
-                            f.write(art_url)
                     except Exception:
                         pass
                 if os.path.exists(web_art):
@@ -448,7 +439,9 @@ try:
                     })
 
     data["album_color"] = extract_bottom_color(active_art)
+    data["album_art"] = ("file://" + active_art) if (active_art and os.path.exists(active_art)) else ""
 except Exception:
     data["album_color"] = extract_bottom_color(fallback_art)
+    data["album_art"] = ("file://" + fallback_art) if (fallback_art and os.path.exists(fallback_art)) else ""
 
 print(json.dumps(data))
