@@ -135,10 +135,19 @@ Dibangun secara native menggunakan framework **[Quickshell](https://quickshell.o
 
 ---
 
+### 8. 📋 Native Clipboard History (`clipboard/`)
+* Dibuka/tutup dengan shortcut **`Super + V`**.
+* **Smart Content Classification:** Otomatis membedakan tipe riwayat clipboard: **Gambar / Screenshot** (dengan preview thumbnail visual), **URL / Link**, **Kode / CLI Command**, dan **Teks Biasa**.
+* **Filter Pills Real-Time:** Filter cepat dengan tombol **`[ALL]`**, **`[TEXT]`**, **`[CODE]`**, **`[IMAGES]`**, dan **`[LINKS]`** (atau tekan **`Tab`**).
+* **Keyboard-First:** Navigasi dengan panah **`↑`** / **`↓`**, tekan **`Enter`** untuk menyalin ke clipboard aktif, dan tekan **`Delete`** untuk menghapus item.
+
+---
+
 ## ⌨️ Shortcut Keyboard & Kontrol Cepat
 
 | Shortcut / Aksi | Komponen | Fungsi |
 | :--- | :--- | :--- |
+| **`Super + V`** | **Clipboard** | Buka/tutup Native Clipboard History Modal (Nothing OS) |
 | **`Ctrl + Super + Enter`** | **Launcher** | Buka/tutup Unified Application & Project Folder Launcher (2D Grid) |
 | **`Ctrl + Super + W`** | **Wallpaper Carousel** | Buka/tutup Horizontal Wallpaper Selector dengan Live Instant Preview |
 | **`Super + Shift + W`** | **Random Wallpaper** | Ganti ke wallpaper acak secara instan |
@@ -224,6 +233,9 @@ glyph-shell/
 ├── launcher/
 │   ├── LauncherWindow.qml          # Modal Chameleon Frosted Glass 2D Grid App & IDE Launcher
 │   └── apps.py                     # Provider aplikasi .desktop & pembuka folder project Antigravity IDE
+├── clipboard/
+│   ├── ClipboardWindow.qml         # Modal Clipboard History Nothing OS (search, preview, filter)
+│   └── clipboard.py                # Engine cliphist extractor, categorizer & thumbnail generator
 ├── lockscreen/
 │   ├── hyprlock.conf               # Konfigurasi visual Dot-Matrix untuk engine hyprlock
 │   ├── lock.sh                     # Launcher script deteksi wallpaper aktif & hyprlock

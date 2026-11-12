@@ -60,7 +60,7 @@ PanelWindow {
     FontLoader { id: fontNMono;  source: Qt.resolvedUrl("../assets/fonts/LetteraMonoLL-Regular.otf") }
 
     // Theme Tokens — Chameleon Frosted Glass (High Transparency, Aligned with App Launcher)
-    readonly property color glassBg: Qt.rgba(0.05, 0.06, 0.08, 0.52)
+    readonly property color glassBg: Qt.rgba(0.05, 0.06, 0.08, 0.30)
     readonly property color glassBorder: Qt.rgba(1.0, 1.0, 1.0, 0.16)
     readonly property color nothingRed: "#D71921"
     readonly property color textPrimary: "#FFFFFF"

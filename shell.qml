@@ -7,6 +7,7 @@ import "notch"
 import "sidebar"
 import "launcher"
 import "wallpaper"
+import "clipboard"
 
 ShellRoot {
     DesktopWidgetsWindow {
@@ -64,5 +65,9 @@ ShellRoot {
     WallpaperWindow {
         id: wallpaperSelector
         desktopWidgetsRef: desktopWidgets
+    }
+
+    ClipboardWindow {
+        id: clipboardHistory
     }
 }
