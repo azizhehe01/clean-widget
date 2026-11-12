@@ -5,4 +5,3 @@ clean-widget/
 PROGRESS.md
 wallpapers/*
 !wallpapers/.gitkeep
-!wallpapers/default.jpg

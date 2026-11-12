@@ -53,7 +53,6 @@ def resolve_icon(icon_name):
 def shorten_app_name(name):
     short = name.strip()
     replacements = {
-        "Antigravity IDE": "Antigravity",
         "Bluetooth Manager": "Bluetooth",
         "PulseAudio Volume Control": "Volume",
         "Network Connections": "Network",
@@ -121,10 +120,6 @@ def load_apps():
                 name = entry.get("Name", "").strip()
                 exec_cmd = entry.get("Exec", "").strip()
                 if not name or not exec_cmd:
-                    continue
-
-                # Skip duplicate Antigravity AppImage if official Antigravity IDE exists
-                if name.lower() == "antigravity app":
                     continue
 
                 clean_exec = re.sub(r"\s+(%[fFuUdDnNickvm]|@@u|@@)", "", exec_cmd).strip()
