@@ -8,6 +8,7 @@ import "sidebar"
 import "launcher"
 import "wallpaper"
 import "clipboard"
+import "emoji"
 
 ShellRoot {
     DesktopWidgetsWindow {
@@ -69,5 +70,9 @@ ShellRoot {
 
     ClipboardWindow {
         id: clipboardHistory
+    }
+
+    EmojiWindow {
+        id: emojiPicker
     }
 }

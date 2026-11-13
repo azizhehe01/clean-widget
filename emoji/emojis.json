@@ -1,0 +1,2144 @@
+[
+  {
+    "e": "😀",
+    "n": "grinning face",
+    "k": "smile happy face",
+    "c": "smileys"
+  },
+  {
+    "e": "😃",
+    "n": "grinning face with big eyes",
+    "k": "happy joy face",
+    "c": "smileys"
+  },
+  {
+    "e": "😄",
+    "n": "grinning face with smiling eyes",
+    "k": "happy laugh smile",
+    "c": "smileys"
+  },
+  {
+    "e": "😁",
+    "n": "beaming face with smiling eyes",
+    "k": "grin happy teeth",
+    "c": "smileys"
+  },
+  {
+    "e": "😆",
+    "n": "grinning squinting face",
+    "k": "laugh haha xD",
+    "c": "smileys"
+  },
+  {
+    "e": "😅",
+    "n": "grinning face with sweat",
+    "k": "sweat nervous relief",
+    "c": "smileys"
+  },
+  {
+    "e": "🤣",
+    "n": "rolling on the floor laughing",
+    "k": "rofl laugh lmfao",
+    "c": "smileys"
+  },
+  {
+    "e": "😂",
+    "n": "face with tears of joy",
+    "k": "tears laugh lol crying",
+    "c": "smileys"
+  },
+  {
+    "e": "🙂",
+    "n": "slightly smiling face",
+    "k": "smile nice good",
+    "c": "smileys"
+  },
+  {
+    "e": "🙃",
+    "n": "upside down face",
+    "k": "silly sarcasm irony",
+    "c": "smileys"
+  },
+  {
+    "e": "😉",
+    "n": "winking face",
+    "k": "wink flirt playful",
+    "c": "smileys"
+  },
+  {
+    "e": "😊",
+    "n": "smiling face with smiling eyes",
+    "k": "warm blush happy",
+    "c": "smileys"
+  },
+  {
+    "e": "😇",
+    "n": "smiling face with halo",
+    "k": "angel innocent good",
+    "c": "smileys"
+  },
+  {
+    "e": "🥰",
+    "n": "smiling face with hearts",
+    "k": "love hearts affection adore",
+    "c": "smileys"
+  },
+  {
+    "e": "😍",
+    "n": "smiling face with heart eyes",
+    "k": "love crush heart eyes",
+    "c": "smileys"
+  },
+  {
+    "e": "🤩",
+    "n": "star struck",
+    "k": "excited star amazing",
+    "c": "smileys"
+  },
+  {
+    "e": "😘",
+    "n": "face blowing a kiss",
+    "k": "kiss love romance muah",
+    "c": "smileys"
+  },
+  {
+    "e": "😗",
+    "n": "kissing face",
+    "k": "kiss whistle",
+    "c": "smileys"
+  },
+  {
+    "e": "😚",
+    "n": "kissing face with closed eyes",
+    "k": "kiss love closed eyes",
+    "c": "smileys"
+  },
+  {
+    "e": "😋",
+    "n": "face savoring food",
+    "k": "yummy delicious tongue food",
+    "c": "smileys"
+  },
+  {
+    "e": "😛",
+    "n": "face with tongue",
+    "k": "tongue cheeky prank",
+    "c": "smileys"
+  },
+  {
+    "e": "😜",
+    "n": "winking face with tongue",
+    "k": "crazy party cheeky",
+    "c": "smileys"
+  },
+  {
+    "e": "🤪",
+    "n": "zany face",
+    "k": "crazy goofy weird",
+    "c": "smileys"
+  },
+  {
+    "e": "😝",
+    "n": "squinting face with tongue",
+    "k": "playful tongue teasing",
+    "c": "smileys"
+  },
+  {
+    "e": "🤑",
+    "n": "money mouth face",
+    "k": "money rich cash dollar",
+    "c": "smileys"
+  },
+  {
+    "e": "🤗",
+    "n": "smiling face with open hands",
+    "k": "hug huggy comfort",
+    "c": "smileys"
+  },
+  {
+    "e": "🤭",
+    "n": "face with hand over mouth",
+    "k": "giggle oops secret",
+    "c": "smileys"
+  },
+  {
+    "e": "🤫",
+    "n": "shushing face",
+    "k": "quiet silence secret shh",
+    "c": "smileys"
+  },
+  {
+    "e": "🤔",
+    "n": "thinking face",
+    "k": "think wonder hmm doubt",
+    "c": "smileys"
+  },
+  {
+    "e": "🤐",
+    "n": "zipper mouth face",
+    "k": "silent secret shut",
+    "c": "smileys"
+  },
+  {
+    "e": "🤨",
+    "n": "face with raised eyebrow",
+    "k": "skeptical suspect really",
+    "c": "smileys"
+  },
+  {
+    "e": "😐",
+    "n": "neutral face",
+    "k": "neutral poker blank meh",
+    "c": "smileys"
+  },
+  {
+    "e": "😑",
+    "n": "expressionless face",
+    "k": "blank emotionless tired",
+    "c": "smileys"
+  },
+  {
+    "e": "😶",
+    "n": "face without mouth",
+    "k": "speechless muted silent",
+    "c": "smileys"
+  },
+  {
+    "e": "😏",
+    "n": "smirking face",
+    "k": "smirk cocky flirt smug",
+    "c": "smileys"
+  },
+  {
+    "e": "😒",
+    "n": "unamused face",
+    "k": "bored unamused annoyed",
+    "c": "smileys"
+  },
+  {
+    "e": "🙄",
+    "n": "face with rolling eyes",
+    "k": "eyeroll whatever duh",
+    "c": "smileys"
+  },
+  {
+    "e": "😬",
+    "n": "grimacing face",
+    "k": "yikes awkward nervous",
+    "c": "smileys"
+  },
+  {
+    "e": "🤥",
+    "n": "lying face",
+    "k": "liar pinocchio bluff",
+    "c": "smileys"
+  },
+  {
+    "e": "😌",
+    "n": "relieved face",
+    "k": "peace calm zen relief",
+    "c": "smileys"
+  },
+  {
+    "e": "😔",
+    "n": "pensive face",
+    "k": "sad pensive regret",
+    "c": "smileys"
+  },
+  {
+    "e": "😪",
+    "n": "sleepy face",
+    "k": "tired sleepy snot",
+    "c": "smileys"
+  },
+  {
+    "e": "🤤",
+    "n": "drooling face",
+    "k": "drool hungry crave",
+    "c": "smileys"
+  },
+  {
+    "e": "😴",
+    "n": "sleeping face",
+    "k": "sleep zzz bedtime",
+    "c": "smileys"
+  },
+  {
+    "e": "😷",
+    "n": "face with medical mask",
+    "k": "sick mask illness covid",
+    "c": "smileys"
+  },
+  {
+    "e": "🤒",
+    "n": "face with thermometer",
+    "k": "sick fever unwell",
+    "c": "smileys"
+  },
+  {
+    "e": "🤕",
+    "n": "face with head bandage",
+    "k": "hurt injury bandage",
+    "c": "smileys"
+  },
+  {
+    "e": "🤢",
+    "n": "nauseated face",
+    "k": "vomit sick disgusted green",
+    "c": "smileys"
+  },
+  {
+    "e": "🤮",
+    "n": "face vomiting",
+    "k": "puke barf vomit",
+    "c": "smileys"
+  },
+  {
+    "e": "🤧",
+    "n": "sneezing face",
+    "k": "sneeze allergy flu",
+    "c": "smileys"
+  },
+  {
+    "e": "🥵",
+    "n": "hot face",
+    "k": "hot sweat summer red",
+    "c": "smileys"
+  },
+  {
+    "e": "🥶",
+    "n": "cold face",
+    "k": "cold freeze ice winter",
+    "c": "smileys"
+  },
+  {
+    "e": "🥴",
+    "n": "woozy face",
+    "k": "drunk dizzy woozy high",
+    "c": "smileys"
+  },
+  {
+    "e": "😵",
+    "n": "knocked out face",
+    "k": "dizzy dead stunned",
+    "c": "smileys"
+  },
+  {
+    "e": "🤯",
+    "n": "exploding head",
+    "k": "mind blown mindblown shocked",
+    "c": "smileys"
+  },
+  {
+    "e": "🤠",
+    "n": "cowboy hat face",
+    "k": "cowboy sheriff western",
+    "c": "smileys"
+  },
+  {
+    "e": "🥳",
+    "n": "partying face",
+    "k": "party celebrate horn blower birthday",
+    "c": "smileys"
+  },
+  {
+    "e": "😎",
+    "n": "smiling face with sunglasses",
+    "k": "cool sunglasses badass",
+    "c": "smileys"
+  },
+  {
+    "e": "🤓",
+    "n": "nerd face",
+    "k": "geek nerd glasses dork",
+    "c": "smileys"
+  },
+  {
+    "e": "🧐",
+    "n": "face with monocle",
+    "k": "curious inspect classy",
+    "c": "smileys"
+  },
+  {
+    "e": "😕",
+    "n": "confused face",
+    "k": "confused what shrug",
+    "c": "smileys"
+  },
+  {
+    "e": "😟",
+    "n": "worried face",
+    "k": "worried nervous concern",
+    "c": "smileys"
+  },
+  {
+    "e": "🙁",
+    "n": "slightly frowning face",
+    "k": "sad frown unhappy",
+    "c": "smileys"
+  },
+  {
+    "e": "😮",
+    "n": "face with open mouth",
+    "k": "surprise wow shock gasp",
+    "c": "smileys"
+  },
+  {
+    "e": "😯",
+    "n": "hushed face",
+    "k": "shock surprised speechless",
+    "c": "smileys"
+  },
+  {
+    "e": "😲",
+    "n": "astonished face",
+    "k": "omg amazed astonished",
+    "c": "smileys"
+  },
+  {
+    "e": "😳",
+    "n": "flushed face",
+    "k": "blush shy embarrassed",
+    "c": "smileys"
+  },
+  {
+    "e": "🥺",
+    "n": "pleading face",
+    "k": "puppy eyes please cute",
+    "c": "smileys"
+  },
+  {
+    "e": "😦",
+    "n": "frowning face with open mouth",
+    "k": "sad shocked gasp",
+    "c": "smileys"
+  },
+  {
+    "e": "😨",
+    "n": "fearful face",
+    "k": "scared fear fright",
+    "c": "smileys"
+  },
+  {
+    "e": "😰",
+    "n": "anxious face with sweat",
+    "k": "anxious nervous stress panicking",
+    "c": "smileys"
+  },
+  {
+    "e": "😥",
+    "n": "sad but relieved face",
+    "k": "phew sad relief sweat",
+    "c": "smileys"
+  },
+  {
+    "e": "😢",
+    "n": "crying face",
+    "k": "cry sad tear heartbroken",
+    "c": "smileys"
+  },
+  {
+    "e": "😭",
+    "n": "loudly crying face",
+    "k": "sob cry weeping depression",
+    "c": "smileys"
+  },
+  {
+    "e": "😱",
+    "n": "face screaming in fear",
+    "k": "horror scream terrified ghost",
+    "c": "smileys"
+  },
+  {
+    "e": "😖",
+    "n": "confounded face",
+    "k": "quiver suffering cringe",
+    "c": "smileys"
+  },
+  {
+    "e": "😣",
+    "n": "persevering face",
+    "k": "struggle persist helpless",
+    "c": "smileys"
+  },
+  {
+    "e": "😞",
+    "n": "disappointed face",
+    "k": "sad disappointed depressed",
+    "c": "smileys"
+  },
+  {
+    "e": "😓",
+    "n": "downcast face with sweat",
+    "k": "stressed tired sweat heavy",
+    "c": "smileys"
+  },
+  {
+    "e": "😩",
+    "n": "weary face",
+    "k": "exhausted tired nooo",
+    "c": "smileys"
+  },
+  {
+    "e": "😫",
+    "n": "tired face",
+    "k": "frustrated fatigue tired",
+    "c": "smileys"
+  },
+  {
+    "e": "🥱",
+    "n": "yawning face",
+    "k": "yawn bored sleepy",
+    "c": "smileys"
+  },
+  {
+    "e": "😤",
+    "n": "face with steam from nose",
+    "k": "huff pride triumphant mad",
+    "c": "smileys"
+  },
+  {
+    "e": "😡",
+    "n": "enraged face",
+    "k": "angry mad furious red",
+    "c": "smileys"
+  },
+  {
+    "e": "😠",
+    "n": "angry face",
+    "k": "mad grumpy annoyed",
+    "c": "smileys"
+  },
+  {
+    "e": "🤬",
+    "n": "face with symbols on mouth",
+    "k": "swear cursing profanity rage",
+    "c": "smileys"
+  },
+  {
+    "e": "😈",
+    "n": "smiling face with horns",
+    "k": "devil evil bad playful",
+    "c": "smileys"
+  },
+  {
+    "e": "👿",
+    "n": "angry face with horns",
+    "k": "demon devil angry bad",
+    "c": "smileys"
+  },
+  {
+    "e": "💀",
+    "n": "skull",
+    "k": "dead skeleton rip lol death",
+    "c": "smileys"
+  },
+  {
+    "e": "☠️",
+    "n": "skull and crossbones",
+    "k": "danger pirate poison poison danger",
+    "c": "smileys"
+  },
+  {
+    "e": "💩",
+    "n": "pile of poo",
+    "k": "poop shit poopie turd",
+    "c": "smileys"
+  },
+  {
+    "e": "🤡",
+    "n": "clown face",
+    "k": "clown fool circus funny",
+    "c": "smileys"
+  },
+  {
+    "e": "👻",
+    "n": "ghost",
+    "k": "spooky boo halloween spirit",
+    "c": "smileys"
+  },
+  {
+    "e": "👽",
+    "n": "alien",
+    "k": "ufo extra terrestrial scifi space",
+    "c": "smileys"
+  },
+  {
+    "e": "🤖",
+    "n": "robot",
+    "k": "bot ai automated machine droid",
+    "c": "smileys"
+  },
+  {
+    "e": "👋",
+    "n": "waving hand",
+    "k": "wave hello goodbye hi bye",
+    "c": "gestures"
+  },
+  {
+    "e": "🤚",
+    "n": "raised back of hand",
+    "k": "backhand stop hand",
+    "c": "gestures"
+  },
+  {
+    "e": "🖐️",
+    "n": "hand with fingers splayed",
+    "k": "five high five hand palm",
+    "c": "gestures"
+  },
+  {
+    "e": "✋",
+    "n": "raised hand",
+    "k": "stop wait high five hand",
+    "c": "gestures"
+  },
+  {
+    "e": "🖖",
+    "n": "vulcan salute",
+    "k": "spock live long trek salute",
+    "c": "gestures"
+  },
+  {
+    "e": "👌",
+    "n": "ok hand",
+    "k": "okay perfect fine good",
+    "c": "gestures"
+  },
+  {
+    "e": "🤌",
+    "n": "pinched fingers",
+    "k": "italian chef kiss gesture what",
+    "c": "gestures"
+  },
+  {
+    "e": "🤏",
+    "n": "pinching hand",
+    "k": "tiny little small bit",
+    "c": "gestures"
+  },
+  {
+    "e": "✌️",
+    "n": "victory hand",
+    "k": "peace victory two v",
+    "c": "gestures"
+  },
+  {
+    "e": "🤞",
+    "n": "crossed fingers",
+    "k": "luck hope promise wish",
+    "c": "gestures"
+  },
+  {
+    "e": "🤟",
+    "n": "love you gesture",
+    "k": "ily love sign hand",
+    "c": "gestures"
+  },
+  {
+    "e": "🤘",
+    "n": "sign of the horns",
+    "k": "rock on metal music horns",
+    "c": "gestures"
+  },
+  {
+    "e": "🤙",
+    "n": "call me hand",
+    "k": "shaka hang loose call phone",
+    "c": "gestures"
+  },
+  {
+    "e": "👈",
+    "n": "backhand index pointing left",
+    "k": "point left direction",
+    "c": "gestures"
+  },
+  {
+    "e": "👉",
+    "n": "backhand index pointing right",
+    "k": "point right direction",
+    "c": "gestures"
+  },
+  {
+    "e": "👆",
+    "n": "backhand index pointing up",
+    "k": "point up up direction",
+    "c": "gestures"
+  },
+  {
+    "e": "🖕",
+    "n": "middle finger",
+    "k": "fuck middle finger offensive fu",
+    "c": "gestures"
+  },
+  {
+    "e": "👇",
+    "n": "backhand index pointing down",
+    "k": "point down down direction",
+    "c": "gestures"
+  },
+  {
+    "e": "☝️",
+    "n": "index pointing up",
+    "k": "one attention point up",
+    "c": "gestures"
+  },
+  {
+    "e": "👍",
+    "n": "thumbs up",
+    "k": "like approve good yes agree ok",
+    "c": "gestures"
+  },
+  {
+    "e": "👎",
+    "n": "thumbs down",
+    "k": "dislike bad no disagree hate",
+    "c": "gestures"
+  },
+  {
+    "e": "✊",
+    "n": "raised fist",
+    "k": "power fist solidarity fight",
+    "c": "gestures"
+  },
+  {
+    "e": "👊",
+    "n": "oncoming fist",
+    "k": "punch brofist hit bump",
+    "c": "gestures"
+  },
+  {
+    "e": "🤛",
+    "n": "left facing fist",
+    "k": "fistbump brofist left",
+    "c": "gestures"
+  },
+  {
+    "e": "🤜",
+    "n": "right facing fist",
+    "k": "fistbump brofist right",
+    "c": "gestures"
+  },
+  {
+    "e": "👏",
+    "n": "clapping hands",
+    "k": "clap applause congrats brava",
+    "c": "gestures"
+  },
+  {
+    "e": "🙌",
+    "n": "raising hands",
+    "k": "praise hooray celebration yay",
+    "c": "gestures"
+  },
+  {
+    "e": "👐",
+    "n": "open hands",
+    "k": "open hands embrace jazz",
+    "c": "gestures"
+  },
+  {
+    "e": "🤲",
+    "n": "palms up together",
+    "k": "prayer dua open receive",
+    "c": "gestures"
+  },
+  {
+    "e": "🤝",
+    "n": "handshake",
+    "k": "deal agreement partner shake",
+    "c": "gestures"
+  },
+  {
+    "e": "🙏",
+    "n": "folded hands",
+    "k": "pray please thanks namaste hope",
+    "c": "gestures"
+  },
+  {
+    "e": "✍️",
+    "n": "writing hand",
+    "k": "write pen note document sign",
+    "c": "gestures"
+  },
+  {
+    "e": "💅",
+    "n": "nail polish",
+    "k": "nails sassy beauty care nonchalant",
+    "c": "gestures"
+  },
+  {
+    "e": "🤳",
+    "n": "selfie",
+    "k": "selfie phone camera snap photo",
+    "c": "gestures"
+  },
+  {
+    "e": "💪",
+    "n": "flexed biceps",
+    "k": "muscle strong workout fitness flex",
+    "c": "gestures"
+  },
+  {
+    "e": "👀",
+    "n": "eyes",
+    "k": "look see gaze watch peek suspect",
+    "c": "gestures"
+  },
+  {
+    "e": "👁️",
+    "n": "eye",
+    "k": "eye see look vision sight",
+    "c": "gestures"
+  },
+  {
+    "e": "🧠",
+    "n": "brain",
+    "k": "smart intelligence mind think big brain",
+    "c": "gestures"
+  },
+  {
+    "e": "🫀",
+    "n": "anatomical heart",
+    "k": "heart organ cardiology pulse",
+    "c": "gestures"
+  },
+  {
+    "e": "🐶",
+    "n": "dog face",
+    "k": "dog puppy pet canine bark",
+    "c": "animals"
+  },
+  {
+    "e": "🐱",
+    "n": "cat face",
+    "k": "cat kitten feline pet meow kitty",
+    "c": "animals"
+  },
+  {
+    "e": "🐭",
+    "n": "mouse face",
+    "k": "mouse rat rodent cheese",
+    "c": "animals"
+  },
+  {
+    "e": "🐹",
+    "n": "hamster face",
+    "k": "hamster pet cute rodent",
+    "c": "animals"
+  },
+  {
+    "e": "🐰",
+    "n": "rabbit face",
+    "k": "bunny rabbit easter hare",
+    "c": "animals"
+  },
+  {
+    "e": "🦊",
+    "n": "fox face",
+    "k": "fox wild cunning sly animal",
+    "c": "animals"
+  },
+  {
+    "e": "🐻",
+    "n": "bear face",
+    "k": "bear grizzly teddy wildlife",
+    "c": "animals"
+  },
+  {
+    "e": "🐼",
+    "n": "panda face",
+    "k": "panda bear bamboo cute",
+    "c": "animals"
+  },
+  {
+    "e": "🐨",
+    "n": "koala",
+    "k": "koala australia bear marsupial",
+    "c": "animals"
+  },
+  {
+    "e": "🐯",
+    "n": "tiger face",
+    "k": "tiger predator roar cat",
+    "c": "animals"
+  },
+  {
+    "e": "🦁",
+    "n": "lion face",
+    "k": "lion king wildlife roar feline",
+    "c": "animals"
+  },
+  {
+    "e": "🐮",
+    "n": "cow face",
+    "k": "cow cattle beef moo farm",
+    "c": "animals"
+  },
+  {
+    "e": "🐷",
+    "n": "pig face",
+    "k": "pig pork oink farm piggy",
+    "c": "animals"
+  },
+  {
+    "e": "🐸",
+    "n": "frog face",
+    "k": "frog toad ribbit amphibian pepe",
+    "c": "animals"
+  },
+  {
+    "e": "🐵",
+    "n": "monkey face",
+    "k": "monkey ape animal jungle",
+    "c": "animals"
+  },
+  {
+    "e": "🐔",
+    "n": "chicken",
+    "k": "chicken rooster poultry farm",
+    "c": "animals"
+  },
+  {
+    "e": "🐧",
+    "n": "penguin",
+    "k": "penguin bird antarctica linux tux",
+    "c": "animals"
+  },
+  {
+    "e": "🐦",
+    "n": "bird",
+    "k": "bird tweet fly wildlife",
+    "c": "animals"
+  },
+  {
+    "e": "🦅",
+    "n": "eagle",
+    "k": "eagle raptor bird predator fly",
+    "c": "animals"
+  },
+  {
+    "e": "🦆",
+    "n": "duck",
+    "k": "duck quack bird water",
+    "c": "animals"
+  },
+  {
+    "e": "🦉",
+    "n": "owl",
+    "k": "owl wise bird night hoot",
+    "c": "animals"
+  },
+  {
+    "e": "🦇",
+    "n": "bat",
+    "k": "bat nocturnal vampire batman",
+    "c": "animals"
+  },
+  {
+    "e": "🐺",
+    "n": "wolf",
+    "k": "wolf lone pack howl howl animal",
+    "c": "animals"
+  },
+  {
+    "e": "🐗",
+    "n": "boar",
+    "k": "boar wild pig animal forest",
+    "c": "animals"
+  },
+  {
+    "e": "🐴",
+    "n": "horse face",
+    "k": "horse pony equine stallion",
+    "c": "animals"
+  },
+  {
+    "e": "🦄",
+    "n": "unicorn",
+    "k": "unicorn magic fantasy horn rainbow",
+    "c": "animals"
+  },
+  {
+    "e": "🐝",
+    "n": "honeybee",
+    "k": "bee honey bug insect sting",
+    "c": "animals"
+  },
+  {
+    "e": "🐛",
+    "n": "bug",
+    "k": "caterpillar bug worm insect code error",
+    "c": "animals"
+  },
+  {
+    "e": "🦋",
+    "n": "butterfly",
+    "k": "butterfly beautiful insect fly wings",
+    "c": "animals"
+  },
+  {
+    "e": "🐌",
+    "n": "snail",
+    "k": "snail slow shell garden",
+    "c": "animals"
+  },
+  {
+    "e": "🐞",
+    "n": "lady beetle",
+    "k": "ladybug bug insect spot red",
+    "c": "animals"
+  },
+  {
+    "e": "🐜",
+    "n": "ant",
+    "k": "ant insect tiny bug colony",
+    "c": "animals"
+  },
+  {
+    "e": "🦗",
+    "n": "cricket",
+    "k": "cricket insect chirping bug",
+    "c": "animals"
+  },
+  {
+    "e": "🕷️",
+    "n": "spider",
+    "k": "spider web arachnid creepy spider",
+    "c": "animals"
+  },
+  {
+    "e": "🦂",
+    "n": "scorpion",
+    "k": "scorpion venom desert stinger",
+    "c": "animals"
+  },
+  {
+    "e": "🦟",
+    "n": "mosquito",
+    "k": "mosquito insect blood bite pest",
+    "c": "animals"
+  },
+  {
+    "e": "🦠",
+    "n": "microbe",
+    "k": "virus bacteria germ covid biology",
+    "c": "animals"
+  },
+  {
+    "e": "💐",
+    "n": "bouquet",
+    "k": "flowers bouquet rose present gift",
+    "c": "animals"
+  },
+  {
+    "e": "🌸",
+    "n": "cherry blossom",
+    "k": "sakura flower blossom pink spring",
+    "c": "animals"
+  },
+  {
+    "e": "🌹",
+    "n": "rose",
+    "k": "rose flower red love romantic",
+    "c": "animals"
+  },
+  {
+    "e": "🌻",
+    "n": "sunflower",
+    "k": "sunflower flower yellow summer sun",
+    "c": "animals"
+  },
+  {
+    "e": "🌲",
+    "n": "evergreen tree",
+    "k": "tree pine forest evergreen nature",
+    "c": "animals"
+  },
+  {
+    "e": "🌴",
+    "n": "palm tree",
+    "k": "palm beach tropical coconut island",
+    "c": "animals"
+  },
+  {
+    "e": "🌵",
+    "n": "cactus",
+    "k": "cactus desert plant spiky green",
+    "c": "animals"
+  },
+  {
+    "e": "🍀",
+    "n": "four leaf clover",
+    "k": "clover lucky irish luck st patrick",
+    "c": "animals"
+  },
+  {
+    "e": "🍁",
+    "n": "maple leaf",
+    "k": "maple autumn leaf fall canada",
+    "c": "animals"
+  },
+  {
+    "e": "🍂",
+    "n": "fallen leaf",
+    "k": "autumn leaves fall season dry",
+    "c": "animals"
+  },
+  {
+    "e": "🍄",
+    "n": "mushroom",
+    "k": "mushroom fungus toadstool mario",
+    "c": "animals"
+  },
+  {
+    "e": "🍏",
+    "n": "green apple",
+    "k": "apple green fruit healthy fresh",
+    "c": "food"
+  },
+  {
+    "e": "🍎",
+    "n": "red apple",
+    "k": "apple red fruit healthy macintosh",
+    "c": "food"
+  },
+  {
+    "e": "🍐",
+    "n": "pear",
+    "k": "pear fruit fresh green healthy",
+    "c": "food"
+  },
+  {
+    "e": "🍊",
+    "n": "tangerine",
+    "k": "orange citrus fruit mandarin vitamin",
+    "c": "food"
+  },
+  {
+    "e": "🍋",
+    "n": "lemon",
+    "k": "lemon citrus sour yellow fruit",
+    "c": "food"
+  },
+  {
+    "e": "🍌",
+    "n": "banana",
+    "k": "banana fruit yellow monkey potassium",
+    "c": "food"
+  },
+  {
+    "e": "🍉",
+    "n": "watermelon",
+    "k": "watermelon melon fruit summer fresh",
+    "c": "food"
+  },
+  {
+    "e": "🍇",
+    "n": "grapes",
+    "k": "grapes wine fruit purple berry",
+    "c": "food"
+  },
+  {
+    "e": "🍓",
+    "n": "strawberry",
+    "k": "strawberry berry red sweet fruit",
+    "c": "food"
+  },
+  {
+    "e": "🫐",
+    "n": "blueberries",
+    "k": "blueberry berries fruit antioxidant",
+    "c": "food"
+  },
+  {
+    "e": "🍈",
+    "n": "melon",
+    "k": "melon fruit cantaloupe green",
+    "c": "food"
+  },
+  {
+    "e": "🍒",
+    "n": "cherries",
+    "k": "cherry fruit red sweet pair",
+    "c": "food"
+  },
+  {
+    "e": "🍑",
+    "n": "peach",
+    "k": "peach fruit butt booty juicy",
+    "c": "food"
+  },
+  {
+    "e": "🥭",
+    "n": "mango",
+    "k": "mango fruit tropical sweet orange",
+    "c": "food"
+  },
+  {
+    "e": "🍍",
+    "n": "pineapple",
+    "k": "pineapple tropical fruit hawaii",
+    "c": "food"
+  },
+  {
+    "e": "🥥",
+    "n": "coconut",
+    "k": "coconut tropical palm nut water",
+    "c": "food"
+  },
+  {
+    "e": "🥝",
+    "n": "kiwi fruit",
+    "k": "kiwi fruit green fresh",
+    "c": "food"
+  },
+  {
+    "e": "🍅",
+    "n": "tomato",
+    "k": "tomato vegetable salad red ketchup",
+    "c": "food"
+  },
+  {
+    "e": "🥑",
+    "n": "avocado",
+    "k": "avocado fruit guacamole keto toast",
+    "c": "food"
+  },
+  {
+    "e": "🍆",
+    "n": "eggplant",
+    "k": "eggplant aubergine vegetable dick penis",
+    "c": "food"
+  },
+  {
+    "e": "🥔",
+    "n": "potato",
+    "k": "potato fries tuber carb veggie",
+    "c": "food"
+  },
+  {
+    "e": "🥕",
+    "n": "carrot",
+    "k": "carrot vegetable orange rabbit vitamin",
+    "c": "food"
+  },
+  {
+    "e": "🌽",
+    "n": "ear of corn",
+    "k": "corn maize vegetable cob popcorn",
+    "c": "food"
+  },
+  {
+    "e": "🌶️",
+    "n": "hot pepper",
+    "k": "pepper spicy chili sambal hot",
+    "c": "food"
+  },
+  {
+    "e": "🫑",
+    "n": "bell pepper",
+    "k": "bell pepper paprika vegetable salad",
+    "c": "food"
+  },
+  {
+    "e": "🥒",
+    "n": "cucumber",
+    "k": "cucumber pickle vegetable green",
+    "c": "food"
+  },
+  {
+    "e": "🥬",
+    "n": "leafy green",
+    "k": "lettuce salad cabbage veggie greens",
+    "c": "food"
+  },
+  {
+    "e": "🥦",
+    "n": "broccoli",
+    "k": "broccoli vegetable healthy green mini tree",
+    "c": "food"
+  },
+  {
+    "e": "🧄",
+    "n": "garlic",
+    "k": "garlic seasoning cooking bulb vampire",
+    "c": "food"
+  },
+  {
+    "e": "🧅",
+    "n": "onion",
+    "k": "onion bulb vegetable slice crying",
+    "c": "food"
+  },
+  {
+    "e": "🥐",
+    "n": "croissant",
+    "k": "croissant pastry french bread bakery",
+    "c": "food"
+  },
+  {
+    "e": "🥖",
+    "n": "baguette bread",
+    "k": "baguette bread bakery french loaf",
+    "c": "food"
+  },
+  {
+    "e": "🍞",
+    "n": "bread",
+    "k": "bread loaf toast bakery carb",
+    "c": "food"
+  },
+  {
+    "e": "🧀",
+    "n": "cheese wedge",
+    "k": "cheese dairy cheddar swiss wedge",
+    "c": "food"
+  },
+  {
+    "e": "🍖",
+    "n": "meat on bone",
+    "k": "meat bone anime bbq steak protein",
+    "c": "food"
+  },
+  {
+    "e": "🍗",
+    "n": "poultry leg",
+    "k": "chicken leg drumstick fried chicken meat",
+    "c": "food"
+  },
+  {
+    "e": "🥩",
+    "n": "cut of meat",
+    "k": "steak beef meat raw butcher",
+    "c": "food"
+  },
+  {
+    "e": "🥓",
+    "n": "bacon",
+    "k": "bacon pork breakfast crispy strip",
+    "c": "food"
+  },
+  {
+    "e": "🍔",
+    "n": "hamburger",
+    "k": "burger burger burger fastfood mcdonalds patty",
+    "c": "food"
+  },
+  {
+    "e": "🍟",
+    "n": "french fries",
+    "k": "fries chips french fries fastfood potato",
+    "c": "food"
+  },
+  {
+    "e": "🍕",
+    "n": "pizza",
+    "k": "pizza slice cheese pepperoni fastfood italian",
+    "c": "food"
+  },
+  {
+    "e": "🌭",
+    "n": "hot dog",
+    "k": "hot dog sausage bun frankfurter fastfood",
+    "c": "food"
+  },
+  {
+    "e": "🥪",
+    "n": "sandwich",
+    "k": "sandwich bread lunch sub blt",
+    "c": "food"
+  },
+  {
+    "e": "🌮",
+    "n": "taco",
+    "k": "taco mexican food shell tortilla",
+    "c": "food"
+  },
+  {
+    "e": "🌯",
+    "n": "burrito",
+    "k": "burrito wrap mexican food roll",
+    "c": "food"
+  },
+  {
+    "e": "🥚",
+    "n": "egg",
+    "k": "egg breakfast protein shell food",
+    "c": "food"
+  },
+  {
+    "e": "🍳",
+    "n": "cooking",
+    "k": "fried egg sunny side pan breakfast cooking",
+    "c": "food"
+  },
+  {
+    "e": "🍿",
+    "n": "popcorn",
+    "k": "popcorn movie cinema snack cinema food",
+    "c": "food"
+  },
+  {
+    "e": "🍜",
+    "n": "steaming bowl",
+    "k": "ramen noodles soup bowl asian food",
+    "c": "food"
+  },
+  {
+    "e": "🍝",
+    "n": "spaghetti",
+    "k": "pasta spaghetti noodles italian dinner",
+    "c": "food"
+  },
+  {
+    "e": "🍣",
+    "n": "sushi",
+    "k": "sushi sashimi japanese salmon fish roll",
+    "c": "food"
+  },
+  {
+    "e": "🍱",
+    "n": "bento box",
+    "k": "bento box lunch japanese meal food",
+    "c": "food"
+  },
+  {
+    "e": "🥟",
+    "n": "dumpling",
+    "k": "dumpling gyoza dim sum asian food",
+    "c": "food"
+  },
+  {
+    "e": "🍙",
+    "n": "rice ball",
+    "k": "onigiri rice ball seaweed japanese",
+    "c": "food"
+  },
+  {
+    "e": "🍚",
+    "n": "cooked rice",
+    "k": "rice bowl nasi grain food",
+    "c": "food"
+  },
+  {
+    "e": "🍦",
+    "n": "soft ice cream",
+    "k": "ice cream soft serve cone dessert sweet",
+    "c": "food"
+  },
+  {
+    "e": "🍧",
+    "n": "shaved ice",
+    "k": "shaved ice dessert sweet cold syrup",
+    "c": "food"
+  },
+  {
+    "e": "🍨",
+    "n": "ice cream",
+    "k": "ice cream sundae scoop bowl sweet",
+    "c": "food"
+  },
+  {
+    "e": "🍩",
+    "n": "doughnut",
+    "k": "donut doughnut sweet dessert sprinkles glaze",
+    "c": "food"
+  },
+  {
+    "e": "🍪",
+    "n": "cookie",
+    "k": "cookie biscuit chocolate chip sweet",
+    "c": "food"
+  },
+  {
+    "e": "🎂",
+    "n": "birthday cake",
+    "k": "birthday cake dessert celebration candles",
+    "c": "food"
+  },
+  {
+    "e": "🍰",
+    "n": "shortcake",
+    "k": "cake slice dessert strawberry sweet",
+    "c": "food"
+  },
+  {
+    "e": "🧁",
+    "n": "cupcake",
+    "k": "cupcake dessert sweet muffin frosting",
+    "c": "food"
+  },
+  {
+    "e": "🍫",
+    "n": "chocolate bar",
+    "k": "chocolate candy cocoa bar sweet dessert",
+    "c": "food"
+  },
+  {
+    "e": "🍬",
+    "n": "candy",
+    "k": "candy sweet dessert treat wrapper",
+    "c": "food"
+  },
+  {
+    "e": "☕",
+    "n": "hot beverage",
+    "k": "coffee tea latte hot drink cafe mug",
+    "c": "food"
+  },
+  {
+    "e": "🍵",
+    "n": "teacup without handle",
+    "k": "tea matcha green tea japanese drink",
+    "c": "food"
+  },
+  {
+    "e": "🧃",
+    "n": "beverage box",
+    "k": "juice box straw drink carton apple juice",
+    "c": "food"
+  },
+  {
+    "e": "🧋",
+    "n": "bubble tea",
+    "k": "boba bubble tea milk tea pearl straw drink",
+    "c": "food"
+  },
+  {
+    "e": "🥤",
+    "n": "cup with straw",
+    "k": "soda drink cup cola milkshake fastfood",
+    "c": "food"
+  },
+  {
+    "e": "🍺",
+    "n": "beer mug",
+    "k": "beer drink pub alcohol pint lager brew",
+    "c": "food"
+  },
+  {
+    "e": "🍻",
+    "n": "clinking beer mugs",
+    "k": "cheers beers drink pub toast celebration",
+    "c": "food"
+  },
+  {
+    "e": "🍷",
+    "n": "wine glass",
+    "k": "wine red wine drink alcohol glass restaurant",
+    "c": "food"
+  },
+  {
+    "e": "🍸",
+    "n": "cocktail glass",
+    "k": "cocktail martini olive alcohol party drink",
+    "c": "food"
+  },
+  {
+    "e": "🍹",
+    "n": "tropical drink",
+    "k": "cocktail tropical tiki alcohol summer drink",
+    "c": "food"
+  },
+  {
+    "e": "🍾",
+    "n": "bottle with popping cork",
+    "k": "champagne sparkling bottle celebrate party",
+    "c": "food"
+  },
+  {
+    "e": "🧊",
+    "n": "ice",
+    "k": "ice cube cold chill freeze beverage",
+    "c": "food"
+  },
+  {
+    "e": "💻",
+    "n": "laptop",
+    "k": "laptop computer pc macbook coding dev tech",
+    "c": "objects"
+  },
+  {
+    "e": "🖥️",
+    "n": "desktop computer",
+    "k": "desktop pc monitor computer screen workstation",
+    "c": "objects"
+  },
+  {
+    "e": "⌨️",
+    "n": "keyboard",
+    "k": "keyboard mechanical typing input hardware",
+    "c": "objects"
+  },
+  {
+    "e": "🖱️",
+    "n": "computer mouse",
+    "k": "mouse click pointer cursor hardware",
+    "c": "objects"
+  },
+  {
+    "e": "📱",
+    "n": "mobile phone",
+    "k": "phone mobile smartphone iphone android screen call",
+    "c": "objects"
+  },
+  {
+    "e": "🔋",
+    "n": "battery",
+    "k": "battery power energy charge full",
+    "c": "objects"
+  },
+  {
+    "e": "🔌",
+    "n": "electric plug",
+    "k": "plug cable cord power socket charging",
+    "c": "objects"
+  },
+  {
+    "e": "💡",
+    "n": "light bulb",
+    "k": "idea inspiration light bulb smart creative innovation",
+    "c": "objects"
+  },
+  {
+    "e": "🔦",
+    "n": "flashlight",
+    "k": "flashlight torch dark light beam",
+    "c": "objects"
+  },
+  {
+    "e": "🕹️",
+    "n": "joystick",
+    "k": "joystick arcade retro gaming controller",
+    "c": "objects"
+  },
+  {
+    "e": "🎮",
+    "n": "video game",
+    "k": "gamepad gaming console controller playstation xbox",
+    "c": "objects"
+  },
+  {
+    "e": "📷",
+    "n": "camera",
+    "k": "camera photo photography picture snapshot lens",
+    "c": "objects"
+  },
+  {
+    "e": "🎥",
+    "n": "movie camera",
+    "k": "cinema film cinema video recording direct",
+    "c": "objects"
+  },
+  {
+    "e": "📺",
+    "n": "television",
+    "k": "tv television display screen monitor retro",
+    "c": "objects"
+  },
+  {
+    "e": "📻",
+    "n": "radio",
+    "k": "radio retro fm station broadcast audio tune",
+    "c": "objects"
+  },
+  {
+    "e": "🎙️",
+    "n": "studio microphone",
+    "k": "microphone mic podcast recording audio voice",
+    "c": "objects"
+  },
+  {
+    "e": "🎧",
+    "n": "headphone",
+    "k": "headphones music audio earphones listening sound",
+    "c": "objects"
+  },
+  {
+    "e": "🔊",
+    "n": "speaker high volume",
+    "k": "speaker volume loud sound audio music noise",
+    "c": "objects"
+  },
+  {
+    "e": "🔔",
+    "n": "bell",
+    "k": "bell notification alert alarm chime sound ring",
+    "c": "objects"
+  },
+  {
+    "e": "📦",
+    "n": "package",
+    "k": "box parcel package shipping delivery cargo cardboard",
+    "c": "objects"
+  },
+  {
+    "e": "🎁",
+    "n": "wrapped gift",
+    "k": "gift present birthday christmas wrap surprise box",
+    "c": "objects"
+  },
+  {
+    "e": "🛍️",
+    "n": "shopping bags",
+    "k": "shopping bags buy purchase mall retail store",
+    "c": "objects"
+  },
+  {
+    "e": "🚀",
+    "n": "rocket",
+    "k": "rocket launch space startup crypto moon blastoff",
+    "c": "objects"
+  },
+  {
+    "e": "✈️",
+    "n": "airplane",
+    "k": "plane airplane flight travel vacation aviation airport",
+    "c": "objects"
+  },
+  {
+    "e": "🚗",
+    "n": "automobile",
+    "k": "car automobile drive vehicle auto road trip",
+    "c": "objects"
+  },
+  {
+    "e": "🚲",
+    "n": "bicycle",
+    "k": "bicycle bike ride cycle cycling pedal transport",
+    "c": "objects"
+  },
+  {
+    "e": "🛴",
+    "n": "kick scooter",
+    "k": "scooter kick transport electric ride street",
+    "c": "objects"
+  },
+  {
+    "e": "🔑",
+    "n": "key",
+    "k": "key lock password security access secret unlock",
+    "c": "objects"
+  },
+  {
+    "e": "🔒",
+    "n": "locked",
+    "k": "lock locked secure safe privacy password close",
+    "c": "objects"
+  },
+  {
+    "e": "🔓",
+    "n": "unlocked",
+    "k": "unlock unlocked open access freedom insecure",
+    "c": "objects"
+  },
+  {
+    "e": "🔨",
+    "n": "hammer",
+    "k": "hammer tool repair build construction hit smash",
+    "c": "objects"
+  },
+  {
+    "e": "🔧",
+    "n": "wrench",
+    "k": "wrench spanner tool fix repair mechanical settings",
+    "c": "objects"
+  },
+  {
+    "e": "⚙️",
+    "n": "gear",
+    "k": "gear cog settings system preferences mechanical engine",
+    "c": "objects"
+  },
+  {
+    "e": "🧲",
+    "n": "magnet",
+    "k": "magnet magnetic attract physics pull science",
+    "c": "objects"
+  },
+  {
+    "e": "🧪",
+    "n": "test tube",
+    "k": "science test tube experiment lab chemistry research",
+    "c": "objects"
+  },
+  {
+    "e": "🔬",
+    "n": "microscope",
+    "k": "microscope biology science research inspect zoom lab",
+    "c": "objects"
+  },
+  {
+    "e": "🔭",
+    "n": "telescope",
+    "k": "telescope space astronomy stars explore lens night",
+    "c": "objects"
+  },
+  {
+    "e": "📡",
+    "n": "satellite antenna",
+    "k": "satellite dish antenna communication signal network radar",
+    "c": "objects"
+  },
+  {
+    "e": "💰",
+    "n": "money bag",
+    "k": "money bag cash wealth rich fortune bank dollar",
+    "c": "objects"
+  },
+  {
+    "e": "💳",
+    "n": "credit card",
+    "k": "credit card payment visa mastercard debit pay bank",
+    "c": "objects"
+  },
+  {
+    "e": "💎",
+    "n": "gem stone",
+    "k": "diamond gem jewelry crystal precious rare rich",
+    "c": "objects"
+  },
+  {
+    "e": "🏆",
+    "n": "trophy",
+    "k": "trophy winner award champion success first prize",
+    "c": "objects"
+  },
+  {
+    "e": "🥇",
+    "n": "1st place medal",
+    "k": "first gold medal winner award champion",
+    "c": "objects"
+  },
+  {
+    "e": "🥈",
+    "n": "2nd place medal",
+    "k": "second silver medal award runnerup",
+    "c": "objects"
+  },
+  {
+    "e": "🥉",
+    "n": "3rd place medal",
+    "k": "third bronze medal award third place",
+    "c": "objects"
+  },
+  {
+    "e": "⚽",
+    "n": "soccer ball",
+    "k": "soccer football ball sport match game fifa",
+    "c": "objects"
+  },
+  {
+    "e": "🏀",
+    "n": "basketball",
+    "k": "basketball ball sport nba court hoop",
+    "c": "objects"
+  },
+  {
+    "e": "🎾",
+    "n": "tennis",
+    "k": "tennis ball sport court racket match",
+    "c": "objects"
+  },
+  {
+    "e": "❤️",
+    "n": "red heart",
+    "k": "love heart red romance affection passion",
+    "c": "symbols"
+  },
+  {
+    "e": "🧡",
+    "n": "orange heart",
+    "k": "heart orange love friendship warmth",
+    "c": "symbols"
+  },
+  {
+    "e": "💛",
+    "n": "yellow heart",
+    "k": "heart yellow love friendship happiness sunny",
+    "c": "symbols"
+  },
+  {
+    "e": "💚",
+    "n": "green heart",
+    "k": "heart green love eco nature health env",
+    "c": "symbols"
+  },
+  {
+    "e": "💙",
+    "n": "blue heart",
+    "k": "heart blue love trust peace loyalty cool",
+    "c": "symbols"
+  },
+  {
+    "e": "💜",
+    "n": "purple heart",
+    "k": "heart purple love honor military royalty",
+    "c": "symbols"
+  },
+  {
+    "e": "🖤",
+    "n": "black heart",
+    "k": "heart black dark gothic emo sorrow grief",
+    "c": "symbols"
+  },
+  {
+    "e": "🤍",
+    "n": "white heart",
+    "k": "heart white pure peace clean angelic",
+    "c": "symbols"
+  },
+  {
+    "e": "🤎",
+    "n": "brown heart",
+    "k": "heart brown warmth chocolate earth",
+    "c": "symbols"
+  },
+  {
+    "e": "💔",
+    "n": "broken heart",
+    "k": "broken heart sad heartbreak breakup crying hurt",
+    "c": "symbols"
+  },
+  {
+    "e": "❣️",
+    "n": "heart exclamation",
+    "k": "heart punctuation emphasis love excited note",
+    "c": "symbols"
+  },
+  {
+    "e": "💕",
+    "n": "two hearts",
+    "k": "hearts love romance affection together",
+    "c": "symbols"
+  },
+  {
+    "e": "💞",
+    "n": "revolving hearts",
+    "k": "hearts revolving romance love feelings orbit",
+    "c": "symbols"
+  },
+  {
+    "e": "💓",
+    "n": "beating heart",
+    "k": "heartbeat pulse palpitation excitement alive",
+    "c": "symbols"
+  },
+  {
+    "e": "💗",
+    "n": "growing heart",
+    "k": "growing heart affection bigger love pink",
+    "c": "symbols"
+  },
+  {
+    "e": "💖",
+    "n": "sparkling heart",
+    "k": "sparkles glitter heart romance shine magic",
+    "c": "symbols"
+  },
+  {
+    "e": "💘",
+    "n": "heart with arrow",
+    "k": "cupid love romance arrow valentine target",
+    "c": "symbols"
+  },
+  {
+    "e": "💝",
+    "n": "heart with ribbon",
+    "k": "gift heart present ribbon box valentine love",
+    "c": "symbols"
+  },
+  {
+    "e": "✨",
+    "n": "sparkles",
+    "k": "sparkles stars magic clean shiny new shine stellar aesthetic",
+    "c": "symbols"
+  },
+  {
+    "e": "⭐",
+    "n": "star",
+    "k": "star rating yellow favorite shine astronomy night",
+    "c": "symbols"
+  },
+  {
+    "e": "🌟",
+    "n": "glowing star",
+    "k": "star glowing shining night bright winner special",
+    "c": "symbols"
+  },
+  {
+    "e": "⚡",
+    "n": "high voltage",
+    "k": "lightning flash electric zap power energy storm fast thunder",
+    "c": "symbols"
+  },
+  {
+    "e": "🔥",
+    "n": "fire",
+    "k": "fire flame lit hot trend burn blaze viral fire",
+    "c": "symbols"
+  },
+  {
+    "e": "💥",
+    "n": "collision",
+    "k": "boom explode explosion blast collision bang pow comic",
+    "c": "symbols"
+  },
+  {
+    "e": "💫",
+    "n": "dizzy symbol",
+    "k": "dizzy star orbit sparkle magic swoon cartoon",
+    "c": "symbols"
+  },
+  {
+    "e": "🎉",
+    "n": "party popper",
+    "k": "celebration party popper congrats confetti yay tada winner",
+    "c": "symbols"
+  },
+  {
+    "e": "🎊",
+    "n": "confetti ball",
+    "k": "confetti celebration ball party holiday congrats",
+    "c": "symbols"
+  },
+  {
+    "e": "💯",
+    "n": "hundred points",
+    "k": "100 hundred points perfect score full true facts exam",
+    "c": "symbols"
+  },
+  {
+    "e": "💢",
+    "n": "anger symbol",
+    "k": "anger mad anime vein angry comic frustrated",
+    "c": "symbols"
+  },
+  {
+    "e": "💨",
+    "n": "dashing away",
+    "k": "run fast speed wind puff quick rush sprint",
+    "c": "symbols"
+  },
+  {
+    "e": "💦",
+    "n": "sweat droplets",
+    "k": "water drops splash wet sweat cum horny drip",
+    "c": "symbols"
+  },
+  {
+    "e": "💤",
+    "n": "zzz",
+    "k": "sleep sleeping snoring tired bedtime rest dream",
+    "c": "symbols"
+  },
+  {
+    "e": "✅",
+    "n": "check mark button",
+    "k": "check yes tick success done approved complete green",
+    "c": "symbols"
+  },
+  {
+    "e": "❌",
+    "n": "cross mark",
+    "k": "cross no wrong fail error bad cancel rejected x",
+    "c": "symbols"
+  },
+  {
+    "e": "❎",
+    "n": "cross mark button",
+    "k": "cross button square delete cancel decline",
+    "c": "symbols"
+  },
+  {
+    "e": "⚠️",
+    "n": "warning",
+    "k": "warning caution alert danger hazard attention careful",
+    "c": "symbols"
+  },
+  {
+    "e": "⛔",
+    "n": "no entry",
+    "k": "forbidden no entry stop access denied sign red",
+    "c": "symbols"
+  },
+  {
+    "e": "🚫",
+    "n": "prohibited",
+    "k": "ban prohibited no forbidden stop cancel not allowed",
+    "c": "symbols"
+  },
+  {
+    "e": "🔴",
+    "n": "red circle",
+    "k": "red dot circle record alert live recording",
+    "c": "symbols"
+  },
+  {
+    "e": "🟢",
+    "n": "green circle",
+    "k": "green dot circle online active ready safe ok",
+    "c": "symbols"
+  },
+  {
+    "e": "🔵",
+    "n": "blue circle",
+    "k": "blue dot circle status badge cool",
+    "c": "symbols"
+  },
+  {
+    "e": "⚪",
+    "n": "white circle",
+    "k": "white dot circle blank neutral shape",
+    "c": "symbols"
+  },
+  {
+    "e": "⚫",
+    "n": "black circle",
+    "k": "black dot circle dark darkmode bullet",
+    "c": "symbols"
+  },
+  {
+    "e": "➕",
+    "n": "plus",
+    "k": "plus add math positive increase new sum",
+    "c": "symbols"
+  },
+  {
+    "e": "➖",
+    "n": "minus",
+    "k": "minus subtract math negative decrease remove",
+    "c": "symbols"
+  },
+  {
+    "e": "➗",
+    "n": "division",
+    "k": "divide math division slash calculate",
+    "c": "symbols"
+  },
+  {
+    "e": "✖️",
+    "n": "multiplication",
+    "k": "multiply math times product x",
+    "c": "symbols"
+  },
+  {
+    "e": "♾️",
+    "n": "infinity",
+    "k": "infinity forever limitless endless loop eternal math",
+    "c": "symbols"
+  },
+  {
+    "e": "❓",
+    "n": "question mark",
+    "k": "question mark what ask help query quiz red",
+    "c": "symbols"
+  },
+  {
+    "e": "❗",
+    "n": "exclamation mark",
+    "k": "exclamation mark alert important attention bang wow red",
+    "c": "symbols"
+  }
+]

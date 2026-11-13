@@ -55,13 +55,50 @@ PanelWindow {
     readonly property color textSecondary: Qt.rgba(1.0, 1.0, 1.0, 0.72)
     readonly property color textMuted: Qt.rgba(1.0, 1.0, 1.0, 0.42)
 
+    property bool wasFrozenByScreenshot: false
+
+    // Check if screenshot tool (slurp/grim) is currently active to prevent auto-close
+    Process {
+        id: checkFreezeProc
+        command: ["python3", "-c", "import os, subprocess; print(os.path.exists('/tmp/glyph_freeze_dismiss') or subprocess.run(['pgrep', '-x', 'slurp'], capture_output=True).returncode == 0)"]
+        stdout: SplitParser {
+            splitMarker: ""
+            onRead: data => {
+                var isFrozen = data.trim() === "True";
+                if (isFrozen && root.isOpen) {
+                    root.wasFrozenByScreenshot = true;
+                    recheckTimer.restart();
+                } else if (!isFrozen && root.isOpen) {
+                    if (root.wasFrozenByScreenshot) {
+                        root.wasFrozenByScreenshot = false;
+                        focusGrab.active = true;
+                        searchInput.forceActiveFocus();
+                    } else {
+                        root.close();
+                    }
+                }
+            }
+        }
+    }
+
+    Timer {
+        id: recheckTimer
+        interval: 250
+        repeat: false
+        onTriggered: {
+            if (root.isOpen) {
+                checkFreezeProc.running = true;
+            }
+        }
+    }
+
     HyprlandFocusGrab {
         id: focusGrab
         windows: [root]
         active: false
         onCleared: {
             if (root.isOpen) {
-                root.close();
+                checkFreezeProc.running = true;
             }
         }
     }
@@ -811,3 +848,4 @@ PanelWindow {
         }
     }
 }
+
