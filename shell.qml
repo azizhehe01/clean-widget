@@ -9,6 +9,7 @@ import "launcher"
 import "wallpaper"
 import "clipboard"
 import "emoji"
+import "keybinds"
 
 ShellRoot {
     DesktopWidgetsWindow {
@@ -74,5 +75,9 @@ ShellRoot {
 
     EmojiWindow {
         id: emojiPicker
+    }
+
+    KeybindsWindow {
+        id: keybindsViewer
     }
 }
