@@ -8,6 +8,7 @@
     <a href="https://hyprland.org/"><img src="https://img.shields.io/badge/Compositor-Hyprland%20Wayland-00aaee?style=for-the-badge" alt="Compositor"></a>
     <a href="https://nothing.tech/"><img src="https://img.shields.io/badge/Style-Nothing%20OS%203.0-D71921?style=for-the-badge" alt="Design"></a>
     <a href="https://lrclib.net/"><img src="https://img.shields.io/badge/Lyrics-LRCLIB%20API-30D158?style=for-the-badge" alt="Lyrics"></a>
+    <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-white?style=for-the-badge" alt="License: MIT"></a>
   </p>
 </p>
 
@@ -143,10 +144,43 @@ Dibangun secara native menggunakan framework **[Quickshell](https://quickshell.o
 
 ---
 
+### 9. 😀 Native Emoji Picker (`emoji/`)
+* Dibuka/tutup dengan shortcut **`Ctrl + Super + E`**.
+* **Grid Emoji Frosted Glass:** Tampilan grid emoji cepat dengan pencarian kata kunci real-time, kategori emoji, dan penyalinan instan ke clipboard (`wl-copy`) saat dipilih.
+
+---
+
+### 10. ⌨️ Keybindings Viewer & Search (`keybinds/`)
+* Dibuka/tutup dengan shortcut **`Ctrl + Super + K`**.
+* **Dual Search (Aksi & Tombol):** Cari shortcut berdasarkan deskripsi/nama fitur maupun langsung berdasarkan **kombinasi tombol** (misal ketik `super + v` untuk langsung menemukan Clipboard History).
+* **Auto-Parsed dari Konfigurasi Hyprland:** Membaca langsung daftar binding aktif Hyprland secara real-time dengan pengelompokan kategori dan badge visual.
+
+---
+
+### 11. 🪟 Workspace Overview & Scratchpad (`overview/`)
+* Dibuka/tutup dengan shortcut **`Super + Tab`**.
+* **Live Window Thumbnails & App Icons:** Menampilkan preview real-time tiap workspace dan jendela aplikasi aktif (termasuk ikon aplikasi seperti Antigravity IDE), lengkap dengan dukungan **Special Workspace / Scratchpad** (`Super + S` / `Super + Shift + S`).
+* **Dynamic Workspace Rows & Navigasi 4-Arah:** Navigasi penuh dengan tombol panah **`←`**, **`→`**, **`↑`**, **`↓`**; baris slot 5-workspace baru otomatis muncul saat turun dan hilang kembali jika tidak terpakai.
+* **Manajemen Window Interaktif:** *Drag & drop* window antar workspace, *middle-click* untuk menutup window, dan transisi mulus keluar dari scratchpad ke workspace normal saat menekan **`Enter`**.
+
+---
+
+### 12. ⏻ Vertical Dot-Matrix Power Menu (`power/`)
+* Dibuka/tutup dengan shortcut **`Ctrl + Super + P`**.
+* **9×9 Nothing OS Dot-Matrix Capsule:** Kapsul vertikal *icon-only* di sisi kanan layar dengan efek *frosted glass* dan 5 tombol bulat berikon **9×9 LED dot-matrix** (**Lock**, **Suspend**, **Logout**, **Restart**, dan **Power Off**).
+* **Smart Safe Shutdown:** Sebelum menjalankan *Logout*, *Restart*, atau *Power Off*, backend `power.py` otomatis menutup window secara aman; jika ada aplikasi yang menahan penutupan (seperti dialog *unsaved changes* atau konfirmasi tutup tab browser), fokus otomatis diarahkan ke window tersebut.
+* **Keyboard & Force Mode:** Mendukung navigasi **`↑`** / **`↓`** + **`Enter`**, shortcut huruf (**`L`**, **`S`**, **`E`**, **`R`**, **`P`**), serta tahan **`Shift`** untuk mode paksa (`--force`).
+
+---
+
 ## ⌨️ Shortcut Keyboard & Kontrol Cepat
 
 | Shortcut / Aksi | Komponen | Fungsi |
 | :--- | :--- | :--- |
+| **`Super + Tab`** | **Workspace Overview** | Buka/tutup Workspace Overview & Scratchpad |
+| **`Ctrl + Super + P`** | **Power Menu** | Buka/tutup Vertical 9×9 Dot-Matrix Power Menu |
+| **`Ctrl + Super + K`** | **Keybindings** | Buka/tutup Keybindings Viewer & Search (cari via aksi atau tombol) |
+| **`Ctrl + Super + E`** | **Emoji Picker** | Buka/tutup Native Nothing OS Emoji Picker |
 | **`Super + V`** | **Clipboard** | Buka/tutup Native Clipboard History Modal (Nothing OS) |
 | **`Ctrl + Super + Enter`** | **Launcher** | Buka/tutup Unified Application & Project Folder Launcher (2D Grid) |
 | **`Ctrl + Super + W`** | **Wallpaper Carousel** | Buka/tutup Horizontal Wallpaper Selector dengan Live Instant Preview |
@@ -236,6 +270,13 @@ glyph-shell/
 ├── clipboard/
 │   ├── ClipboardWindow.qml         # Modal Clipboard History Nothing OS (search, preview, filter)
 │   └── clipboard.py                # Engine cliphist extractor, categorizer & thumbnail generator
+├── emoji/
+│   ├── EmojiWindow.qml             # Modal Emoji Picker Nothing OS
+│   ├── emoji.py                    # Provider & filter pencarian emoji
+│   └── emojis.json                 # Database daftar emoji & kata kunci
+├── keybinds/
+│   ├── KeybindsWindow.qml          # Modal Keybindings Viewer & Search (cari aksi/tombol)
+│   └── keybinds.py                 # Parser konfigurasi keybindings Hyprland
 ├── lockscreen/
 │   ├── hyprlock.conf               # Konfigurasi visual Dot-Matrix untuk engine hyprlock
 │   ├── lock.sh                     # Launcher script deteksi wallpaper aktif & hyprlock
@@ -249,6 +290,11 @@ glyph-shell/
 │   └── wifi.py                     # Daemon pemindaian dan koneksi WiFi nmcli
 ├── notifications/
 │   └── NotificationPopupWindow.qml # Server notifikasi native frosted glass
+├── overview/
+│   └── OverviewWindow.qml          # Workspace Overview, Live Thumbnails & Scratchpad Manager
+├── power/
+│   ├── PowerWindow.qml             # Kapsul vertikal Power Menu 9x9 Dot-Matrix
+│   └── power.py                    # Backend Smart Safe Shutdown & manajemen window
 ├── sidebar/
 │   ├── SidebarWindow.qml           # Panel slide-out musik, multi-player switcher & riwayat notifikasi
 │   └── playlist.py                 # Service D-Bus & JSON manager playlist lagu
@@ -260,6 +306,7 @@ glyph-shell/
 │   └── wallpaper.py                # Engine wallpaper standalone, thumbnail cache & frosted blur sync
 ├── wallpapers/                     # Koleksi wallpaper mandiri glyph-shell
 ├── install.sh                      # Turnkey setup & installer script
+├── LICENSE                         # Lisensi MIT
 ├── shell.qml                       # Entry point Quickshell yang memuat seluruh modul
 └── README.md                       # Dokumentasi lengkap
 ```
@@ -267,6 +314,7 @@ glyph-shell/
 ---
 
 ## 📜 Lisensi & Kredit
+* Dirilis di bawah **[MIT License](LICENSE)** — bebas digunakan, dimodifikasi, dan didistribusikan.
 * Dikembangkan oleh [@azizhehe01](https://github.com/azizhehe01) untuk ekosistem Wayland / Hyprland.
 * Dibuat menggunakan framework [Quickshell](https://quickshell.outfoxxed.me/).
 * Estetika visual terinspirasi dari filosofi desain hardware & software [Nothing OS](https://nothing.tech/).

@@ -10,6 +10,8 @@ import "wallpaper"
 import "clipboard"
 import "emoji"
 import "keybinds"
+import "overview"
+import "power"
 
 ShellRoot {
     DesktopWidgetsWindow {
@@ -79,5 +81,13 @@ ShellRoot {
 
     KeybindsWindow {
         id: keybindsViewer
+    }
+
+    OverviewWindow {
+        id: workspaceOverview
+    }
+
+    PowerWindow {
+        id: powerMenu
     }
 }

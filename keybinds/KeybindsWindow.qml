@@ -174,15 +174,39 @@ PanelWindow {
         var cat = activeCategory;
         var res = [];
 
+        var tokens = q.length > 0 ? q.split(/[\s+]+/).filter(function(t) { return t.length > 0; }) : [];
+
         for (var i = 0; i < allBinds.length; i++) {
             var item = allBinds[i];
             if (cat !== "all" && item.cat !== cat) {
                 continue;
             }
-            if (q.length > 0) {
-                var matchDesc = item.desc && item.desc.toLowerCase().indexOf(q) !== -1;
-                var matchCombo = item.combo && item.combo.toLowerCase().indexOf(q) !== -1;
-                if (!matchDesc && !matchCombo) {
+            if (tokens.length > 0) {
+                var descL = (item.desc || "").toLowerCase();
+                var comboL = (item.combo || "").toLowerCase();
+                var keysArr = (item.keys || []).map(function(k) { return k.toLowerCase(); });
+
+                // Match if all tokens appear in desc, OR all tokens appear in combo/keys
+                var allInDesc = true;
+                var allInCombo = true;
+                for (var t = 0; t < tokens.length; t++) {
+                    var tok = tokens[t];
+                    if (descL.indexOf(tok) === -1) {
+                        allInDesc = false;
+                    }
+                    var inKeys = false;
+                    for (var k = 0; k < keysArr.length; k++) {
+                        // Exact key match for 1-char keys (e.g. 'v' shouldn't match 'vol +') or substring for longer tokens
+                        if (tok.length === 1 ? keysArr[k] === tok : keysArr[k].indexOf(tok) !== -1) {
+                            inKeys = true;
+                            break;
+                        }
+                    }
+                    if (!inKeys) {
+                        allInCombo = false;
+                    }
+                }
+                if (!allInDesc && !allInCombo) {
                     continue;
                 }
             }
