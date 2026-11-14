@@ -35,6 +35,19 @@ PanelWindow {
 
     property int selectedIndex: 4 // Default highlight on Power Off
     property bool wasFrozenByScreenshot: false
+    property string pendingAction: ""
+
+    readonly property var cancelMatrix: [
+        "1.......1",
+        ".1.....1.",
+        "..1...1..",
+        "...1.1...",
+        "....1....",
+        "...1.1...",
+        "..1...1..",
+        ".1.....1.",
+        "1.......1"
+    ]
 
     readonly property var actionsList: [
         {
@@ -115,6 +128,22 @@ PanelWindow {
     ]
 
     Process {
+        id: statusProc
+        command: ["python3", "/home/azhehe/.config/quickshell/DesktopWidgetsApp/power/power.py", "status"]
+        running: false
+        stdout: StdioCollector {
+            onStreamFinished: {
+                root.pendingAction = this.text.trim();
+            }
+        }
+        onExited: exitCode => {
+            if (exitCode !== 0) {
+                root.pendingAction = "";
+            }
+        }
+    }
+
+    Process {
         id: checkFreezeProc
         command: ["sh", "-c", "pgrep -x hyprpicker || pgrep -x slurp"]
         onExited: (exitCode) => {
@@ -138,6 +167,8 @@ PanelWindow {
         root.selectedIndex = 4;
         root.visible = true;
         keyScope.forceActiveFocus();
+        statusProc.running = false;
+        statusProc.running = true;
         checkFreezeProc.running = true;
         openAnim.restart();
     }
@@ -153,8 +184,15 @@ PanelWindow {
     }
 
     function triggerAction(actionId, force) {
+        if (!force && root.pendingAction !== "" && root.pendingAction === actionId) {
+            root.pendingAction = "";
+            root.close();
+            Quickshell.execDetached(["python3", "/home/azhehe/.config/quickshell/DesktopWidgetsApp/power/power.py", "cancel"]);
+            return;
+        }
         var args = ["python3", "/home/azhehe/.config/quickshell/DesktopWidgetsApp/power/power.py", actionId];
         if (force) args.push("--force");
+        root.pendingAction = "";
         root.close();
         Quickshell.execDetached(args);
     }
@@ -266,20 +304,24 @@ PanelWindow {
 
                     readonly property bool isSelected: root.selectedIndex === index
                     readonly property bool isHovered: btnMouse.containsMouse
+                    readonly property bool isPendingCancel: root.pendingAction !== "" && root.pendingAction === modelData.id
+                    readonly property var activeMatrix: isPendingCancel ? root.cancelMatrix : modelData.matrix
 
                     Layout.preferredWidth: 50
                     Layout.preferredHeight: 50
                     radius: 25
 
                     color: {
+                        if (isPendingCancel) return root.circleDangerBg;
                         if (modelData.danger && (isSelected || isHovered)) return root.circleDangerBg;
                         if (isSelected) return root.circleSelectedBg;
                         if (isHovered) return root.circleHoverBg;
                         return root.circleIdleBg;
                     }
 
-                    border.width: isSelected ? 2 : 1
+                    border.width: (isSelected || isPendingCancel) ? 2 : 1
                     border.color: {
+                        if (isPendingCancel) return root.accentRed;
                         if (modelData.danger && (isSelected || isHovered)) return root.accentRed;
                         if (isSelected) return root.textPrimary;
                         if (isHovered) return Qt.rgba(1, 1, 1, 0.45);
@@ -297,6 +339,7 @@ PanelWindow {
                         spacing: 1
 
                         readonly property color activeDotColor: {
+                            if (iconBtn.isPendingCancel) return root.accentRed;
                             if (modelData.danger && (iconBtn.isSelected || iconBtn.isHovered)) return root.accentRed;
                             if (iconBtn.isSelected || iconBtn.isHovered) return root.textPrimary;
                             return root.textMuted;
@@ -308,7 +351,7 @@ PanelWindow {
                                 required property int index
                                 readonly property int r: Math.floor(index / 9)
                                 readonly property int c: index % 9
-                                readonly property bool dotOn: modelData.matrix[r].charAt(c) === "1"
+                                readonly property bool dotOn: iconBtn.activeMatrix[r].charAt(c) === "1"
 
                                 width: 2
                                 height: 2
