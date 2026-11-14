@@ -182,9 +182,9 @@ PanelWindow {
                 continue;
             }
             if (tokens.length > 0) {
-                var descL = (item.desc || "").toLowerCase();
+                var descL = (item.search_desc || item.desc || "").toLowerCase();
                 var comboL = (item.combo || "").toLowerCase();
-                var keysArr = (item.keys || []).map(function(k) { return k.toLowerCase(); });
+                var keysArr = (item.search_keys || item.keys || []).map(function(k) { return k.toLowerCase(); });
 
                 // Match if all tokens appear in desc, OR all tokens appear in combo/keys
                 var allInDesc = true;

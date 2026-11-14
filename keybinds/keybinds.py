@@ -7,6 +7,7 @@ and categorizes them for KeybindsWindow.qml.
 
 import json
 import os
+import re
 import subprocess
 import sys
 
@@ -115,9 +116,44 @@ def load_keybinds():
 
     items = []
     seen = set()
+    focus_ws_added = False
+    move_ws_added = False
+
     for b in binds:
         desc = (b.get("description") or "").strip()
         if not desc:
+            continue
+
+        # Collapse "Focus workspace 1..10" into a single entry
+        if re.match(r"^Focus workspace \d+$", desc, re.IGNORECASE):
+            if not focus_ws_added:
+                focus_ws_added = True
+                items.append(
+                    {
+                        "keys": ["SUPER", "1 – 0"],
+                        "search_keys": ["SUPER", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "10", "1-0", "1-10"],
+                        "combo": "SUPER + 1 – 0",
+                        "desc": "Focus workspace 1 – 10",
+                        "search_desc": "Focus workspace 1 2 3 4 5 6 7 8 9 10",
+                        "cat": "workspaces",
+                    }
+                )
+            continue
+
+        # Collapse "Move window to workspace 1..10" into a single entry
+        if re.match(r"^Move window to workspace \d+$", desc, re.IGNORECASE):
+            if not move_ws_added:
+                move_ws_added = True
+                items.append(
+                    {
+                        "keys": ["SUPER", "SHIFT", "1 – 0"],
+                        "search_keys": ["SUPER", "SHIFT", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "10", "1-0", "1-10"],
+                        "combo": "SUPER + SHIFT + 1 – 0",
+                        "desc": "Move window to workspace 1 – 10",
+                        "search_desc": "Move window to workspace 1 2 3 4 5 6 7 8 9 10",
+                        "cat": "workspaces",
+                    }
+                )
             continue
 
         modmask = int(b.get("modmask") or 0)
